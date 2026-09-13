@@ -1,1 +1,55 @@
-/* Reset, html/body, focus, selection, reduced motion. Filled in Phase 1. */
+/* Base layer on top of Tailwind preflight. */
+
+@layer base {
+  html {
+    color-scheme: only light; /* palette is fixed, prefers-color-scheme is ignored */
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--face-body);
+    font-weight: var(--fw-body);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: auto; /* Lenis handles smooth scroll */
+  }
+
+  body {
+    min-height: 100svh;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    overflow-x: clip;
+  }
+
+  em,
+  i,
+  cite {
+    font-style: normal; /* no italics anywhere */
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms;
+      animation-iteration-count: 1;
+      transition-duration: 0.01ms;
+    }
+  }
+}

@@ -1,1 +1,59 @@
-/* Underline wipe, sr-only and other utilities. Filled in Phase 1. */
+/* Shared utilities. */
+
+/* G. Links and hover: accent underline wipes in from the left. */
+@utility link-wipe {
+  text-decoration: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 0% 2px;
+  transition: background-size var(--dur-hover) var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    background-size: 100% 2px;
+  }
+}
+
+@utility text-claim {
+  font-family: var(--face-body);
+  font-weight: var(--fw-heavy);
+  font-size: var(--fs-claim);
+  line-height: var(--lh-claim);
+  letter-spacing: var(--ls-claim);
+  text-transform: uppercase;
+}
+
+@utility text-statement {
+  font-family: var(--face-body);
+  font-weight: var(--fw-heavy);
+  font-size: var(--fs-statement);
+  line-height: var(--lh-claim);
+  letter-spacing: var(--ls-claim);
+  text-transform: uppercase;
+}
+
+@utility text-h {
+  font-family: var(--face-body);
+  font-weight: var(--fw-heavy);
+  font-size: var(--fs-h);
+  line-height: var(--lh-h);
+  letter-spacing: var(--ls-h);
+  text-transform: uppercase;
+}
+
+@utility text-body {
+  font-family: var(--face-body);
+  font-weight: var(--fw-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+@utility text-label {
+  font-family: var(--face-label);
+  font-weight: var(--fw-label);
+  font-size: var(--fs-label);
+  line-height: 1.2;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+}

@@ -13,6 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check-copy": "tsx scripts/check-copy.ts",
+    "fonts": "tsx scripts/fonts.ts",
     "test": "tsx scripts/check-copy.ts"
   },
   "pnpm": {
@@ -37,6 +38,7 @@
     "prettier": "3.9.6",
     "prettier-plugin-tailwindcss": "0.8.1",
     "serve": "^14.2.6",
+    "subset-font": "2.7.0",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.13",
     "typescript": "6.0.3",

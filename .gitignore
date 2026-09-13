@@ -23,3 +23,6 @@ Thumbs.db
 # source font files, only woff2 is committed
 fonts-src/
 font/
+
+# raw deliveries, processed into public/clients/
+logo-partners/

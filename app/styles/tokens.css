@@ -1,9 +1,72 @@
-/* Design tokens. Filled in Phase 1 (CLAUDE.md §4). */
+/* Design tokens (CLAUDE.md §4). Proposed defaults, confirm with Dan on the live site. */
 
-@theme {
+:root {
+  /* colour, from spec */
+  --accent: #00ffc8;
+  --paper: #ffffff;
+  --ink: #1a1a1a; /* never #000 */
+
+  /* layout */
+  --gutter: clamp(16px, 2.5vw, 40px);
+  --section-gap: clamp(6rem, 14vh, 12rem);
+  --measure: 60ch;
+
+  /* faces; --font-mont is set by next/font on <html> and already carries the metric matched fallback */
+  --face-body: var(--font-mont);
+  --face-label: var(--font-mont); /* Archia later, one line */
+  --fw-body: 500; /* Mont Book */
+  --fw-heavy: 900; /* Mont Heavy */
+  --fw-label: 500;
+
+  /* type, Mont */
+  --fs-claim: clamp(2.5rem, 5.6vw, 6rem);
+  --lh-claim: 0.92;
+  --ls-claim: -0.03em;
+  --fs-statement: clamp(2.25rem, 7vw, 8rem);
+  --fs-h: clamp(2rem, 4vw, 4.5rem);
+  --lh-h: 0.95;
+  --ls-h: -0.02em;
+  --fs-body: clamp(1.25rem, 1.05rem + 0.7vw, 1.5rem);
+  --lh-body: 1.3;
+
+  /* type, labels */
+  --fs-label: 0.75rem;
+  --ls-label: 0.12em;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-reveal: 0.5s;
+  --dur-hover: 0.2s;
+  --rise: 20px;
+
+  /* corner logo */
+  --logo-corner-h: 18px;
+}
+
+@media (min-width: 51.25rem) {
+  :root {
+    --logo-corner-h: 22px;
+  }
+}
+
+@theme inline {
   --breakpoint-sm: 40rem; /* 640px */
   --breakpoint-md: 51.25rem; /* 820px */
   --breakpoint-lg: 68.75rem; /* 1100px */
   --breakpoint-xl: 90rem; /* 1440px */
   --breakpoint-2xl: initial;
+
+  --color-*: initial;
+  --color-accent: var(--accent);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+
+  --font-*: initial;
+  --font-body: var(--face-body);
+  --font-label: var(--face-label);
+
+  --ease-*: initial;
+  --ease-brand: var(--ease-out);
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section-gap);
 }
