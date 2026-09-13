@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 
-type ProjectVideoProps = { src: string; poster: string; label: string }
+type ProjectVideoProps = { src: string; poster?: string; label: string }
 
 // Muted looping video without controls or sound. The source is attached only near the viewport
 // and playback pauses when the row leaves it, so a long list never downloads everything.

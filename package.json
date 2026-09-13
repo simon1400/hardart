@@ -16,6 +16,7 @@
     "check-content": "tsx scripts/check-content.ts",
     "fonts": "tsx scripts/fonts.ts",
     "logos": "tsx scripts/normalise-logos.ts",
+    "media": "tsx scripts/prepare-media.ts",
     "test": "tsx scripts/check-copy.ts && playwright test",
     "test:update-visual": "playwright test --grep @visual --update-snapshots"
   },
@@ -43,6 +44,7 @@
     "prettier": "3.9.6",
     "prettier-plugin-tailwindcss": "0.8.1",
     "serve": "^14.2.6",
+    "sharp": "0.35.4",
     "subset-font": "2.7.0",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.13",

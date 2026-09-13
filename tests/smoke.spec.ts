@@ -48,7 +48,7 @@ test('copy matches content/site.ts verbatim', async ({ page }) => {
 test('work, clients and people are complete', async ({ page }) => {
   await expect(page.locator('article')).toHaveCount(projects.length)
   await expect(page.locator('.marquee-list:not(.marquee-copy) svg')).toHaveCount(clients.length)
-  await expect(page.getByRole('img', { name: clients[0]?.name })).toHaveCount(1)
+  await expect(page.getByRole('img', { name: clients[0]?.name, exact: true })).toHaveCount(1)
   for (const person of people) {
     await expect(
       page.getByRole('link', { name: site.contact.emailLabel(person.name) }),

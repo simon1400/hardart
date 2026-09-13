@@ -27,6 +27,9 @@ font/
 # raw deliveries, processed into public/clients/
 logo-partners/
 
+# raw project deliveries, processed into public/projects/ by pnpm media
+/projects/
+
 # playwright
 /blob-report/
 

@@ -37,12 +37,14 @@ export const ProjectSchema = z
     name: z.string().min(1),
     /** optional link on the project name */
     url: z.url().optional(),
-    /** 16:9 frame: a muted looping video (with a poster image) or a still image */
+    /** 16:9 frame: a muted looping video (poster optional) or a still image */
     video: fileName.optional(),
     poster: fileName.optional(),
     image: fileName.optional(),
-    /** optional tall full page screenshot, scrolled inside the 9:16 frame */
+    /** optional tall full page screenshot, scrolls by itself inside the 9:16 frame */
     site: fileName.optional(),
+    /** true while name, url, tags or text are not final; production builds refuse drafts */
+    draft: z.boolean().optional(),
     tags: z.array(TagSchema).min(2).max(4),
     /** one to two sentences, what was built */
     text: z.string().min(1).max(240),
@@ -51,7 +53,6 @@ export const ProjectSchema = z
     message: 'use video or image, not both',
     path: ['image'],
   })
-  .refine((p) => !p.video || p.poster, { message: 'a video needs a poster', path: ['poster'] })
   .refine((p) => p.tags.some((tag) => designTags.has(tag)), {
     message: 'needs at least one tag from the design set',
     path: ['tags'],
@@ -64,27 +65,39 @@ export const ProjectSchema = z
 export type Project = z.infer<typeof ProjectSchema>
 
 // Order here is the order on the page.
+// Media folders are produced by `pnpm media` from projects/<slug>.mp4 and projects/<slug>.png.
+const draft = {
+  tags: ['BRAND', 'DEVELOP'],
+  text: 'Text coming soon. One to two sentences that say what was built, not only how it looks.',
+  draft: true,
+} satisfies Pick<Project, 'tags' | 'text' | 'draft'>
+
 const data: Project[] = [
   // Template, copy it for a new project:
   // {
-  //   slug: 'burger-street-festival',
+  //   slug: 'burgerstreetfestival',        // folder in public/projects/
   //   name: 'Burger Street Festival',
-  //   url: 'https://burgerstreetfestival.cz',
-  //   video: 'video.mp4',
-  //   poster: 'poster.jpg',
-  //   site: 'site.jpg',
+  //   url: 'https://burgerstreetfestival.cz', // optional
+  //   video: 'video.mp4',                  // or image: 'image.jpg'
+  //   site: 'site.webp',                   // optional tall screenshot
   //   tags: ['BRAND', 'CUSTOM CMS', 'DEVELOP', 'APP'],
   //   text: 'One to two sentences that say what was built, not only how it looks.',
   // },
-
-  // Placeholders until the real projects are in. Production builds refuse them.
-  ...[1, 2, 3, 4, 5, 6].map((n): Project => ({
-    slug: `placeholder-${String(n).padStart(2, '0')}`,
-    name: `PLACEHOLDER ${String(n).padStart(2, '0')}`,
-    ...(n === 4 ? {} : { site: 'site.jpg' }),
-    tags: n % 2 === 0 ? ['BRAND', 'CUSTOM CMS', 'DEVELOP', 'APP'] : ['UX', 'UI', 'NEXT.JS'],
-    text: 'Placeholder text. One to two sentences that say what was built, not only how it looks.',
-  })),
+  {
+    slug: 'burgerstreetfestival',
+    name: 'Burger Street Festival',
+    video: 'video.mp4',
+    site: 'site.webp',
+    ...draft,
+  },
+  { slug: 'ducati', name: 'Ducati', video: 'video.mp4', site: 'site.webp', ...draft },
+  { slug: 'ticketsgp', name: 'Tickets GP', video: 'video.mp4', site: 'site.webp', ...draft },
+  { slug: 'mergado', name: 'Mergado', video: 'video.mp4', site: 'site.webp', ...draft },
+  { slug: 'wannieck', name: 'Wannieck Gallery', video: 'video.mp4', site: 'site.webp', ...draft },
+  { slug: 'shuffleking', name: 'Shuffle King', video: 'video.mp4', site: 'site.webp', ...draft },
+  { slug: 'barbitch', name: 'Barbitch', video: 'video.mp4', site: 'site.webp', ...draft },
+  { slug: 'enevjuran', name: 'Enevjuran', video: 'video.mp4', ...draft },
+  { slug: 'kersnerova', name: 'Kersnerova', video: 'video.mp4', ...draft },
 ]
 
 export const projects: Project[] = z.array(ProjectSchema).parse(data)

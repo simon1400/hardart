@@ -181,32 +181,42 @@
   object-fit: cover;
 }
 
-/* Website screenshot: scrolls from its top to its bottom while the frame crosses the viewport.
-   Scroll driven CSS, transform only; without support or with reduced motion it rests at the top. */
+/* Website screenshot: scrolls down by itself like a browser window, rests at the bottom, returns
+   to the top and loops. Transform only; paused off screen (SiteShot) and still for reduced motion.
+   Duration is set per image so every site scrolls at the same speed. */
 .site-scroll {
   container-type: size;
-  view-timeline: --site-frame block;
 }
 
 .site-shot {
   display: block;
   width: 100%;
   height: auto;
+  will-change: transform;
 }
 
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .site-shot {
-      animation: site-scroll linear both;
-      animation-timeline: --site-frame;
-      animation-range: contain 0% contain 100%;
-    }
+@media (prefers-reduced-motion: no-preference) {
+  .site-shot {
+    animation: site-scroll 30s var(--ease-site) infinite;
+    animation-play-state: paused;
+  }
+
+  .site-shot[data-playing='true'] {
+    animation-play-state: running;
   }
 }
 
 @keyframes site-scroll {
-  to {
+  0%,
+  6% {
+    transform: translateY(0);
+  }
+  84%,
+  92% {
     transform: translateY(calc(-100% + 100cqh));
+  }
+  100% {
+    transform: translateY(0);
   }
 }
 

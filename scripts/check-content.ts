@@ -11,6 +11,7 @@ const problems: string[] = []
 
 for (const project of projects) {
   if (project.slug.startsWith('placeholder')) problems.push(`project ${project.slug}`)
+  if (project.draft) problems.push(`draft project ${project.slug} (name, url, tags or text)`)
 }
 for (const person of people) {
   if (person.linkedinPlaceholder) problems.push(`LinkedIn URL for ${person.name}`)
@@ -21,7 +22,6 @@ if (site.footer.legal.includes('{{')) problems.push('footer legal line')
 // Locally (no ImageKit endpoint) report media files that a project names but that are missing.
 if (!process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT) {
   for (const project of projects) {
-    if (project.slug.startsWith('placeholder')) continue
     for (const file of [project.video, project.poster, project.image, project.site]) {
       if (file && !existsSync(join('public/projects', project.slug, file))) {
         console.warn(`check-content: missing public/projects/${project.slug}/${file}`)

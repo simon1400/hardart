@@ -137,6 +137,14 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** Deploying real media needs the ImageKit endpoint secret (Phase 9) and the same folder tree uploaded to ImageKit.
 
+## 015. Raw media script and self scrolling screenshots
+
+**Context.** Project media arrived as `projects/<slug>.mp4` and very large full page PNGs (up to 12 MB, 11 000 px tall). Dmytro wants the screenshots to scroll slowly by themselves, like a browser window, not follow the page scroll.
+
+**Decision.** `pnpm media` (sharp, dev dependency) copies videos and converts screenshots to 1000 px wide WebP into `public/projects/<slug>/`. The screenshot runs a CSS loop (down, rest, back up), transform only, paused off screen by an IntersectionObserver and still under reduced motion. Duration comes from the image ratio at build, so every site moves at the same speed (0.08 frame widths per second, 20 to 90 s). Posters became optional. This is a second looping animation next to the word swap, requested by Dmytro against the spec's "only one loop".
+
+**Consequence.** Delivered projects are in `content/projects.ts` as `draft` with guessed names and placeholder text and tags; production builds refuse drafts. Visual tests mask project media.
+
 ---
 
 ## To confirm with Dan
@@ -155,7 +163,7 @@ Tracked from `CLAUDE.md` §17.
 
 - Archia web license (Dmytro/Daniel). Not blocking, the site is built with Mont only until decided.
 - RTR Projects: name read from the logo, confirm the spelling. All 18 clients, Creditas included, approved for display by Dmytro on 2026-09-13.
-- Project content: name, url, media, tags, text per project (Dmytro and Daniel fill it via docs/content.md).
+- Project content: names, urls, tags and texts for the 9 delivered projects (all `draft`); confirm names Enevjuran, Kersnerova, Shuffle King, Barbitch; video ratios vary (two square, two ultra wide) and are cropped to 16:9.
 - Company LinkedIn URL for the footer "LinkedIn." link (personal emails and LinkedIn delivered 2026-09-13). If there is no company page, decide what the link points to.
 - ImageKit account and URL endpoint for production media.
 - Favicon: "h" or the full wordmark (Daniel).

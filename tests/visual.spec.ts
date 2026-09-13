@@ -6,6 +6,10 @@ for (const width of [390, 820, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     await page.evaluate(() => document.fonts.ready)
-    await expect(page).toHaveScreenshot(`home-${width}.png`, { fullPage: true })
+    // Project media plays and scrolls, and is not in git, so it is masked out.
+    await expect(page).toHaveScreenshot(`home-${width}.png`, {
+      fullPage: true,
+      mask: [page.locator('.media-frame')],
+    })
   })
 }
