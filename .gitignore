@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# next
+.next/
+out/
+next-env.d.ts
+
+# testing
+test-results/
+playwright-report/
+.lighthouseci/
+
+# env
+.env*
+!.env.example
+
+# misc
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# source font files, only woff2 is committed
+fonts-src/
+font/
