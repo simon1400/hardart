@@ -129,6 +129,39 @@ function setup(el: Revealed) {
         },
       )
       break
+    case 'marker': {
+      // Secondary project titles: the title fades up once, and its accent stripe is drawn by the
+      // scroll, forwards and back, line by line (box-decoration-break clones the background).
+      const row = el.parentElement ?? el
+      gsap.fromTo(
+        el,
+        { y: RISE, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          ease,
+          duration: duration.reveal,
+          scrollTrigger: { trigger: row },
+          clearProps: 'transform',
+        },
+      )
+      gsap.fromTo(
+        el.querySelectorAll('.marker'),
+        { backgroundSize: '0% 100%' },
+        {
+          backgroundSize: '100% 100%',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: row,
+            start: 'clamp(top 80%)',
+            end: 'clamp(top 40%)',
+            scrub: true,
+            once: false,
+          },
+        },
+      )
+      return
+    }
   }
   // The hidden from-state is now inline on the parts (lines, children, transform), so the CSS gate
   // can let go of the element itself.

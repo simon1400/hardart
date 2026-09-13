@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { clients } from '../content/clients'
 import { people } from '../content/people'
-import { projects } from '../content/projects'
+import { featured, projects, secondary } from '../content/projects'
 import { site } from '../content/site'
 
 test.beforeEach(async ({ page }) => {
@@ -38,6 +38,7 @@ test('copy matches content/site.ts verbatim', async ({ page }) => {
     site.footer.columns.studio.heading,
     ...site.footer.columns.studio.lines,
     site.footer.closing,
+    ...projects.flatMap((project) => [project.title, project.text, ...project.tags]),
   ]
   for (const copy of expected) {
     // text-transform does not change innerText for these strings except labels, compare case-insensitively
@@ -47,6 +48,10 @@ test('copy matches content/site.ts verbatim', async ({ page }) => {
 
 test('work, clients and people are complete', async ({ page }) => {
   await expect(page.locator('article')).toHaveCount(projects.length)
+  await expect(page.locator('.work-row')).toHaveCount(featured.length)
+  await expect(page.locator('.work-more-item')).toHaveCount(secondary.length)
+  // Client names are never set as text (Daniel's project copy).
+  await expect(page.locator('main')).not.toContainText(/burgerstreetfestival\.cz/i)
   await expect(page.locator('.marquee-list:not(.marquee-copy) svg')).toHaveCount(clients.length)
   await expect(page.getByRole('img', { name: clients[0]?.name, exact: true })).toHaveCount(1)
   for (const person of people) {

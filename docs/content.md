@@ -26,30 +26,38 @@ Still images instead of a video: put `image.jpg` into `public/projects/<slug>/` 
 
 ## 3. Add the entry
 
-In `content/projects.ts`, copy the template inside `data` above the placeholders:
+The copy source is `docs/hardart-projects.md`. There are two lists in `content/projects.ts`:
+
+- `featuredData`: projects with media. Big rows with video, optional website screenshot, title, text and tags.
+- `secondaryData`: projects without media. They continue the list as a typographic index (title left, text and tags right) and their titles get the accent marker drawn by scroll.
 
 ```ts
+// featured
 {
-  slug: 'burgerstreetfestival',
-  name: 'Burger Street Festival',
-  url: 'https://burgerstreetfestival.cz', // optional
-  video: 'video.mp4',
-  site: 'site.webp', // optional
-  tags: ['BRAND', 'CUSTOM CMS', 'DEVELOP', 'APP'],
-  text: 'One to two sentences that say what was built, not only how it looks.',
+  slug: 'burgerstreetfestival',       // media folder
+  client: 'burgerstreetfestival.cz',  // never shown, describes the media for screen readers
+  title: "CZECHIA'S BIGGEST FOOD FESTIVAL",
+  url: 'https://burgerstreetfestival.cz/', // optional
+  video: 'video.mp4',                 // or image: 'image.jpg'
+  site: 'site.webp',                  // optional
+  text: 'One to two sentences: what it is, then what we did.',
+  tags: ['BRAND', 'DESIGN', 'CUSTOM SYSTEMS', 'EMAIL'],
 },
+
+// secondary: the same without video, image, poster and site
 ```
 
 Rules the build checks:
 
-- `tags`: 2 to 4, at least one from the design set (`BRAND`, `ART DIRECTION`, `UX`, `UI`, `COPY`, `CAMPAIGN`) and at least one from the engineering set (`NEXT.JS`, `HEADLESS CMS`, `CUSTOM CMS`, `E-COMMERCE`, `MOTION`, `AI`, `INTEGRATIONS`, `INFRASTRUCTURE`, `DEVELOP`, `APP`). A new tag has to be added to one of the sets first.
+- `title`: 20 to 40 characters (set uppercase on the page).
+- `tags`: 2 to 4, each from `TAGS` at the top of the file. A new tag has to be added there first.
 - `text`: at most 240 characters, no em dash.
-- use `video` or `image`, not both.
-- `slug` must be unique.
+- featured: `video` or `image`, not both, one of them required. Secondary: no media fields.
+- `slug` must be unique across both lists.
 
-Order in the file is the order on the page. Rows alternate sides automatically. A project without `site` gets a wider single column row.
+Order in each list is the order on the page. Featured rows alternate sides automatically. A featured project without `site` gets a wider single column row.
 
-Entries marked `draft: true` are allowed locally; remove the flag once name, url, tags and text are final. Production builds refuse drafts.
+Entries marked `draft: true` are allowed locally; remove the flag once title, url, tags and text are final. Production builds refuse drafts.
 
 ## 4. Check it
 

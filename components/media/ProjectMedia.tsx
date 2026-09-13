@@ -20,7 +20,7 @@ function available(slug: string, file: string | undefined): file is string {
 
 // 16:9 frame: video (poster optional), or a still image.
 export function ProjectMedia({ project }: { project: Project }) {
-  const { slug, name, video, poster, image } = project
+  const { slug, client, video, poster, image } = project
   const hasVideo = available(slug, video)
   const hasImage = !hasVideo && available(slug, image)
 
@@ -30,19 +30,19 @@ export function ProjectMedia({ project }: { project: Project }) {
         <ProjectVideo
           src={mediaUrl(slug, video, 'video')}
           poster={available(slug, poster) ? mediaUrl(slug, poster, 'poster') : undefined}
-          label={name}
+          label={client}
         />
       ) : hasImage && image ? (
         // eslint-disable-next-line @next/next/no-img-element -- static export, ImageKit resizes
         <img
           className="media-fill"
           src={mediaUrl(slug, image, 'image')}
-          alt={name}
+          alt={client}
           loading="lazy"
           decoding="async"
         />
       ) : (
-        <span className="sr-only">{name}</span>
+        <span className="sr-only">{client}</span>
       )}
     </div>
   )

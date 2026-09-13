@@ -1,6 +1,6 @@
 import { createElement, type HTMLAttributes } from 'react'
 
-export type RevealKind = 'lines' | 'stagger' | 'fade' | 'rise'
+export type RevealKind = 'lines' | 'stagger' | 'fade' | 'rise' | 'marker'
 
 type RevealProps = HTMLAttributes<HTMLElement> & {
   as?: 'p' | 'h1' | 'h2' | 'h3' | 'div' | 'ul' | 'span'
