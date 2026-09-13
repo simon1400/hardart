@@ -250,6 +250,21 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** Full page baselines (motion off, no JS) are unchanged; only the logo move frames changed. The footer is under the page until the end, so anything added to it must stay inside the footer element to be covered correctly.
 
+## 025. Media pipeline (Phase 6)
+
+**Context.** The nine delivered videos were 56 MB as raw copies (up to 1800x1800, 60 fps, one with audio), against a 15 MB budget for a full mobile scroll. There were no posters, every `ProjectVideo` managed itself, and at 6x CPU the work rows dropped about 20 frames while videos started.
+
+**Decision.**
+
+- `pnpm media` transcodes with `ffmpeg-static` (dev dependency, approved by Dmytro 2026-09-13): crop to 16:9, no audio, at most 30 fps, H.264 faststart; `video.mp4` up to 1600 px (CRF 26, 2 Mbit ceiling) and `video-800.mp4` (CRF 28, 800 kbit). Posters are the first detailed frame of the opening 3 s (image entropy, because several videos open on flat black or white), in 1600 and 800 px WebP; screenshots also get a 600 px copy. pnpm skips the ffmpeg install script (`ignoredBuiltDependencies`), the media script downloads the binary on first use, so CI never fetches it.
+- The `-800`/`-600` files are the local stand-ins for the ImageKit width presets; `lib/imagekit.ts` builds either from one `mediaUrl(slug, file, preset, size)`. Phones (below md) get the small size through `<picture><source media>` for images and a `matchMedia` check when the video source is attached, not through density based `srcset`, which would pick the large file on a 3x phone.
+- The poster is an `<img loading="lazy">` under the video, not the `poster` attribute (which loads eagerly for every row). It is the still state without JS, under reduced motion and `?motion=off`, where no video source is ever attached. The video fades in over it on `playing`.
+- One module controller (`components/media/videoController.ts`) with three IntersectionObservers: attach within 1.5 viewports (preload auto, so the first frame is ready when the window opens), detach beyond 3 viewports (remove `src` and `load()` to free the buffer), play the most visible up to 3. A video still clipped by its media reveal has visibility 0, so playback starts only as the frame opens. Hidden tabs pause everything.
+- `/dev/work-30` is `app/dev/work-30/page.dev.tsx`; `pageExtensions` includes `dev.tsx` only for `next dev`, so the export never contains it.
+- Measured: 1440x900, 6x CPU, wheel scroll top to bottom with videos playing, 0 frames over 20 ms in two runs (p99 16.8 ms; Phase 5 had about 20 frames of 33 to 67 ms). 390x844 full scroll: 9.2 MB in total, 8.9 MB of it media, no media on the first screen, CLS 0. `/dev/work-30`: at most 2 playing and 7 attached while scrolling, 3 playing with 13 on screen in a tall window, CLS 0. JS 226 KB gzip.
+
+**Consequence.** Media tests (`tests/media.spec.ts`) skip in CI, where `public/projects/` is empty. Real phones may refuse autoplay in Low Power Mode; the poster stays. Production bytes depend on ImageKit's own encoding of the same presets, to be re-measured in Phase 9.
+
 ---
 
 ## To confirm with Dan
@@ -264,6 +279,7 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 - Secondary projects as a typographic index with a scroll drawn marker behind the titles (decision 022).
 - Tags are not unified yet (RESEARCH / MARKET RESEARCH / USER RESEARCH, UX / UX/UI / UX/UI/CX, WEB / WEB DESIGN); Daniel offered to unify them.
 - Order of the featured projects on the page (kept from before, Daniel's list is alphabetical).
+- Video posters are picked automatically (decision 025); Daniel may want specific stills.
 - Phase 5 moves (decision 024): on phones the claim fades out within the first half of the hero and briefly crosses the shrinking logo; the email in Contact now carries the accent stripe.
 
 ## Open items

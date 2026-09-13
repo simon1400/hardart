@@ -39,6 +39,10 @@ marker. Motion architecture: sections mark elements with `RevealLines`/`Reveal` 
 `components/motion/RevealController.tsx` sets them up (decision 016). Phase 5 (decision 024): word
 swap, media window reveal and website frame parallax, hero claim exit, scroll drawn accent stripes,
 statement halves sliding in, footer curtain; scroll scenes live in `components/motion/scenes.ts`.
+Phase 6 (decision 025): `pnpm media` transcodes videos with ffmpeg-static (16:9, 1600 and 800 px),
+makes posters and phone sizes; one video controller (`components/media/videoController.ts`) attaches
+near the viewport, unloads far away and plays at most 3; posters are lazy images under the video;
+dev only stress page `/dev/work-30` (`page.dev.tsx`, run `pnpm dev`).
 
 Parked questions (do not ask again unless a phase is blocked by one; they live in
 `docs/decisions.md` under "To confirm with Dan" and "Open items"): featured order, tag unification,
@@ -68,19 +72,12 @@ Not built from the proposals: What we do entrance beyond the line reveals.
   off screen (assertion), reduced motion shows static `MEETINGS`, every new move has a motion test
   and a reduced motion check, 60 fps at 6x CPU through the whole page, visual baselines updated.
 
-### Phase 6, media pipeline. Status: todo
+### Phase 6, media pipeline. Status: done (2026-09-13)
 
-- At most 3 videos playing at once (a shared controller for `ProjectVideo`), unload sources far from
-  the viewport, posters, ImageKit transformation presets checked in `lib/imagekit.ts`.
-- Dev only stress page with 30 projects (`/dev/work-30`, excluded from the export).
-- Done when: with 30 videos no more than 3 play, no media requests for rows far below the fold,
-  CLS 0, a full mobile scroll uses 15 MB or less.
-- Learned in Phase 5: at 6x CPU the motion alone holds 60 fps, but the work rows drop about 20
-  frames (33 to 67 ms) while videos start and the website screenshots decode. Measure the same
-  wheel scroll (rAF frame times) before and after; candidates: posters, `decode()` of the screenshot
-  before its frame opens, starting playback after the media reveal finishes.
-- Media now sits inside `.media-reveal > .media-reveal-inner` (decision 024); the video controller
-  must not add transforms to those layers.
+- Built: transcoding and posters in `pnpm media`, phone sizes, shared video controller with the cap
+  of 3, unloading beyond 3 viewports, lazy poster images, `/dev/work-30`, `tests/media.spec.ts`.
+- Measured (decision 025): 0 frames over 20 ms at 6x CPU through the whole page with videos playing,
+  full mobile scroll 9.2 MB, CLS 0, no media requests on the first screen, JS 226 KB gzip.
 
 ### Phase 7, feature flags. Status: todo
 
@@ -92,6 +89,12 @@ Not built from the proposals: What we do entrance beyond the line reveals.
   a scroll parallax (`data-parallax`, yPercent) and the reveal layers are cleared after the reveal.
 - The chrome-devtools MCP was locked by a Chrome left over from an earlier session; Phase 5 used the
   Playwright MCP with a CDP session (`Emulation.setCPUThrottlingRate`) for the 6x measurement.
+- `mediaHover` must not transform `.project-video` or the poster `img` either: the video fades by
+  opacity over the poster; move a new wrapper or the `.media-frame` contents as a whole.
+- The Playwright MCP only reads script files under the repo (`.playwright-mcp/`); that folder is not
+  gitignored, delete it before committing.
+- `next dev` appends a "nextjs-agent-rules" block to CLAUDE.md (Next 16 `generate-agent-files`).
+  Do not commit it unless Dmytro decides to; `git checkout -- CLAUDE.md` after dev runs.
 
 ### Phase 8, hardening. Status: todo
 
@@ -99,6 +102,7 @@ Not built from the proposals: What we do entrance beyond the line reveals.
 - Lighthouse CI in `ci.yml` with the budgets from CLAUDE.md §14 (JS ceiling 300 KB gzip).
 - Linux visual baselines generated in CI so `@visual` runs there too (decision 010).
 - README: setup, `pnpm media`, `pnpm logos`, how Daniel's deliveries get in.
+- CSP: ImageKit serves video and poster (`media-src`, `img-src`); `/dev/` never ships (Phase 6).
 - Done when: CI enforces everything in CLAUDE.md §14 and is green.
 
 ### Phase 9, deploy. Status: todo
@@ -106,6 +110,8 @@ Not built from the proposals: What we do entrance beyond the line reveals.
 - `deploy.yml` (push to `main` builds on the VPS and syncs `out/`, `HARDART_ENV=production`),
   reference Nginx config applied by Dmytro, TLS, `www` redirect, optional basic auth, Umami on the VPS.
 - Needs from Dmytro: VPS secrets in GitHub, Umami host, decision on basic auth. Ask at the start.
+- Once ImageKit exists: upload `public/projects/` and re-measure the mobile scroll (15 MB budget)
+  with ImageKit's own encoding (Phase 6 measured 9.2 MB with local files).
 - Done when: a push to `main` updates hardart.cz within 3 minutes, Umami counts a view, headers
   verified with `curl -I`, securityheaders.com grade A.
 

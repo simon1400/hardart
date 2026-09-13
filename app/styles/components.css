@@ -314,6 +314,21 @@ html.lenis body {
   object-fit: cover;
 }
 
+.media-frame picture {
+  display: contents;
+}
+
+/* Project video over its poster: invisible until it actually plays (videoController), so the frame
+   never shows an empty or black video box. Unloaded videos drop back to the poster. */
+.project-video {
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+.project-video[data-ready] {
+  opacity: 1;
+}
+
 /* E. Media reveal layers (RevealController, kind media). At rest they are plain boxes over the frame. */
 .media-reveal,
 .media-reveal-inner {

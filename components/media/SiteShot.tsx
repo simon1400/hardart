@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { MOBILE_QUERY } from '@/lib/imagekit'
 
-type SiteShotProps = { src: string; alt: string; duration: number }
+type SiteShotProps = { src: string; mobileSrc: string; alt: string; duration: number }
 
 // Tall website screenshot that scrolls by itself inside its frame, like a browser window.
 // The CSS animation (transform only) runs only while the frame is near the viewport.
-export function SiteShot({ src, alt, duration }: SiteShotProps) {
+export function SiteShot({ src, mobileSrc, alt, duration }: SiteShotProps) {
   const ref = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
@@ -23,15 +24,17 @@ export function SiteShot({ src, alt, duration }: SiteShotProps) {
   }, [])
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- static export, ImageKit resizes
-    <img
-      ref={ref}
-      className="site-shot"
-      src={src}
-      alt={alt}
-      loading="lazy"
-      decoding="async"
-      style={{ animationDuration: `${duration}s` }}
-    />
+    <picture>
+      <source media={MOBILE_QUERY} srcSet={mobileSrc} />
+      <img
+        ref={ref}
+        className="site-shot"
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        style={{ animationDuration: `${duration}s` }}
+      />
+    </picture>
   )
 }

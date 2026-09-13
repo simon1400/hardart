@@ -13,16 +13,24 @@ projects/<slug>.png   the full page screenshot of the website (optional, jpg or 
 
 | What       | Recommended                                                                                                                                        |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| video      | 16:9 plays best (other ratios are cropped to fill), H.264 mp4, 8 to 25 s, no audio track, under 10 MB                                              |
+| video      | 16:9 plays best (other ratios are cropped to 16:9), mp4, 8 to 25 s, at least 1600 px wide if possible; size and audio do not matter                |
 | screenshot | as tall as the page, any width (it is resized to 1000 px). Chrome DevTools: device toolbar at 1440 wide, menu (⋮) → _Capture full size screenshot_ |
 
 ## 2. Run `pnpm media`
 
-It writes `public/projects/<slug>/video.mp4` and `public/projects/<slug>/site.webp` (screenshots shrink from megabytes to a few hundred KB). The screenshot then scrolls by itself inside the tall frame, at the same slow speed for every site.
+It writes into `public/projects/<slug>/`:
 
-For the live site upload the resulting `public/projects/` tree to ImageKit as `/projects/<slug>/...`. The build uses ImageKit when `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` is set.
+| File                             | What                                                                                                      |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `video.mp4`, `video-800.mp4`     | the video cropped to 16:9, no sound, up to 1600 px wide, and a small copy for phones                      |
+| `poster.webp`, `poster-800.webp` | a still from the first seconds (skipping black or white intros), shown before playback and without motion |
+| `site.webp`, `site-600.webp`     | the screenshot at 1000 px and 600 px wide                                                                 |
 
-Still images instead of a video: put `image.jpg` into `public/projects/<slug>/` by hand and use `image: 'image.jpg'`. An optional `poster.jpg` shown before a video loads works the same way.
+The first run downloads ffmpeg once. Only new or changed deliveries are processed; `pnpm media --force` redoes everything. A video usually shrinks from 5 to 10 MB to 1 to 4 MB (phones: under 2 MB). If a poster shows the wrong moment, replace `poster.webp` and `poster-800.webp` by hand.
+
+For the live site upload the resulting `public/projects/` tree to ImageKit as `/projects/<slug>/...` (the `-800` and `-600` copies are not needed there, ImageKit resizes). The build uses ImageKit when `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` is set.
+
+Still images instead of a video: put `image.jpg` (and optionally `image-800.jpg` for phones) into `public/projects/<slug>/` by hand and use `image: 'image.jpg'`. A different poster file can be named with `poster: '...'`.
 
 ## 3. Add the entry
 

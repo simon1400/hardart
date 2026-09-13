@@ -4,8 +4,15 @@ import type { ReactNode } from 'react'
 import sharp from 'sharp'
 import { ProjectVideo } from '@/components/media/ProjectVideo'
 import { SiteShot } from '@/components/media/SiteShot'
-import type { Project } from '@/content/projects'
-import { mediaUrl, usesImageKit } from '@/lib/imagekit'
+import { posterFile, type Project } from '@/content/projects'
+import {
+  MOBILE_QUERY,
+  MOBILE_WIDTH,
+  mediaUrl,
+  type Preset,
+  usesImageKit,
+  variant,
+} from '@/lib/imagekit'
 
 function localPath(slug: string, file: string) {
   return join(process.cwd(), 'public/projects', slug, file)
@@ -19,6 +26,28 @@ function available(slug: string, file: string | undefined): file is string {
   return existsSync(localPath(slug, file))
 }
 
+/** Desktop and phone URL; locally the phone size falls back to the full file if pnpm media did not make it. */
+function sources(slug: string, file: string, preset: Preset) {
+  const src = mediaUrl(slug, file, preset)
+  const mobileSrc = available(slug, variant(file, MOBILE_WIDTH[preset]))
+    ? mediaUrl(slug, file, preset, 'mobile')
+    : src
+  return { src, mobileSrc }
+}
+
+type PictureProps = { slug: string; file: string; preset: Preset; alt: string }
+
+/** Lazy image with the phone size below md. `media` pins the size by viewport, not by pixel density. */
+function Picture({ slug, file, preset, alt }: PictureProps) {
+  const { src, mobileSrc } = sources(slug, file, preset)
+  return (
+    <picture>
+      <source media={MOBILE_QUERY} srcSet={mobileSrc} />
+      <img className="media-fill" src={src} alt={alt} loading="lazy" decoding="async" />
+    </picture>
+  )
+}
+
 // E. Two transform layers the RevealController opens like a window: the outer one rises from below
 // while the inner one moves the other way and settles its scale, so the media itself stays put.
 function MediaReveal({ children }: { children: ReactNode }) {
@@ -29,11 +58,12 @@ function MediaReveal({ children }: { children: ReactNode }) {
   )
 }
 
-// 16:9 frame: video (poster optional), or a still image.
+// 16:9 frame: a video over its poster image, or a still image.
 export function ProjectMedia({ project }: { project: Project }) {
-  const { slug, client, video, poster, image } = project
+  const { slug, client, video, image } = project
   const hasVideo = available(slug, video)
   const hasImage = !hasVideo && available(slug, image)
+  const poster = posterFile(project)
 
   return (
     <div
@@ -43,22 +73,16 @@ export function ProjectMedia({ project }: { project: Project }) {
     >
       {hasVideo && video ? (
         <MediaReveal>
-          <ProjectVideo
-            src={mediaUrl(slug, video, 'video')}
-            poster={available(slug, poster) ? mediaUrl(slug, poster, 'poster') : undefined}
-            label={client}
-          />
+          {/* The poster is the still state: before playback, without JS and without motion. The
+              video carries the description, so the poster is decorative. */}
+          {available(slug, poster) ? (
+            <Picture slug={slug} file={poster} preset="poster" alt="" />
+          ) : null}
+          <ProjectVideo {...sources(slug, video, 'video')} label={client} />
         </MediaReveal>
       ) : hasImage && image ? (
         <MediaReveal>
-          {/* eslint-disable-next-line @next/next/no-img-element -- static export, ImageKit resizes */}
-          <img
-            className="media-fill"
-            src={mediaUrl(slug, image, 'image')}
-            alt={client}
-            loading="lazy"
-            decoding="async"
-          />
+          <Picture slug={slug} file={image} preset="image" alt={client} />
         </MediaReveal>
       ) : // Missing file (local only): an empty frame, nothing to announce.
       null}
@@ -94,7 +118,7 @@ export async function SiteScroll({ project, label }: { project: Project; label: 
       <div className="media-frame site-frame" data-parallax data-empty={hasSite ? undefined : ''}>
         {hasSite && site ? (
           <MediaReveal>
-            <SiteShot src={mediaUrl(slug, site, 'site')} alt={label} duration={duration} />
+            <SiteShot {...sources(slug, site, 'site')} alt={label} duration={duration} />
           </MediaReveal>
         ) : null}
       </div>

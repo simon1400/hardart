@@ -3,14 +3,21 @@ import { Reveal, RevealLines } from '@/components/motion/RevealLines'
 import { RevealStagger } from '@/components/motion/RevealStagger'
 import { Link } from '@/components/ui/Link'
 import { Tag } from '@/components/ui/Tag'
-import { featured, secondary } from '@/content/projects'
+import {
+  featured as allFeatured,
+  type Project,
+  secondary as allSecondary,
+  type SecondaryProject,
+} from '@/content/projects'
 import { site } from '@/content/site'
+
+type WorkProps = { featured?: Project[]; secondary?: SecondaryProject[] }
 
 // Daniel's XD: portrait website frame beside a 16:9 media with the text under it, sides alternate.
 // Titles are claims, not client names (Daniel's project copy); the link says who it is.
 // Secondary projects have no media and continue the same list as a typographic index, their titles
-// marked with the accent stripe as they scroll in.
-export function Work() {
+// marked with the accent stripe as they scroll in. The lists are props only for the dev stress page.
+export function Work({ featured = allFeatured, secondary = allSecondary }: WorkProps) {
   return (
     <section aria-labelledby="work-heading" className="pt-section">
       <RevealLines as="h2" id="work-heading" className="px-gutter text-section" data-mark-scrub>
@@ -19,7 +26,7 @@ export function Work() {
       <div className="mt-10 flex flex-col gap-row px-inset md:mt-14">
         {featured.map((project, index) => (
           <article
-            key={project.slug}
+            key={`${project.slug}-${index}`}
             className="work-row"
             data-flip={index % 2 === 1 ? '' : undefined}
             data-single={project.site ? undefined : ''}

@@ -4,7 +4,8 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { companyLinkedin, people } from '../content/people'
-import { featured, projects } from '../content/projects'
+import { featured, posterFile, projects } from '../content/projects'
+import { MOBILE_WIDTH, variant } from '../lib/imagekit'
 import { site } from '../content/site'
 
 const problems: string[] = []
@@ -22,10 +23,16 @@ if (site.footer.legal.includes('{{')) problems.push('footer legal line')
 // Locally (no ImageKit endpoint) report media files that a project names but that are missing.
 if (!process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT) {
   for (const project of featured) {
-    for (const file of [project.video, project.poster, project.image, project.site]) {
-      if (file && !existsSync(join('public/projects', project.slug, file))) {
-        console.warn(`check-content: missing public/projects/${project.slug}/${file}`)
-      }
+    const files = [
+      ...(project.video
+        ? [project.video, variant(project.video, MOBILE_WIDTH.video), posterFile(project)]
+        : []),
+      ...(project.image ? [project.image] : []),
+      ...(project.site ? [project.site, variant(project.site, MOBILE_WIDTH.site)] : []),
+    ]
+    const missing = files.filter((file) => !existsSync(join('public/projects', project.slug, file)))
+    for (const file of missing) {
+      console.warn(`check-content: missing public/projects/${project.slug}/${file} (pnpm media)`)
     }
   }
 }

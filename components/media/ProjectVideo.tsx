@@ -1,41 +1,27 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { registerVideo } from '@/components/media/videoController'
 
-type ProjectVideoProps = { src: string; poster?: string; label: string }
+type ProjectVideoProps = { src: string; mobileSrc: string; label: string }
 
-// Muted looping video without controls or sound. The source is attached only near the viewport
-// and playback pauses when the row leaves it, so a long list never downloads everything.
-// Phase 6 adds the global cap of three playing videos.
-export function ProjectVideo({ src, poster, label }: ProjectVideoProps) {
+// Muted looping video without controls or sound, over its poster image. The shared controller
+// (videoController.ts) attaches the source near the viewport, caps playback and unloads far videos;
+// the video fades in over the poster once it plays.
+export function ProjectVideo({ src, mobileSrc, label }: ProjectVideoProps) {
   const ref = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const video = ref.current
     if (!video) return
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry) return
-        if (entry.isIntersecting) {
-          if (!video.getAttribute('src')) video.setAttribute('src', src)
-          if (!reduced) video.play().catch(() => undefined)
-        } else {
-          video.pause()
-        }
-      },
-      { rootMargin: '50% 0px' },
-    )
-    observer.observe(video)
-    return () => observer.disconnect()
-  }, [src])
+    return registerVideo(video, src, mobileSrc)
+  }, [src, mobileSrc])
 
   return (
     <video
       ref={ref}
-      className="media-fill"
-      poster={poster}
+      className="media-fill project-video"
+      data-project-video
       muted
       loop
       playsInline

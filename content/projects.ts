@@ -68,7 +68,7 @@ const BaseSchema = z.object({
 })
 
 export const FeaturedSchema = BaseSchema.extend({
-  /** 16:9 frame: a muted looping video (poster optional) or a still image */
+  /** 16:9 frame: a muted looping video (poster defaults to poster.webp) or a still image */
   video: fileName.optional(),
   poster: fileName.optional(),
   image: fileName.optional(),
@@ -84,6 +84,9 @@ export const FeaturedSchema = BaseSchema.extend({
 export const SecondarySchema = BaseSchema.strict()
 
 export type Project = z.infer<typeof FeaturedSchema>
+
+/** `pnpm media` writes poster.webp next to every video; `poster` names a different file. */
+export const posterFile = (project: Project) => project.poster ?? 'poster.webp'
 export type SecondaryProject = z.infer<typeof SecondarySchema>
 
 // Order here is the order on the page.
