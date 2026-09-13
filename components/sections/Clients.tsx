@@ -1,4 +1,5 @@
 import { ClientLogo } from '@/components/media/ClientLogo'
+import { Reveal, RevealLines } from '@/components/motion/RevealLines'
 import { clients } from '@/content/clients'
 import { site } from '@/content/site'
 
@@ -7,10 +8,10 @@ import { site } from '@/content/site'
 export function Clients() {
   return (
     <section aria-labelledby="clients-heading" className="pt-section">
-      <h2 id="clients-heading" className="px-gutter text-section">
+      <RevealLines as="h2" id="clients-heading" className="px-gutter text-section">
         <span className="section-mark">{site.clients.label}</span>
-      </h2>
-      <div className="marquee mt-8">
+      </RevealLines>
+      <Reveal kind="fade" className="marquee mt-8" data-pause-offscreen>
         <div className="marquee-track">
           <ul className="marquee-list">
             {clients.map((client) => (
@@ -27,14 +28,14 @@ export function Clients() {
             ))}
           </ul>
         </div>
-      </div>
-      <p className="mt-8 px-gutter text-body">
+      </Reveal>
+      <RevealLines className="mt-8 px-gutter text-body">
         {site.clients.lines.map((line) => (
           <span key={line} className="block">
             {line}
           </span>
         ))}
-      </p>
+      </RevealLines>
     </section>
   )
 }

@@ -1,7 +1,9 @@
 /* Component styles that are awkward as utilities. */
 
-/* Corner logo: fixed, above everything, 44px minimum hit area. */
-.corner-logo {
+/* B. The scroll logo. The link is the corner hit area (44px minimum) and never moves; the mark
+   inside it does. Static state: the mark fills the corner slot. Live state (.is-live, motion on):
+   the mark is laid out at hero size and ScrollLogoMotion transforms it from the hero to the slot. */
+.scroll-logo {
   position: fixed;
   top: 0;
   left: 0;
@@ -13,37 +15,108 @@
   transition: color 0.2s;
 }
 
-.corner-logo > span {
+.scroll-logo-hit {
   display: flex;
   align-items: center;
   min-height: 44px;
   min-width: 44px;
 }
 
-.corner-logo svg {
+.scroll-logo-slot {
+  position: relative;
   display: block;
   height: var(--logo-corner-h);
-  width: auto;
+  aspect-ratio: var(--wordmark-ratio);
 }
 
-/* Until the Phase 4 scroll move exists, the corner logo fades in as the hero wordmark leaves.
-   Scroll driven CSS, opacity only; browsers without scroll timelines show it from the start. */
+.scroll-logo-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform-origin: 0 0;
+}
+
+.scroll-logo-mark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.scroll-logo.is-live .scroll-logo-mark {
+  width: var(--wordmark-w);
+}
+
+.scroll-logo.is-over-footer {
+  color: var(--accent);
+}
+
+/* Without motion the corner logo waits until the hero wordmark has gone (JS toggles .is-docked).
+   Keyboard focus always shows it. */
+.js .scroll-logo:not(.is-live, .is-docked, :focus-visible) {
+  opacity: 0;
+}
+
+/* No JS: the same rule from a scroll timeline where supported, visible everywhere else. */
 @supports (animation-timeline: scroll()) {
-  .corner-logo:not(:focus-visible) {
-    animation: corner-logo-in linear both;
+  .no-js .scroll-logo:not(:focus-visible) {
+    animation: scroll-logo-dock step-end both;
     animation-timeline: scroll(root);
-    animation-range: 0 40svh;
+    animation-range: 0 calc(var(--wordmark-w) / (var(--wordmark-ratio)));
   }
 
-  @keyframes corner-logo-in {
+  @keyframes scroll-logo-dock {
     from {
       opacity: 0;
     }
   }
 }
 
-.corner-logo.is-over-footer {
-  color: var(--accent);
+/* Reveal gate (moves A, C, F). Content is hidden before its reveal only when JS runs and motion is
+   allowed. If the motion code never arrives, a delayed CSS animation shows everything after 3 s;
+   .motion-ready (set by RevealController) removes that fallback. */
+@media (prefers-reduced-motion: no-preference) {
+  .js:not(.motion-off) [data-reveal] {
+    opacity: 0;
+  }
+
+  .js:not(.motion-off, .motion-ready) [data-reveal] {
+    animation: reveal-fallback 0s 3s both;
+  }
+}
+
+@keyframes reveal-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+/* SplitText line masks bleed a little beyond the line box, so accents, commas and the highlight
+   background are not clipped at leading below 1.2; negative margins keep the layout unchanged. */
+.reveal-line-mask {
+  padding-block: 0.15em;
+  margin-block: -0.15em;
+}
+
+/* text-indent is inherited. SplitText measures with every word wrapped in an inline-block div, which
+   would indent each word, so split parts reset it and only the first line takes it back. */
+[data-reveal='lines'] div {
+  text-indent: 0;
+}
+
+[data-reveal='lines'] > .reveal-line-mask:first-child,
+[data-reveal='lines'] > .reveal-line-mask:first-child > .reveal-line {
+  text-indent: inherit;
+}
+
+/* Lenis (lenis/dist/lenis.css, the parts this page needs). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
 }
 
 /* Who we are: the hero accent fades into paper (Daniel's XD). */
@@ -82,6 +155,15 @@
   display: flex;
   width: max-content;
   animation: marquee var(--marquee-duration) linear infinite;
+}
+
+.marquee[data-paused] .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ?motion=off stops the loop in place (reduced motion swaps to a static grid below). */
+.motion-off .marquee-track {
+  animation: none;
 }
 
 .marquee-list {
@@ -196,12 +278,12 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .site-shot {
+  :root:not(.motion-off) .site-shot {
     animation: site-scroll 30s var(--ease-site) infinite;
     animation-play-state: paused;
   }
 
-  .site-shot[data-playing='true'] {
+  :root:not(.motion-off) .site-shot[data-playing='true'] {
     animation-play-state: running;
   }
 }

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import { mont } from '@/app/fonts'
+import { LenisProvider } from '@/components/motion/LenisProvider'
 import { companyLinkedin, people } from '@/content/people'
 import { site } from '@/content/site'
 import { palette } from '@/lib/brand'
@@ -27,8 +28,9 @@ export const viewport: Viewport = {
   colorScheme: 'only light',
 }
 
-// Swaps no-js for js before first paint, so hidden-before-reveal CSS only applies when JS runs.
-const jsClassScript = `document.documentElement.classList.replace('no-js','js')`
+// Before first paint: swaps no-js for js, so hidden-before-reveal CSS only applies when JS runs, and
+// marks ?motion=off (QA switch, behaves like reduced motion).
+const jsClassScript = `(function(c){c.replace('no-js','js');if(/[?&]motion=off(&|$)/.test(location.search))c.add('motion-off')})(document.documentElement.classList)`
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -56,7 +58,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <LenisProvider>{children}</LenisProvider>
+      </body>
     </html>
   )
 }

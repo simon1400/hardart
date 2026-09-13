@@ -25,6 +25,7 @@ export default defineConfig({
       name: 'no-js',
       use: { ...devices['Desktop Chrome'], javaScriptEnabled: false },
       grep: /@visual/,
+      grepInvert: /@motion/,
     },
   ],
   webServer: {

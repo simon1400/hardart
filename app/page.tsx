@@ -1,3 +1,4 @@
+import { RevealController } from '@/components/motion/RevealController'
 import { ScrollLogo } from '@/components/motion/ScrollLogo'
 import { Clients } from '@/components/sections/Clients'
 import { Contact } from '@/components/sections/Contact'
@@ -23,6 +24,7 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
+      <RevealController />
     </>
   )
 }

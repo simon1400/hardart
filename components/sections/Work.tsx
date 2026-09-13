@@ -1,4 +1,6 @@
 import { ProjectMedia, SiteScroll } from '@/components/media/ProjectMedia'
+import { RevealLines } from '@/components/motion/RevealLines'
+import { RevealStagger } from '@/components/motion/RevealStagger'
 import { Link } from '@/components/ui/Link'
 import { Tag } from '@/components/ui/Tag'
 import { projects } from '@/content/projects'
@@ -8,9 +10,9 @@ import { site } from '@/content/site'
 export function Work() {
   return (
     <section aria-labelledby="work-heading" className="pt-section">
-      <h2 id="work-heading" className="px-gutter text-section">
+      <RevealLines as="h2" id="work-heading" className="px-gutter text-section">
         <span className="section-mark">{site.work.label}</span>
-      </h2>
+      </RevealLines>
       <div className="mt-10 flex flex-col gap-row px-inset md:mt-14">
         {projects.map((project, index) => (
           <article
@@ -24,15 +26,15 @@ export function Work() {
             ) : null}
             <div className="work-main">
               <ProjectMedia project={project} />
-              <h3 className="mt-8 text-project md:mt-12">
+              <RevealLines as="h3" className="mt-8 text-project md:mt-12">
                 {project.url ? <Link href={project.url}>{project.name}</Link> : project.name}
-              </h3>
-              <p className="mt-6 text-copy md:mt-10">{project.text}</p>
-              <ul className="mt-6 flex flex-wrap gap-2" aria-label={site.work.tagsLabel}>
+              </RevealLines>
+              <RevealLines className="mt-6 text-copy md:mt-10">{project.text}</RevealLines>
+              <RevealStagger className="mt-6 flex flex-wrap gap-2" aria-label={site.work.tagsLabel}>
                 {project.tags.map((tag) => (
                   <Tag key={tag}>{tag}</Tag>
                 ))}
-              </ul>
+              </RevealStagger>
             </div>
           </article>
         ))}

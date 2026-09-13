@@ -1,3 +1,5 @@
+import { RevealLines } from '@/components/motion/RevealLines'
+import { RevealStagger } from '@/components/motion/RevealStagger'
 import { LinkedinIcon, MailIcon } from '@/components/ui/icons'
 import { Link } from '@/components/ui/Link'
 import { ProtectedEmail } from '@/components/ui/ProtectedEmail'
@@ -8,14 +10,14 @@ export function Contact() {
   const { contact } = site
   return (
     <section aria-labelledby="contact-heading" className="px-gutter py-section">
-      <h2 id="contact-heading" className="text-h">
+      <RevealLines as="h2" id="contact-heading" className="text-h">
         {contact.heading}
-      </h2>
-      <p className="mt-4 text-h normal-case">
+      </RevealLines>
+      <RevealLines className="mt-4 text-h normal-case">
         <Link href={`mailto:${contact.email}`}>{contact.email}</Link>
-      </p>
+      </RevealLines>
 
-      <ul className="mt-16 flex flex-col gap-4" aria-label={contact.peopleLabel}>
+      <RevealStagger className="mt-16 flex flex-col gap-4" aria-label={contact.peopleLabel}>
         {people.map((person) => (
           <li key={person.name} className="flex items-center gap-6 text-body">
             <span className="min-w-[6ch]">{person.name}</span>
@@ -40,7 +42,7 @@ export function Contact() {
             </span>
           </li>
         ))}
-      </ul>
+      </RevealStagger>
     </section>
   )
 }

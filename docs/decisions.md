@@ -145,6 +145,66 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** Delivered projects are in `content/projects.ts` as `draft` with guessed names and placeholder text and tags; production builds refuse drafts. Visual tests mask project media.
 
+## 016. Motion architecture: markers in sections, controllers in components/motion
+
+**Context.** Phase 3 needs line reveals on about forty elements. A client component per element would ship a hydration boundary per paragraph and keep copy inside client props.
+
+**Decision.** `RevealLines`, `RevealStagger` and `Reveal` are server components that only add `data-reveal` (`lines`, `stagger`, `fade`, `rise`) and `data-reveal-on="load"`. One client `RevealController` (in `app/page.tsx`) sets up every marker after `document.fonts.ready` (or 1.5 s), inside `gsap.matchMedia`. `LenisProvider` (layout) runs Lenis on the GSAP ticker; `lib/motion.ts` registers the plugins and the defaults. Details that are not in CLAUDE.md §7:
+
+- Ease `power4.out`: it is the quint out curve, the same as `--ease-out` (`cubic-bezier(.22, 1, .36, 1)`), without CustomEase.
+- Default start `clamp(top 85%)`: the closing lines of the footer never reach 85 % of the viewport and would stay hidden.
+- Elements that move themselves (`fade`, `rise`) are triggered by their parent, otherwise ScrollTrigger measures them with the offset applied.
+- One `ScrollTrigger.refresh()` after all splits, because starts computed during setup were stale.
+- `will-change` is not set on lines: GSAP's `force3D: auto` promotes them only while tweening and `clearProps` removes the transform afterwards. The logo sets it only while its trigger is active.
+- CSS loops (clients marquee) pause off screen through `data-pause-offscreen`.
+
+**Consequence.** Sections stay server components and only compose. Adding a reveal is one wrapper.
+
+## 017. Reveal gate, ?motion=off and the fallback
+
+**Context.** Text must be readable without JS and under reduced motion, and must not flash before its reveal.
+
+**Decision.** `[data-reveal]` is `opacity: 0` only under `html.js`, not `.motion-off`, and `prefers-reduced-motion: no-preference`. The inline head script sets `motion-off` for `?motion=off`, which behaves like reduced motion everywhere (no Lenis, no reveals, logo docks, marquee and screenshot loops stop). If the motion bundle never runs, a CSS animation shows the content after 3 s; `html.motion-ready` (set by the controller) cancels that fallback. Full page visual baselines are taken with `?motion=off` and are pixel identical to the no-JS render and to the Phase 2 baselines. Axe runs on the revealed page and on `?motion=off`, because its link name check treats text at opacity 0 as missing.
+
+**Consequence.** On a very slow connection where JS arrives after 3 s, content above the fold may show, then reveal again.
+
+## 018. SplitText workarounds
+
+**Context.** SplitText 3.15 with `mask: 'lines'` broke three things on this page.
+
+**Decision.**
+
+- `text-indent` is inherited by the word wrappers SplitText measures with, so every word was 5em wider and lines broke far too early. Split `div`s reset the indent; only the first line mask takes it back. Line breaks were checked to match the unsplit paragraph exactly.
+- `deepSlice` leaves an empty copy of an inline element in front of it when a link or highlight starts a line (an unnamed extra tab stop, a stray accent sliver). Empty copies are removed in `onSplit`.
+- Masks bleed `0.15em` up and down with negative margins (commas, the highlight background, claim leading 0.98); lines start at `yPercent: 120`.
+- `aria: 'none'`: lines are whole lines of real text, so the default `aria-label` on a `p` (an axe violation) is not needed.
+
+**Consequence.** Re-check these after a GSAP upgrade; the motion tests cover indent line count and the axe test covers empty links.
+
+## 019. Scroll logo (move B)
+
+**Context.** The wordmark has to travel from the hero (top left, `--wordmark-w`, letters on the top edge) into the corner (`--logo-corner-h`), 1:1 with scroll, without a second visible copy and without a jump at hydration.
+
+**Decision.**
+
+- The fixed link stays the 44px corner hit area and never moves; the mark inside it is laid out at hero size (`.is-live`) and transformed. Hit area and focus ring stay where the logo ends up.
+- Geometry is measured from real rects (hero wordmark, corner slot, untransformed mark) on setup and on every refresh; nothing is duplicated in JS. Position is linear in scroll, scale geometric, so the shrink looks even. The range is the hero height (`top top` to `bottom top`).
+- The hero keeps its static `<h1>` wordmark as the no motion state. The live mark covers it exactly (asserted to 0.5px in tests) and the static one goes to `opacity: 0` in the same layout effect, so the h1 keeps its accessible name.
+- Without motion the corner logo appears once the hero wordmark has left (`.is-docked` via ScrollTrigger; without JS the same from a CSS scroll timeline). No travel, no scale.
+- Footer flip when the middle of the corner logo passes the footer top (a half logo mismatch at most, instead of a whole one).
+- Refresh on `visualViewport` width changes only, debounced; the hero is `100svh` and `ignoreMobileResize` is on, so the iOS URL bar never triggers a mid scroll refresh.
+- Measured: 60 fps (p95 16.8 ms, no frame over 20 ms) scrubbing the hero at 6x CPU slowdown in Chrome; CLS 0; mobile load LCP 1.39 s at 4x CPU and Fast 4G.
+
+**Consequence.** On a 1440x900 desktop the footer is shorter than the viewport, so the corner logo never sits over it and never turns accent; it does on phones and short windows. Real iPhone behaviour (URL bar, momentum scroll) is still to be checked by hand.
+
+## 020. JS budget is over before motion
+
+**Context.** CLAUDE.md §14 sets 160 KB gzip of JS. Measured on the Phase 4 build: 228 KB gzip on `/`. The Next 16 and React 19 runtime chunks alone are about 173 KB; GSAP with ScrollTrigger and SplitText is about 50 KB, Lenis about 6 KB.
+
+**Decision.** Motion stays as specified. The budget is flagged for Dmytro; Phase 8 decides between a realistic budget (about 240 KB) and trimming the framework runtime.
+
+**Consequence.** Lighthouse CI must not enforce 160 KB until this is decided.
+
 ---
 
 ## To confirm with Dan
@@ -155,13 +215,16 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 - Clients marquee order (roughly by recognisability) and where the "household names" line goes (under the marquee for now).
 - 404 copy is a proposal, not in the spec: "Nothing here." / "Back to hardart".
 - Favicon and apple icon use the "h" of the wordmark on turquoise.
-- Corner logo fades in by scroll; it still overlaps content and is invisible over the footer until the Phase 4 move and colour flip.
+- Logo move (decision 019): the shrink runs over the whole hero height; the corner logo overlaps content while scrolling (ink on ink over the large contact email, for example); on desktop the footer is shorter than the viewport, so the accent flip only shows on phones and short windows.
+- Motion beyond the spec: the footer wordmark rises out of its clip box, the clients marquee fades up when it enters, tags and the two contact rows stagger in, section headings and project names reveal line by line.
 
 ## Open items
 
 Tracked from `CLAUDE.md` §17.
 
 - Archia web license (Dmytro/Daniel). Not blocking, the site is built with Mont only until decided.
+- JS budget: 228 KB gzip against 160 KB in CLAUDE.md §14, mostly the framework runtime (decision 020). Dmytro.
+- Logo move on a real iPhone (Safari URL bar collapse, momentum scroll) and on Android Chrome. Dmytro, by hand.
 - RTR Projects: name read from the logo, confirm the spelling. All 18 clients, Creditas included, approved for display by Dmytro on 2026-09-13.
 - Project content: names, urls, tags and texts for the 9 delivered projects (all `draft`); confirm names Enevjuran, Kersnerova, Shuffle King, Barbitch; video ratios vary (two square, two ultra wide) and are cropped to 16:9.
 - Company LinkedIn URL for the footer "LinkedIn." link (personal emails and LinkedIn delivered 2026-09-13). If there is no company page, decide what the link points to.

@@ -1,3 +1,4 @@
+import { RevealLines } from '@/components/motion/RevealLines'
 import { site } from '@/content/site'
 
 // Move D line. Daniel's XD sets it in one full width line, light grey, after the work list.
@@ -10,7 +11,7 @@ export function Statement() {
   return (
     <section className="statement overflow-hidden px-gutter pt-section">
       <p className="sr-only">{sentence}</p>
-      <p className="text-statement text-mute md:whitespace-nowrap" aria-hidden="true">
+      <RevealLines className="text-statement text-mute md:whitespace-nowrap" aria-hidden="true">
         <span className="block md:inline">{statement.first} </span>
         <span className="block md:inline">
           {statement.before}
@@ -18,7 +19,7 @@ export function Statement() {
           <span className="word-swap-slot">{firstOption}</span>
           {statement.after}
         </span>
-      </p>
+      </RevealLines>
     </section>
   )
 }

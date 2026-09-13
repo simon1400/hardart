@@ -55,6 +55,7 @@
 
   /* brand */
   --wordmark-w: calc(100vw - var(--gutter) * 2); /* hero and footer wordmark, mobile */
+  --wordmark-ratio: 337.61 / 68.69; /* viewBox of public/brand/hardart.svg */
   --logo-corner-h: 18px;
   /* shared 654x368 artboard, marks sit inside at ~30 % */
   --client-logo-h: clamp(72px, 6.4vw, 128px);

@@ -1,0 +1,161 @@
+'use client'
+
+import {
+  duration,
+  ease,
+  fontsReady,
+  gsap,
+  LINE_FROM,
+  MOTION_QUERY,
+  motionOff,
+  RISE,
+  ScrollTrigger,
+  SplitText,
+  stagger,
+  useGSAP,
+} from '@/lib/motion'
+
+type Revealed = HTMLElement & { dataset: { reveal: string; revealOn?: string } }
+
+// Sets up every [data-reveal] element on the page (moves A, C, F). Renders nothing.
+export function RevealController() {
+  useGSAP(() => {
+    const root = document.documentElement
+    const mm = gsap.matchMedia()
+
+    mm.add(MOTION_QUERY, (context) => {
+      if (motionOff()) return
+      root.classList.add('motion-ready')
+      let active = true
+
+      // Line breaks depend on the font, so nothing is split before fonts are ready (or 1.5 s).
+      fontsReady().then(() => {
+        if (!active) return
+        context.add(() => {
+          for (const el of document.querySelectorAll<Revealed>('[data-reveal]')) setup(el)
+          // One pass over all triggers with the split layout in place (clamped starts included).
+          ScrollTrigger.refresh()
+        })
+      })
+
+      return () => {
+        active = false
+        root.classList.remove('motion-ready')
+      }
+    })
+
+    return pauseOffscreen()
+  })
+
+  return null
+}
+
+function setup(el: Revealed) {
+  const onLoad = el.dataset.revealOn === 'load'
+  // A trigger must not be the element that moves, or its start is measured with the offset applied.
+  const movesItself = el.dataset.reveal === 'fade' || el.dataset.reveal === 'rise'
+  const scrollTrigger = onLoad
+    ? undefined
+    : { trigger: movesItself ? (el.parentElement ?? el) : el }
+
+  switch (el.dataset.reveal) {
+    case 'lines':
+      SplitText.create(el, {
+        type: 'lines',
+        mask: 'lines',
+        linesClass: 'reveal-line',
+        aria: 'none',
+        autoSplit: true,
+        // SplitText re-splits on resize and font swap, and carries the returned tween's progress over.
+        onSplit: (self) => {
+          removeEmptyClones(self.lines)
+          return gsap.fromTo(
+            self.lines,
+            { yPercent: LINE_FROM, opacity: 0 },
+            {
+              yPercent: 0,
+              opacity: 1,
+              ease,
+              duration: onLoad ? duration.claim : duration.reveal,
+              stagger: onLoad ? stagger.claim : stagger.lines,
+              scrollTrigger,
+              clearProps: 'transform,opacity',
+            },
+          )
+        },
+      })
+      break
+    case 'stagger':
+      gsap.fromTo(
+        Array.from(el.children),
+        { y: RISE, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          ease,
+          duration: duration.reveal,
+          stagger: stagger.items,
+          scrollTrigger,
+          clearProps: 'transform,opacity',
+        },
+      )
+      break
+    case 'fade':
+      gsap.fromTo(
+        el,
+        { y: RISE, opacity: 0 },
+        // Opacity stays inline: clearing it would hand the element back to the CSS gate.
+        {
+          y: 0,
+          opacity: 1,
+          ease,
+          duration: duration.reveal,
+          scrollTrigger,
+          clearProps: 'transform',
+        },
+      )
+      return
+    case 'rise':
+      // Rises out of its parent, which clips (the footer wordmark).
+      gsap.fromTo(
+        el,
+        { yPercent: 100 },
+        {
+          yPercent: 0,
+          ease,
+          duration: duration.claim * 1.5,
+          scrollTrigger,
+          clearProps: 'transform',
+        },
+      )
+      break
+  }
+  // The hidden from-state is now inline on the parts (lines, children, transform), so the CSS gate
+  // can let go of the element itself.
+  gsap.set(el, { opacity: 1 })
+}
+
+// SplitText (3.15, deepSlice) leaves an empty copy of an inline element (link, highlight) in front
+// of it when the element starts a line: an extra tab stop without a name, or a stray highlight
+// sliver. Copies without text and without child elements are removed.
+function removeEmptyClones(lines: Element[]) {
+  for (const line of lines) {
+    for (const el of line.querySelectorAll('a, mark, span')) {
+      if (el.childElementCount === 0 && !el.textContent) el.remove()
+    }
+  }
+}
+
+// CSS loops (clients marquee) stop while their element is off screen. Not motion gated: under
+// reduced motion the loops are already off in CSS.
+function pauseOffscreen() {
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      const el = entry.target as HTMLElement
+      if (entry.isIntersecting) delete el.dataset.paused
+      else el.dataset.paused = ''
+    }
+  })
+  for (const el of document.querySelectorAll('[data-pause-offscreen]')) observer.observe(el)
+  return () => observer.disconnect()
+}
