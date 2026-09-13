@@ -141,7 +141,7 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Context.** Project media arrived as `projects/<slug>.mp4` and very large full page PNGs (up to 12 MB, 11 000 px tall). Dmytro wants the screenshots to scroll slowly by themselves, like a browser window, not follow the page scroll.
 
-**Decision.** `pnpm media` (sharp, dev dependency) copies videos and converts screenshots to 1000 px wide WebP into `public/projects/<slug>/`. The screenshot runs a CSS loop (down, rest, back up), transform only, paused off screen by an IntersectionObserver and still under reduced motion. Duration comes from the image ratio at build, so every site moves at the same speed (0.08 frame widths per second, 20 to 90 s). Posters became optional. This is a second looping animation next to the word swap, requested by Dmytro against the spec's "only one loop".
+**Decision.** `pnpm media` (sharp, dev dependency) copies videos and converts screenshots to 1000 px wide WebP into `public/projects/<slug>/`. The screenshot runs a CSS loop (down, rest, back up), transform only, paused off screen by an IntersectionObserver and still under reduced motion. Duration comes from the image ratio at build, so every site moves at the same speed (0.08 frame widths per second, 20 to 90 s). Posters became optional. The spec rule "only one looping animation" is lifted: Dmytro, 2026-09-13, the site will have many different animations (performance and reduced motion rules still apply).
 
 **Consequence.** Delivered projects are in `content/projects.ts` as `draft` with guessed names and placeholder text and tags; production builds refuse drafts. Visual tests mask project media.
 
