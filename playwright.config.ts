@@ -25,7 +25,8 @@ export default defineConfig({
       name: 'no-js',
       use: { ...devices['Desktop Chrome'], javaScriptEnabled: false },
       grep: /@visual/,
-      grepInvert: /@motion/,
+      // A project grepInvert replaces the global one, so the CI exclusion of @visual is repeated.
+      grepInvert: process.env.CI ? /@visual|@motion/ : /@motion/,
     },
   ],
   webServer: {
