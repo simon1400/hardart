@@ -28,7 +28,9 @@ It writes into `public/projects/<slug>/`:
 
 The first run downloads ffmpeg once. Only new or changed deliveries are processed; `pnpm media --force` redoes everything. A video usually shrinks from 5 to 10 MB to 1 to 4 MB (phones: under 2 MB). If a poster shows the wrong moment, replace `poster.webp` and `poster-800.webp` by hand.
 
-For the live site upload the resulting `public/projects/` tree to ImageKit as `/projects/<slug>/...` (the `-800` and `-600` copies are not needed there, ImageKit resizes). The build uses ImageKit when `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` is set.
+## 2b. Run `pnpm media:upload`
+
+It sends the new or changed files to ImageKit (`/projects/<slug>/...`), which serves them on the live site and in local builds. It needs `IMAGEKIT_PRIVATE_KEY` in `.env.local` (see `.env.example`). Images go up in full size only, ImageKit resizes them; videos go up in both sizes and are served exactly as `pnpm media` encoded them. Without `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` the build serves `public/projects/` instead.
 
 Still images instead of a video: put `image.jpg` (and optionally `image-800.jpg` for phones) into `public/projects/<slug>/` by hand and use `image: 'image.jpg'`. A different poster file can be named with `poster: '...'`.
 
@@ -73,7 +75,7 @@ Entries marked `draft: true` are allowed locally; remove the flag once title, ur
 pnpm dev
 ```
 
-Open http://localhost:3000. A file that is named in the entry but missing from the folder shows an empty grey frame, and `pnpm build` prints `check-content: missing public/projects/...`.
+Open http://localhost:3000. Without the ImageKit endpoint, a file that is named in the entry but missing from the folder shows an empty grey frame, and `pnpm build` prints `check-content: missing public/projects/...`. With ImageKit, a file that was not uploaded shows a broken image, so run `pnpm media:upload` first.
 
 # Adding a client logo
 

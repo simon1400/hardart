@@ -1,9 +1,13 @@
 import { expect, type Page, test } from '@playwright/test'
 
 // Phase 6 media pipeline. Project media is not in git, so CI renders empty frames without video
-// elements; these tests run where `pnpm media` has filled public/projects/ (the dev machine).
+// elements; these tests run where the build has media: public/projects/ filled by `pnpm media`, or
+// ImageKit (NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT, URLs then carry ?tr= presets).
 
 const VIDEO = '[data-project-video]'
+
+/** Slug of a project media URL, local or ImageKit. */
+const slugOf = (url: string) => /\/projects\/([^/?]+)\//.exec(url)?.[1] ?? ''
 
 async function requireMedia(page: Page) {
   test.skip((await page.locator(VIDEO).count()) === 0, 'no project media in public/projects/')
@@ -37,28 +41,29 @@ for (const width of [390, 1440]) {
     const requested: string[] = []
     page.on('request', (request) => {
       const url = request.url()
-      if (url.includes('/projects/')) requested.push(url.split('/projects/')[1] ?? '')
+      if (url.includes('/projects/')) requested.push(url)
     })
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     await requireMedia(page)
     await page.waitForTimeout(1500)
     for (const video of await videoState(page)) expect(video.attached).toBe(false)
-    expect(requested.filter((path) => path.endsWith('.mp4'))).toEqual([])
+    expect(requested.filter((url) => url.includes('.mp4'))).toEqual([])
     // Native lazy loading fetches posters and screenshots some distance below the viewport (2500 to
     // 3000px in Chrome, depending on the build and connection), nothing further.
-    const nearSlugs = await page
+    const nearUrls = await page
       .locator('.work-row')
       .evaluateAll((rows) =>
         rows
           .filter((row) => row.getBoundingClientRect().top < window.innerHeight + 3200)
           .flatMap((row) =>
             [...row.querySelectorAll('img, source')].map(
-              (el) => (el.getAttribute('src') ?? el.getAttribute('srcset') ?? '').split('/')[2],
+              (el) => el.getAttribute('src') ?? el.getAttribute('srcset') ?? '',
             ),
           ),
       )
-    for (const path of requested) expect(nearSlugs).toContain(path.split('/')[0])
+    const nearSlugs = nearUrls.map(slugOf)
+    for (const url of requested) expect(nearSlugs).toContain(slugOf(url))
   })
 }
 
@@ -101,21 +106,23 @@ test('videos play near the viewport and unload far from it', async ({ page }) =>
 test('phones get the small sources', async ({ page }) => {
   const requested: string[] = []
   page.on('request', (request) => {
-    if (request.url().includes('/projects/')) requested.push(new URL(request.url()).pathname)
+    if (request.url().includes('/projects/')) requested.push(request.url())
   })
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
   await requireMedia(page)
   await scrollThrough(page, 300)
   expect(requested.length).toBeGreaterThan(0)
-  for (const path of requested) expect(path).toMatch(/-(800|600)\.(mp4|webp)$/)
+  // Local: the -800/-600 files. ImageKit: video-800.mp4 as it is, images through a w-800/w-600 preset.
+  for (const url of requested)
+    expect(url).toMatch(/-(800|600)\.(mp4|webp)($|\?)|[?,]tr=.*w-(800|600)/)
 })
 
 test('reduced motion: posters only, no video is loaded', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const videos: string[] = []
   page.on('request', (request) => {
-    if (request.url().endsWith('.mp4')) videos.push(request.url())
+    if (request.url().includes('.mp4')) videos.push(request.url())
   })
   await page.goto('/')
   await requireMedia(page)

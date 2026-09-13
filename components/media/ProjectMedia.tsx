@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import type { ReactNode } from 'react'
-import sharp from 'sharp'
 import { ProjectVideo } from '@/components/media/ProjectVideo'
 import { SiteShot } from '@/components/media/SiteShot'
 import { posterFile, type Project } from '@/content/projects'
@@ -90,35 +89,18 @@ export function ProjectMedia({ project }: { project: Project }) {
   )
 }
 
-// Scroll speed of the screenshot, in frame widths per second, and the duration bounds.
-const SPEED = 0.08
-const MIN_SECONDS = 20
-const MAX_SECONDS = 90
-const FRAME_RATIO = 16 / 9 // tall frame height / width on desktop
-
-// Duration so every site scrolls at the same speed regardless of its length. Read from the local
-// file at build; with ImageKit and no local copy, a middle value is used.
-async function scrollSeconds(slug: string, file: string) {
-  const path = localPath(slug, file)
-  if (!existsSync(path)) return 30
-  const { width = 1, height = 1 } = await sharp(path).metadata()
-  const distance = Math.max(height / width - FRAME_RATIO, 0) // in frame widths
-  return Math.round(Math.min(Math.max(distance / SPEED, MIN_SECONDS), MAX_SECONDS))
-}
-
 // Portrait window onto a tall full page screenshot that scrolls by itself. The grid cell stays put
 // (it is the reveal trigger); the frame inside it floats with a scroll parallax on wide screens.
-export async function SiteScroll({ project, label }: { project: Project; label: string }) {
+export function SiteScroll({ project, label }: { project: Project; label: string }) {
   const { slug, site } = project
   const hasSite = available(slug, site)
-  const duration = hasSite && site ? await scrollSeconds(slug, site) : 0
 
   return (
     <div className="site-scroll" data-reveal="media">
       <div className="media-frame site-frame" data-parallax data-empty={hasSite ? undefined : ''}>
         {hasSite && site ? (
           <MediaReveal>
-            <SiteShot {...sources(slug, site, 'site')} alt={label} duration={duration} />
+            <SiteShot {...sources(slug, site, 'site')} alt={label} />
           </MediaReveal>
         ) : null}
       </div>

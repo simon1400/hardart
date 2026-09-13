@@ -263,7 +263,21 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 - `/dev/work-30` is `app/dev/work-30/page.dev.tsx`; `pageExtensions` includes `dev.tsx` only for `next dev`, so the export never contains it.
 - Measured: 1440x900, 6x CPU, wheel scroll top to bottom with videos playing, 0 frames over 20 ms in two runs (p99 16.8 ms; Phase 5 had about 20 frames of 33 to 67 ms). 390x844 full scroll: 9.2 MB in total, 8.9 MB of it media, no media on the first screen, CLS 0. `/dev/work-30`: at most 2 playing and 7 attached while scrolling, 3 playing with 13 on screen in a tall window, CLS 0. JS 226 KB gzip.
 
-**Consequence.** Media tests (`tests/media.spec.ts`) skip in CI, where `public/projects/` is empty. Real phones may refuse autoplay in Low Power Mode; the poster stays. Production bytes depend on ImageKit's own encoding of the same presets, to be re-measured in Phase 9.
+**Consequence.** Media tests (`tests/media.spec.ts`) skip in CI, which builds without media. Real phones may refuse autoplay in Low Power Mode; the poster stays. Production bytes were re-measured with ImageKit the same day (decision 026).
+
+## 026. ImageKit: images transformed, videos served as encoded
+
+**Context.** ImageKit account `nyr5zupwx` delivered on 2026-09-13; Dmytro wants it in production and in local builds. Measured on ticketsgp: ImageKit re-encodes video to webm at 7.6 MB for `w-1600` and 2.7 MB for `w-800`, against 4.1 and 1.7 MB from `pnpm media`, and a browser that does not accept webm (Safari, every iPhone) gets a 4.2 MB mp4 at `w-800`. Its image presets are slightly smaller than the local WebP and serve AVIF where supported.
+
+**Decision.**
+
+- Videos: both sizes (`video.mp4`, `video-800.mp4`) are uploaded and requested with `tr=orig-true`, ImageKit acts as a CDN only (`OWN_SIZES` in `lib/imagekit.ts`). Posters, images and screenshots use the width presets on the full size file.
+- `pnpm media:upload` (`scripts/upload-media.ts`) uploads through the ImageKit REST API with the private key from `.env.local`, skipping files whose remote size matches. No SDK dependency.
+- The endpoint is in `.env.local` locally and in the GitHub secret `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` for the deploy (Phase 9). CI keeps building without it, so its tests stay offline. The private key is only needed on the machine that uploads.
+- The screenshot scroll duration moved from the build (sharp reading the local file) to the browser (`naturalHeight / naturalWidth` on load), because the production build on the VPS has no media files.
+- Measured with ImageKit: 390x844 full scroll 8.9 MB (8.6 MB media), CLS 0, no media on the first screen; 1440x900 at 6x CPU 2 single frames of 33 ms in the whole scroll, p95 16.8 ms. All 43 tests pass on the ImageKit build.
+
+**Consequence.** New media needs `pnpm media` and then `pnpm media:upload` before a deploy shows it. The private key was shared in a chat session; Dmytro rotates it later and updates `.env.local`.
 
 ---
 
@@ -292,7 +306,7 @@ Tracked from `CLAUDE.md` §17.
 - RTR Projects: name read from the logo, confirm the spelling. All 18 clients, Creditas included, approved for display by Dmytro on 2026-09-13.
 - Project media: video ratios vary (two square, two ultra wide) and are cropped to 16:9.
 - Company LinkedIn URL for the footer "LinkedIn." link (personal emails and LinkedIn delivered 2026-09-13). If there is no company page, decide what the link points to.
-- ImageKit account and URL endpoint for production media.
+- ImageKit private key was shared in a chat session: Dmytro rotates it and updates `.env.local`.
 - Favicon: "h" or the full wordmark (Daniel).
 - Type scale confirmation on the live site (Daniel).
 - Feature flag decisions (Daniel, after Phase 7).

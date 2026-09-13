@@ -47,7 +47,7 @@ dev only stress page `/dev/work-30` (`page.dev.tsx`, run `pnpm dev`).
 Parked questions (do not ask again unless a phase is blocked by one; they live in
 `docs/decisions.md` under "To confirm with Dan" and "Open items"): featured order, tag unification,
 undecided projects (bukovansky-mlyn.cz, Dykka, Mamelu, Vars), `hardart-copy.md` not delivered,
-company LinkedIn, ImageKit account, iPhone and Android check, What we do and Contact not designed in
+company LinkedIn, ImageKit private key rotation (Dmytro), iPhone and Android check, What we do and Contact not designed in
 the XD.
 
 ## Phases
@@ -110,8 +110,9 @@ Not built from the proposals: What we do entrance beyond the line reveals.
 - `deploy.yml` (push to `main` builds on the VPS and syncs `out/`, `HARDART_ENV=production`),
   reference Nginx config applied by Dmytro, TLS, `www` redirect, optional basic auth, Umami on the VPS.
 - Needs from Dmytro: VPS secrets in GitHub, Umami host, decision on basic auth. Ask at the start.
-- Once ImageKit exists: upload `public/projects/` and re-measure the mobile scroll (15 MB budget)
-  with ImageKit's own encoding (Phase 6 measured 9.2 MB with local files).
+- ImageKit is live (decision 026): the secret `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` is set in GitHub,
+  `deploy.yml` must pass it to the build. Media is uploaded with `pnpm media:upload`. CSP needs
+  `ik.imagekit.io` in `img-src` and `media-src`.
 - Done when: a push to `main` updates hardart.cz within 3 minutes, Umami counts a view, headers
   verified with `curl -I`, securityheaders.com grade A.
 
