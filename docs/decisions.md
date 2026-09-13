@@ -52,24 +52,73 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** Ink `#1A1A1A` already equals black at 90 %, so dropping the 0.92 opacity does not change the intended colour.
 
+## 007. Focus ring
+
+**Context.** The brief asked for a 2px accent outline. Turquoise on white is about 1.3:1 and invisible on the turquoise hero; WCAG 1.4.11 wants 3:1.
+
+**Decision (Dmytro, 2026-09-13).** `--focus-ring` token: ink on paper and hero, accent inside the ink footer. The accent underline wipe still runs on focus.
+
+**Consequence.** Keyboard focus is visible on every surface.
+
+## 008. Production content guard keys on the deploy, not the branch
+
+**Context.** CLAUDE.md §6 fails `pnpm build` on `main` while placeholders exist, but all work is committed straight to `main` (Dmytro, 2026-09-13), so CI on main would be permanently red.
+
+**Decision.** `scripts/check-content.ts` runs in every build and refuses only when `HARDART_ENV=production`, which `deploy.yml` will set. It checks placeholder projects, people (email, LinkedIn), the company LinkedIn and `{{` in the legal line.
+
+**Consequence.** Placeholders can live on main and on the live site during review only if the deploy sets the variable later; Phase 9 decides when to switch it on.
+
+## 009. Client logos keep Daniel's shared artboard
+
+**Context.** All delivered logos share one 654x368 artboard with the mark placed inside it, which is how Daniel equalised them optically. Files arrived unnamed.
+
+**Decision.** Raw files renamed by client in `logo-partners/` (gitignored). `pnpm logos` copies them to `public/clients/` stripping ids, size and prolog and setting `fill="currentColor"`; geometry is untouched. Creditas is excluded in the script. Every logo renders at one artboard height, `--client-logo-h` (64 to 104px, the marks end up around 20 to 32px as in CLAUDE.md §8.5).
+
+**Consequence.** New logos must use the same artboard, the script warns otherwise.
+
+## 010. Visual baselines are platform specific
+
+**Context.** Font rasterisation differs between Windows and Linux, so one set of screenshots cannot pass on both.
+
+**Decision.** Baselines are captured on the dev machine (`-win32` suffix) with `pnpm test:update-visual`. CI skips `@visual` tests until Linux baselines are committed (Phase 8, generated in CI). The `no-js` project compares against the same baselines, which is the Phase 2 "JS disabled looks identical" check.
+
+**Consequence.** Visual regressions are caught locally, not in CI, until Phase 8.
+
+## 011. Type scale adjustments after seeing the page
+
+**Context.** The §4 defaults were written before the page existed.
+
+**Decision.**
+
+- `--fs-claim`: 12.5vw below md (the widest line "BRAND PEOPLE" fills the width at 12.7vw, five stable lines), `clamp(2.5rem, 6.6vw, 6rem)` from md (the widest line is 13.7em, fills about 90vw). Replaces 5.6vw, which left a visible jump at 820px and a small claim on tablets.
+- `--fs-statement`: `clamp(2.25rem, 5vw, 5.5rem)`. The default 7vw made the statement larger than the claim, which contradicts the spec.
+- New `--fs-lead` for Who we are ("one large paragraph"), `--row-gap` between work rows, `--fs-list` and `--fs-small`.
+
+**Consequence.** All listed under "To confirm with Dan".
+
 ---
 
 ## To confirm with Dan
 
 - Label weight: Mont Book (500) at 12px with .12em tracking. Regular (600) is the alternative if labels read too light.
-- `--fs-claim` minimum of 40px leaves the mobile hero mostly empty; the spec wants the claim to fill the screen. Proposal for Phase 2: raise the mobile size (around 13vw) so the three lines own the lower half.
+- Claim and statement sizes from decision 011. On a phone the hero still has an empty middle: logo top, claim bottom, as the spec lays it out.
+- Who we are: `--fs-lead` (28 to 52px), three paragraphs each with a 3em first line indent and no gap between them.
+- Tags: plain labels for now. The spec allows turquoise for tags; a turquoise fill behind ink text is the alternative.
+- Clients strip order (currently roughly by recognisability) and the line above it set in body size.
+- 404 copy is a proposal, not in the spec: "Nothing here." / "Back to hardart".
+- Favicon and apple icon use the "h" of the wordmark on turquoise.
+- Corner logo overlaps content while scrolling (ink on ink over text) until the Phase 4 move; over the footer it is invisible until the colour flip.
 
 ## Open items
 
 Tracked from `CLAUDE.md` §17.
 
 - Archia web license (Dmytro/Daniel). Not blocking, the site is built with Mont only until decided.
-- Client logo SVGs, optically equalised, and per client permission to show them. No Creditas.
+- Permission to show each client (direct contract, no NDA). Logos delivered: Ducati, KTM, Vinci Energies, Mergado, Authentica, Tickets GP, Bedy Group, ESOX, POEX, Pellwood, Wannieck Gallery, Míčánek Motorsport, RTR Projects (name read from the logo, confirm), Burger Street Festival, Ples jako Brno, Nová Myslivna, Pizza Bombastica. Banka Creditas delivered and excluded.
 - Project content: name, url, media, tags, text per project (Daniel).
-- LinkedIn URLs for both (Daniel, Dmytro).
+- Personal emails for Dmytro and Daniel (placeholders now), LinkedIn URLs for both and for the company.
 - Daniel's legal identification for the footer line, or the decision to show only Dmytro's.
 - Favicon: "h" or the full wordmark (Daniel).
-- Type scale confirmation on the live site (Daniel, after Phase 2).
+- Type scale confirmation on the live site (Daniel).
 - Feature flag decisions (Daniel, after Phase 7).
-- Focus ring: the brief asks for a 2px accent outline, but turquoise on white is about 1.3:1 contrast and invisible on the turquoise hero (WCAG 1.4.11 wants 3:1). Proposal: ink outline on paper and hero, accent outline in the footer. Implemented as the brief says until Dmytro decides.
-- `docs/hardart-web.md` §4.03 spells the name `DIMITRO`; per `CLAUDE.md` §0 this is a typo and the site uses `DMYTRO`. Confirm with Daniel so the spec gets fixed too.
+- `docs/hardart-web.md` §4.03 spells the name `DIMITRO`; the site uses `DMYTRO`. Dmytro sends a corrected spec.

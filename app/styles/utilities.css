@@ -49,6 +49,14 @@
   line-height: var(--lh-body);
 }
 
+@utility text-lead {
+  font-family: var(--face-body);
+  font-weight: var(--fw-body);
+  font-size: var(--fs-lead);
+  line-height: var(--lh-lead);
+  letter-spacing: -0.01em;
+}
+
 @utility text-label {
   font-family: var(--face-label);
   font-weight: var(--fw-label);
@@ -56,4 +64,19 @@
   line-height: 1.2;
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
+}
+
+@utility text-list {
+  font-family: var(--face-label);
+  font-weight: var(--fw-label);
+  font-size: var(--fs-list);
+  line-height: 1.5;
+  letter-spacing: var(--ls-list);
+}
+
+@utility text-small {
+  font-family: var(--face-body);
+  font-weight: var(--fw-body);
+  font-size: var(--fs-small);
+  line-height: 1.3;
 }

@@ -26,3 +26,6 @@ font/
 
 # raw deliveries, processed into public/clients/
 logo-partners/
+
+# playwright
+/blob-report/

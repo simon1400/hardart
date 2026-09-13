@@ -1,0 +1,92 @@
+/* Component styles that are awkward as utilities. */
+
+/* Corner logo: fixed, above everything, 44px minimum hit area. */
+.corner-logo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  display: block;
+  padding-block: max(0px, calc(var(--gutter) - (44px - var(--logo-corner-h)) / 2));
+  padding-inline: var(--gutter);
+  color: var(--ink);
+  transition: color 0.2s;
+}
+
+.corner-logo > span {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.corner-logo svg {
+  display: block;
+  height: var(--logo-corner-h);
+  width: auto;
+}
+
+.corner-logo.is-over-footer {
+  color: var(--accent);
+}
+
+/* What we do statement: the swap slot reserves the width of the widest option in Phase 5. */
+.word-swap-slot {
+  display: inline-block;
+}
+
+/* Work media placeholder until Phase 6 media exists. */
+.project-media-empty {
+  background: color-mix(in srgb, var(--ink) 6%, var(--paper));
+}
+
+/* Clients: every file shares one artboard, so one height equalises them. */
+.clients-strip {
+  gap: clamp(0.25rem, 1vw, 1rem) clamp(0.5rem, 2vw, 2rem);
+  margin-inline: calc(var(--client-logo-h) * -0.2);
+}
+
+.client-logo svg {
+  display: block;
+  height: var(--client-logo-h);
+  width: auto;
+}
+
+/* Icon links share the underline language: the wipe runs under the 20px glyph. */
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 12px calc(100% - 8px);
+  background-size: 0 2px;
+  transition: background-size var(--dur-hover) var(--ease-out);
+}
+
+.icon-link:hover,
+.icon-link:focus-visible {
+  background-size: 20px 2px;
+}
+
+/* Footer: the one inverted surface. */
+.site-footer {
+  --focus-ring: var(--accent);
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footer-column > h2 {
+  border-top: 1px solid rgb(255 255 255 / 0.2);
+  padding-top: 0.75rem;
+}
+
+.footer-legal {
+  color: color-mix(in srgb, var(--paper) 60%, transparent);
+}

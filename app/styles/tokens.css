@@ -1,4 +1,4 @@
-/* Design tokens (CLAUDE.md §4). Proposed defaults, confirm with Dan on the live site. */
+/* Design tokens (CLAUDE.md В§4). Proposed defaults, confirm with Dan on the live site. */
 
 :root {
   /* colour, from spec */
@@ -9,6 +9,7 @@
   /* layout */
   --gutter: clamp(16px, 2.5vw, 40px);
   --section-gap: clamp(6rem, 14vh, 12rem);
+  --row-gap: clamp(4rem, 9vh, 7rem); /* between work rows */
   --measure: 60ch;
 
   /* faces; --font-mont is set by next/font on <html> and already carries the metric matched fallback */
@@ -19,19 +20,28 @@
   --fw-label: 500;
 
   /* type, Mont */
-  --fs-claim: clamp(2.5rem, 5.6vw, 6rem);
+  --fs-claim: 12.5vw; /* below md: widest line "BRAND PEOPLE" fills the width at 12.7vw; md+ value below */
   --lh-claim: 0.92;
   --ls-claim: -0.03em;
-  --fs-statement: clamp(2.25rem, 7vw, 8rem);
+  --fs-statement: clamp(
+    2.25rem,
+    5vw,
+    5.5rem
+  ); /* always below --fs-claim, spec: largest after the claim */
   --fs-h: clamp(2rem, 4vw, 4.5rem);
   --lh-h: 0.95;
   --ls-h: -0.02em;
+  --fs-lead: clamp(1.75rem, 1rem + 2.6vw, 3.25rem); /* Who we are, "one large paragraph" */
+  --lh-lead: 1.15;
   --fs-body: clamp(1.25rem, 1.05rem + 0.7vw, 1.5rem);
   --lh-body: 1.3;
 
   /* type, labels */
   --fs-label: 0.75rem;
   --ls-label: 0.12em;
+  --fs-list: 1rem; /* What we do discipline lists */
+  --ls-list: 0.06em;
+  --fs-small: clamp(0.875rem, 0.8rem + 0.2vw, 1rem); /* footer closing line */
 
   /* motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -39,12 +49,23 @@
   --dur-hover: 0.2s;
   --rise: 20px;
 
+  /* focus */
+  --focus-ring: var(--ink);
+
   /* corner logo */
   --logo-corner-h: 18px;
+
+  /* client logos: height of the shared 654x368 artboard, marks sit inside it at ~30 % */
+  --client-logo-h: clamp(64px, 7vw, 104px);
 }
 
 @media (min-width: 51.25rem) {
   :root {
+    --fs-claim: clamp(
+      2.5rem,
+      6.6vw,
+      6rem
+    ); /* widest line is 13.7em, fills 90vw of the 95vw measure */
     --logo-corner-h: 22px;
   }
 }
@@ -69,4 +90,5 @@
   --ease-brand: var(--ease-out);
   --spacing-gutter: var(--gutter);
   --spacing-section: var(--section-gap);
+  --spacing-row: var(--row-gap);
 }

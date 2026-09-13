@@ -35,7 +35,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--focus-ring); /* ink on paper and hero, accent on the ink footer */
     outline-offset: 2px;
   }
 
