@@ -8,8 +8,8 @@ import { site } from '@/content/site'
 export function Work() {
   return (
     <section aria-labelledby="work-heading" className="pt-section">
-      <h2 id="work-heading" className="px-gutter text-section text-accent">
-        {site.work.label}
+      <h2 id="work-heading" className="px-gutter text-section">
+        <span className="section-mark">{site.work.label}</span>
       </h2>
       <div className="mt-10 flex flex-col gap-row px-inset md:mt-14">
         {projects.map((project, index) => (
@@ -20,10 +20,10 @@ export function Work() {
             data-single={project.site ? undefined : ''}
           >
             {project.site ? (
-              <SiteScroll site={project.site} label={site.work.siteLabel(project.name)} />
+              <SiteScroll project={project} label={site.work.siteLabel(project.name)} />
             ) : null}
             <div className="work-main">
-              <ProjectMedia media={project.media} label={project.name} />
+              <ProjectMedia project={project} />
               <h3 className="mt-8 text-project md:mt-12">
                 {project.url ? <Link href={project.url}>{project.name}</Link> : project.name}
               </h3>

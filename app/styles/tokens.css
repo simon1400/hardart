@@ -6,7 +6,11 @@
   --accent: #00ffc8;
   --paper: #ffffff;
   --ink: #1a1a1a; /* never #000 */
-  --mute: color-mix(in srgb, var(--ink) 18%, var(--paper)); /* XD statement grey */
+  --mute: color-mix(
+    in srgb,
+    var(--ink) 55%,
+    var(--paper)
+  ); /* statement grey, >= 3:1 on paper for large text */
   --line: color-mix(in srgb, var(--ink) 22%, transparent); /* media placeholder outline */
 
   /* layout */

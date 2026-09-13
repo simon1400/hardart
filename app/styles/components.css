@@ -51,6 +51,19 @@
   background: linear-gradient(var(--accent), var(--paper) 88%);
 }
 
+/* Section headings: ink text on an accent stripe, the same marker language as the highlights. */
+.section-mark {
+  background: linear-gradient(
+    transparent 62%,
+    var(--accent) 62%,
+    var(--accent) 92%,
+    transparent 92%
+  );
+  padding-inline: 0.06em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
 .highlight {
   background: var(--accent);
   color: var(--ink);
@@ -158,6 +171,43 @@
   width: 100%;
   overflow: hidden;
   border-radius: var(--radius-media);
+}
+
+.media-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Website screenshot: scrolls from its top to its bottom while the frame crosses the viewport.
+   Scroll driven CSS, transform only; without support or with reduced motion it rests at the top. */
+.site-scroll {
+  container-type: size;
+  view-timeline: --site-frame block;
+}
+
+.site-shot {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .site-shot {
+      animation: site-scroll linear both;
+      animation-timeline: --site-frame;
+      animation-range: contain 0% contain 100%;
+    }
+  }
+}
+
+@keyframes site-scroll {
+  to {
+    transform: translateY(calc(-100% + 100cqh));
+  }
 }
 
 .media-frame[data-empty] {

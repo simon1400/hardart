@@ -29,3 +29,7 @@ logo-partners/
 
 # playwright
 /blob-report/
+
+# project media: local copies only, production serves them from ImageKit (docs/content.md)
+public/projects/*
+!public/projects/README.md

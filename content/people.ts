@@ -15,15 +15,15 @@ export const people: Person[] = [
     name: 'Dmytro',
     emailUser: 'ZG15dHJv',
     emailDomain: 'cGVjaHVua2EuY29t',
-    linkedin: 'https://www.linkedin.com/',
-    linkedinPlaceholder: true,
+    linkedin: 'https://www.linkedin.com/in/dimsim/',
+    linkedinPlaceholder: false,
   },
   {
     name: 'Daniel',
     emailUser: 'ZGFuaWVsLmtva2Vz',
     emailDomain: 'Z21haWwuY29t',
-    linkedin: 'https://www.linkedin.com/',
-    linkedinPlaceholder: true,
+    linkedin: 'https://www.linkedin.com/in/daniel-koke%C5%A1-a6209a74/',
+    linkedinPlaceholder: false,
   },
 ]
 

@@ -84,8 +84,7 @@ export const site = {
       },
     },
     closing: 'The kind of art that has a deadline.',
-    // Placeholder from CLAUDE.md §12, Dmytro confirms the final wording.
-    legal: 'Dmytro Pechunka, IČO 17407613 · Daniel Kokes, IČO {{DAN_ICO}}',
+    legal: 'Dmytro Pechunka, IČO 17407613 · Daniel Kokes, IČO 11988215',
   },
   notFound: {
     // proposal, not in the spec

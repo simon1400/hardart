@@ -114,13 +114,28 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** `docs/hardart-web.md` is out of date on hero layout, type weights, section order, colour of headings and the marquee. What we do and Contact are marked "zatím neřeš" in the mockup and keep the spec layout for now.
 
-## 013. Contrast exceptions from the mockup (pending)
+## 013. Contrast of accent headings and the statement
 
-**Context.** Accent headings on paper measure 1.3:1 and the grey statement 1.45:1. WCAG 1.4.3 asks 3:1 for large text, and Lighthouse Accessibility drops below the 100 budget in CLAUDE.md §14.
+**Context.** In the mockup the accent section headings on paper measured 1.3:1 and the grey statement 1.45:1, below WCAG 3:1 for large text and the Lighthouse Accessibility 100 budget.
 
-**Decision.** Implemented as designed. The axe test excludes exactly these nodes from the color-contrast rule, all other rules still run on them.
+**Decision (Dmytro, 2026-09-13).** Headings are ink on an accent marker stripe (`.section-mark`, the same language as the name highlights). The statement grey is ink at 55 % on paper, above 3:1. The axe test runs without exceptions again.
 
-**Consequence.** Dmytro decides: keep the look (and accept the score), or darken them (for example an ink heading with an accent rule, or grey at 3:1).
+**Consequence.** The accent stays visible on both headings, contrast rules hold everywhere.
+
+## 014. Project media without dimensions, plain ImageKit URLs
+
+**Context.** Daniel fills projects himself. The XD frames have fixed shapes (16:9 media, 9:16 website frame), and videos are too big for git.
+
+**Decision.**
+
+- `content/projects.ts` names files only (`video`, `poster`, `image`, `site`), relative to a folder per slug. No width or height: frames have fixed aspect ratios and crop with `object-fit: cover`, so CLS stays 0.
+- Locally files live in `public/projects/<slug>/` (gitignored). With `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` set, `lib/imagekit.ts` builds ImageKit URLs with transformation presets. Plain URLs instead of `@imagekit/next`: no client bundle cost and nothing it adds is needed in a static export.
+- A missing local file renders an empty frame, and `check-content` prints which file is missing.
+- `ProjectVideo` attaches the source only near the viewport and pauses off screen (the three video cap stays for Phase 6).
+- The website screenshot scrolls inside its frame with a CSS view timeline (transform only, reduced motion rests at the top). Phase 5 may move it to GSAP if Safari or Firefox support falls short.
+- Guide for content updates: `docs/content.md`.
+
+**Consequence.** Deploying real media needs the ImageKit endpoint secret (Phase 9) and the same folder tree uploaded to ImageKit.
 
 ---
 
@@ -140,9 +155,9 @@ Tracked from `CLAUDE.md` §17.
 
 - Archia web license (Dmytro/Daniel). Not blocking, the site is built with Mont only until decided.
 - RTR Projects: name read from the logo, confirm the spelling. All 18 clients, Creditas included, approved for display by Dmytro on 2026-09-13.
-- Project content: name, url, media, tags, text per project (Daniel).
-- LinkedIn URLs for Dmytro, Daniel and the company (personal emails delivered 2026-09-13).
-- Daniel's IČO for the footer legal line (surname Kokes delivered).
+- Project content: name, url, media, tags, text per project (Dmytro and Daniel fill it via docs/content.md).
+- Company LinkedIn URL for the footer "LinkedIn." link (personal emails and LinkedIn delivered 2026-09-13). If there is no company page, decide what the link points to.
+- ImageKit account and URL endpoint for production media.
 - Favicon: "h" or the full wordmark (Daniel).
 - Type scale confirmation on the live site (Daniel).
 - Feature flag decisions (Daniel, after Phase 7).

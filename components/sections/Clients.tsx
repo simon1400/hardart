@@ -7,8 +7,8 @@ import { site } from '@/content/site'
 export function Clients() {
   return (
     <section aria-labelledby="clients-heading" className="pt-section">
-      <h2 id="clients-heading" className="px-gutter text-section text-accent">
-        {site.clients.label}
+      <h2 id="clients-heading" className="px-gutter text-section">
+        <span className="section-mark">{site.clients.label}</span>
       </h2>
       <div className="marquee mt-8">
         <div className="marquee-track">
