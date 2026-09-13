@@ -237,7 +237,14 @@ test('work media opens once it enters', async ({ page }) => {
   await page.goto('/')
   const frame = page.locator('.work-row [data-reveal="media"]').nth(2)
   const layer = frame.locator('.media-reveal')
-  await expect(layer).toBeAttached()
+  // Media files are not in git, so CI renders empty frames, which simply fade in.
+  await expect(page.locator('html')).toHaveClass(/motion-ready/)
+  if ((await layer.count()) === 0) {
+    await expect.poll(() => frame.evaluate((el) => getComputedStyle(el).opacity)).toBe('0')
+    await frame.scrollIntoViewIfNeeded()
+    await expect(frame).toHaveCSS('opacity', '1', { timeout: 3000 })
+    return
+  }
   await expect
     .poll(() => layer.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42))
     .toBeGreaterThan(0)
