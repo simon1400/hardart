@@ -1,0 +1,9 @@
+/* Design tokens. Filled in Phase 1 (CLAUDE.md §4). */
+
+@theme {
+  --breakpoint-sm: 40rem; /* 640px */
+  --breakpoint-md: 51.25rem; /* 820px */
+  --breakpoint-lg: 68.75rem; /* 1100px */
+  --breakpoint-xl: 90rem; /* 1440px */
+  --breakpoint-2xl: initial;
+}
