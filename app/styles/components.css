@@ -12,7 +12,6 @@
   padding-block: max(0px, calc(var(--gutter) - (44px - var(--logo-corner-h)) / 2));
   padding-inline: var(--gutter);
   color: var(--ink);
-  transition: color 0.2s;
 }
 
 .scroll-logo-hit {
@@ -47,8 +46,21 @@
   width: var(--wordmark-w);
 }
 
-.scroll-logo.is-over-footer {
+/* Two identical marks: accent on top of ink. Static state (no JS, reduced motion) shows the accent
+   one; live, ScrollLogoMotion fades the accent copy in as the logo shrinks and hides the ink one at
+   the end, so no dark fringe is left around the accent edges. */
+.scroll-logo-accent {
+  position: absolute;
+  inset: 0;
   color: var(--accent);
+}
+
+.scroll-logo-ink {
+  opacity: 0;
+}
+
+.scroll-logo.is-live .scroll-logo-ink {
+  opacity: 1;
 }
 
 /* Without motion the corner logo waits until the hero wordmark has gone (JS toggles .is-docked).
@@ -59,7 +71,7 @@
 
 /* No JS: the same rule from a scroll timeline where supported, visible everywhere else. */
 @supports (animation-timeline: scroll()) {
-  .no-js .scroll-logo:not(:focus-visible) {
+  .no-js .scroll-logo {
     animation: scroll-logo-dock step-end both;
     animation-timeline: scroll(root);
     animation-range: 0 calc(var(--wordmark-w) / (var(--wordmark-ratio)));
@@ -67,7 +79,7 @@
 
   @keyframes scroll-logo-dock {
     from {
-      opacity: 0;
+      visibility: hidden;
     }
   }
 }
@@ -132,6 +144,21 @@ html.lenis body {
     var(--accent) 92%,
     transparent 92%
   );
+  padding-inline: 0.06em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Secondary project titles: the same stripe, drawn from the left (RevealController scrubs the
+   background size). Without motion it is simply there. */
+.marker {
+  background: linear-gradient(
+      transparent 62%,
+      var(--accent) 62%,
+      var(--accent) 92%,
+      transparent 92%
+    )
+    no-repeat 0 0 / 100% 100%;
   padding-inline: 0.06em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
@@ -245,6 +272,27 @@ html.lenis body {
 
   .work-row[data-single][data-flip] .work-main {
     justify-self: end;
+  }
+}
+
+/* Secondary projects: no media, a typographic index under the featured rows. Title left, text and
+   tags right from md; stacked below. */
+.work-more {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 5vw, 5.5rem);
+}
+
+.work-more-item {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 51.25rem) {
+  .work-more-item {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 2.9vw, 4rem);
   }
 }
 

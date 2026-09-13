@@ -4,7 +4,7 @@ import { gsap, MOTION_QUERY, motionOff, ScrollTrigger, useGSAP } from '@/lib/mot
 
 type Geometry = { x0: number; y0: number; s0: number; x1: number; y1: number; s1: number }
 
-// B. Scroll scrubbed move of the wordmark from the hero into the corner, and the footer colour flip.
+// B. Scroll scrubbed move of the wordmark from the hero into the corner, ink to accent on the way.
 export function ScrollLogoMotion() {
   useGSAP(() => {
     const logo = document.querySelector<HTMLElement>('[data-scroll-logo]')
@@ -12,20 +12,9 @@ export function ScrollLogoMotion() {
     const mark = logo?.querySelector<HTMLElement>('[data-scroll-logo-mark]')
     const hero = document.getElementById('top')
     const heroMark = hero?.querySelector<SVGSVGElement>('[data-hero-wordmark]')
-    const footer = document.querySelector<HTMLElement>('body > footer')
-    if (!logo || !slot || !mark || !hero || !heroMark || !footer) return
-
-    // Flips to accent once the middle of the corner logo is over the ink footer.
-    ScrollTrigger.create({
-      trigger: footer,
-      start: () => {
-        const rect = slot.getBoundingClientRect()
-        return `top ${rect.top + rect.height / 2}px`
-      },
-      end: 'max',
-      once: false,
-      toggleClass: { targets: logo, className: 'is-over-footer' },
-    })
+    const ink = logo?.querySelector<SVGSVGElement>('[data-scroll-logo-ink]')
+    const accent = logo?.querySelector<SVGSVGElement>('[data-scroll-logo-accent]')
+    if (!logo || !slot || !mark || !hero || !heroMark || !ink || !accent) return
 
     const mm = gsap.matchMedia()
 
@@ -41,6 +30,8 @@ export function ScrollLogoMotion() {
       // quickSetter does not resolve the `scale` shorthand, so both axes are set.
       const setScaleX = gsap.quickSetter(mark, 'scaleX')
       const setScaleY = gsap.quickSetter(mark, 'scaleY')
+      const setAccent = gsap.quickSetter(accent, 'opacity')
+      const setInk = gsap.quickSetter(ink, 'opacity')
 
       // Position is linear in scroll; scale is geometric, so the shrink reads as even all the way
       // instead of racing at the start and crawling at the end.
@@ -51,6 +42,9 @@ export function ScrollLogoMotion() {
         setY(y0 + (y1 - y0) * progress)
         setScaleX(scale)
         setScaleY(scale)
+        // The colour follows the shrink; once docked only the accent mark remains.
+        setAccent(progress)
+        setInk(progress >= 1 ? 0 : 1)
       }
 
       // Take over from the static hero wordmark in the same frame (layout effect, before paint).
@@ -78,6 +72,7 @@ export function ScrollLogoMotion() {
         logo.classList.remove('is-live')
         gsap.set(mark, { clearProps: 'transform,willChange' })
         gsap.set(heroMark, { clearProps: 'opacity' })
+        gsap.set([ink, accent], { clearProps: 'opacity' })
       }
     })
   })

@@ -62,17 +62,24 @@ for (const width of [390, 820, 1440]) {
   })
 }
 
-test('logo turns accent only over the footer', async ({ page }) => {
-  // Tall enough that the corner can sit over the footer (it is shorter than a desktop viewport).
-  await page.setViewportSize({ width: 390, height: 700 })
+test('logo turns from ink to accent as it shrinks', async ({ page }) => {
   await page.goto('/')
-  const logo = page.locator('[data-scroll-logo]')
-  await scrollTo(page, 2000)
-  await expect(logo).not.toHaveClass(/is-over-footer/)
+  const opacity = (selector: string) =>
+    page.locator(selector).evaluate((el) => Number(getComputedStyle(el).opacity))
+  const heroHeight = await page.locator('#top').evaluate((el) => el.getBoundingClientRect().height)
+
+  expect(await opacity('[data-scroll-logo-accent]')).toBeCloseTo(0, 2)
+  expect(await opacity('[data-scroll-logo-ink]')).toBe(1)
+
+  await scrollTo(page, heroHeight / 2)
+  expect(await opacity('[data-scroll-logo-accent]')).toBeCloseTo(0.5, 1)
+
+  await scrollTo(page, heroHeight + 10)
+  expect(await opacity('[data-scroll-logo-accent]')).toBe(1)
+  expect(await opacity('[data-scroll-logo-ink]')).toBe(0)
+
   await scrollTo(page, 'footer')
-  await expect(logo).toHaveClass(/is-over-footer/)
-  await scrollTo(page, 2000)
-  await expect(logo).not.toHaveClass(/is-over-footer/)
+  expect(await opacity('[data-scroll-logo-accent]')).toBe(1)
 })
 
 test('text reveals line by line, once', async ({ page }) => {
