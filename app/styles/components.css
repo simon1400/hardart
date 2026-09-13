@@ -136,14 +136,17 @@ html.lenis body {
   background: linear-gradient(var(--accent), var(--paper) 88%);
 }
 
-/* Section headings: ink text on an accent stripe, the same marker language as the highlights. */
+/* Section headings: ink text on an accent stripe, the same marker language as the highlights.
+   Stripes and highlights are drawn from the left by the scroll: an ancestor with [data-mark-scrub]
+   carries --mark (0 to 100 %); without motion it is unset and the stripe is whole. */
 .section-mark {
   background: linear-gradient(
-    transparent 62%,
-    var(--accent) 62%,
-    var(--accent) 92%,
-    transparent 92%
-  );
+      transparent 62%,
+      var(--accent) 62%,
+      var(--accent) 92%,
+      transparent 92%
+    )
+    no-repeat 0 0 / var(--mark, 100%) 100%;
   padding-inline: 0.06em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
@@ -165,7 +168,7 @@ html.lenis body {
 }
 
 .highlight {
-  background: var(--accent);
+  background: linear-gradient(var(--accent), var(--accent)) no-repeat 0 0 / var(--mark, 100%) 100%;
   color: var(--ink);
   padding-inline: 0.12em;
   -webkit-box-decoration-break: clone;
@@ -311,11 +314,30 @@ html.lenis body {
   object-fit: cover;
 }
 
+/* E. Media reveal layers (RevealController, kind media). At rest they are plain boxes over the frame. */
+.media-reveal,
+.media-reveal-inner {
+  position: absolute;
+  inset: 0;
+}
+
+.media-reveal {
+  overflow: hidden;
+  border-radius: inherit;
+}
+
 /* Website screenshot: scrolls down by itself like a browser window, rests at the bottom, returns
    to the top and loops. Transform only; paused off screen (SiteShot) and still for reduced motion.
-   Duration is set per image so every site scrolls at the same speed. */
+   Duration is set per image so every site scrolls at the same speed. The cell holds the aspect
+   ratio and is the size container; the frame inside it fills it and may float (parallax). */
 .site-scroll {
+  position: relative;
   container-type: size;
+}
+
+.site-frame {
+  position: absolute;
+  inset: 0;
 }
 
 .site-shot {
@@ -370,9 +392,26 @@ html.lenis body {
   text-transform: uppercase;
 }
 
-/* What we do statement: the swap slot, Phase 5 animates it. */
-.word-swap-slot {
-  display: inline-block;
+/* D. Word swap: all options in one grid cell, the slot is as wide as the longest. Only the first is
+   visible until the loop takes over (it sets visibility inline). */
+.word-swap {
+  display: inline-grid;
+  justify-items: start;
+}
+
+.word-swap-word {
+  grid-area: 1 / 1;
+}
+
+.word-swap-word:not([data-first]) {
+  visibility: hidden;
+}
+
+/* Footer curtain: the page is a sheet above the footer, which slides out from under it. */
+main {
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
 }
 
 /* Icon links share the underline language: the wipe runs under the 20px glyph. */

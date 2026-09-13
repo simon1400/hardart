@@ -13,11 +13,14 @@ import {
   SplitText,
   stagger,
   useGSAP,
+  WIDE_QUERY,
 } from '@/lib/motion'
+import { claimExit, curtainStart, setupParallax, setupScenes } from '@/components/motion/scenes'
 
-type Revealed = HTMLElement & { dataset: { reveal: string; revealOn?: string } }
+type Revealed = HTMLElement & { dataset: { reveal: string; revealOn?: string; exit?: string } }
 
-// Sets up every [data-reveal] element on the page (moves A, C, F). Renders nothing.
+// Sets up every [data-reveal] element on the page (moves A, C, E, F) and the scroll scenes
+// (scenes.ts). Renders nothing.
 export function RevealController() {
   useGSAP(() => {
     const root = document.documentElement
@@ -27,11 +30,14 @@ export function RevealController() {
       if (motionOff()) return
       root.classList.add('motion-ready')
       let active = true
+      let cleanupScenes: (() => void) | undefined
 
       // Line breaks depend on the font, so nothing is split before fonts are ready (or 1.5 s).
       fontsReady().then(() => {
         if (!active) return
         context.add(() => {
+          // Scenes first: the footer curtain moves the footer, and the reveals inside it read that.
+          cleanupScenes = setupScenes()
           for (const el of document.querySelectorAll<Revealed>('[data-reveal]')) setup(el)
           // One pass over all triggers with the split layout in place (clamped starts included).
           ScrollTrigger.refresh()
@@ -40,8 +46,13 @@ export function RevealController() {
 
       return () => {
         active = false
+        cleanupScenes?.()
         root.classList.remove('motion-ready')
       }
+    })
+
+    mm.add(`${MOTION_QUERY} and ${WIDE_QUERY}`, () => {
+      if (!motionOff()) setupParallax()
     })
 
     return pauseOffscreen()
@@ -54,12 +65,17 @@ function setup(el: Revealed) {
   const onLoad = el.dataset.revealOn === 'load'
   // A trigger must not be the element that moves, or its start is measured with the offset applied.
   const movesItself = el.dataset.reveal === 'fade' || el.dataset.reveal === 'rise'
+  const trigger = movesItself ? (el.parentElement ?? el) : el
+  // Inside the curtain footer the trigger moves with the footer, so the start is computed.
   const scrollTrigger = onLoad
     ? undefined
-    : { trigger: movesItself ? (el.parentElement ?? el) : el }
+    : el.closest('[data-curtain]')
+      ? { trigger, start: () => curtainStart(trigger) }
+      : { trigger }
 
   switch (el.dataset.reveal) {
-    case 'lines':
+    case 'lines': {
+      let exit: gsap.core.Timeline | undefined
       SplitText.create(el, {
         type: 'lines',
         mask: 'lines',
@@ -69,6 +85,8 @@ function setup(el: Revealed) {
         // SplitText re-splits on resize and font swap, and carries the returned tween's progress over.
         onSplit: (self) => {
           removeEmptyClones(self.lines)
+          // The claim's masks leave with the hero; a new split gets a new exit.
+          if (el.dataset.exit !== undefined) exit = claimExit(el, self.masks)
           return gsap.fromTo(
             self.lines,
             { yPercent: LINE_FROM, opacity: 0 },
@@ -83,8 +101,47 @@ function setup(el: Revealed) {
             },
           )
         },
+        onRevert: () => {
+          exit?.scrollTrigger?.kill()
+          exit?.kill()
+          exit = undefined
+        },
       })
       break
+    }
+    case 'media': {
+      // E. The frame opens from the bottom like a window while the media settles from a larger scale.
+      // The layers inside move, the frame (the trigger) does not. The self scrolling screenshot has its
+      // own CSS transform, so only its wrappers are animated.
+      const layer = el.querySelector('.media-reveal')
+      const inner = el.querySelector('.media-reveal-inner')
+      if (!layer || !inner) {
+        // Empty frame (a missing local file): a plain fade.
+        gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: duration.reveal, scrollTrigger })
+        return
+      }
+      gsap
+        .timeline({ scrollTrigger })
+        .fromTo(
+          layer,
+          { yPercent: 100 },
+          { yPercent: 0, duration: duration.media, ease: 'expo.out', clearProps: 'transform' },
+          0,
+        )
+        .fromTo(
+          inner,
+          { yPercent: -100, scale: 1.25 },
+          {
+            yPercent: 0,
+            scale: 1,
+            duration: duration.media,
+            ease: 'expo.out',
+            clearProps: 'transform',
+          },
+          0,
+        )
+      break
+    }
     case 'stagger':
       gsap.fromTo(
         Array.from(el.children),

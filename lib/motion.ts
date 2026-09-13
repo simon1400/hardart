@@ -17,13 +17,16 @@ export const MOTION_QUERY = '(prefers-reduced-motion: no-preference)'
 /** Mirrors --ease-out, cubic-bezier(.22, 1, .36, 1), which is the quint out curve. */
 export const ease = 'power4.out'
 
-export const duration = { reveal: 0.5, claim: 0.6 } as const
+export const duration = { reveal: 0.5, claim: 0.6, media: 1.4 } as const
 export const stagger = { lines: 0.06, claim: 0.08, items: 0.04 } as const
 
 /** Hidden lines start one line height below their mask (plus the mask bleed, see components.css). */
 export const LINE_FROM = 120
 /** Travel of non text reveals, px. Spec: 16 to 24. */
 export const RISE = 20
+
+/** Two column layouts start here (--breakpoint-md). */
+export const WIDE_QUERY = '(min-width: 51.25rem)'
 
 /** `?motion=off` for QA; the inline script in app/layout.tsx sets the class before first paint. */
 export function motionOff() {

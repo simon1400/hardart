@@ -8,7 +8,8 @@ import { site } from '@/content/site'
 export function Footer() {
   const { columns, closing, legal } = site.footer
   return (
-    <footer className="site-footer bg-ink pt-section text-paper">
+    // data-curtain: the page lifts off the footer like a curtain (scenes.ts).
+    <footer className="site-footer bg-ink pt-section text-paper" data-curtain>
       <div className="grid gap-12 px-gutter md:grid-cols-3 md:gap-gutter">
         <div className="footer-column">
           <Label as="h2">{columns.social.heading}</Label>

@@ -15,7 +15,8 @@ export function Hero() {
       <h1 className="w-(--wordmark-w)">
         <Wordmark title={site.brand.name} className="block h-auto w-full" data-hero-wordmark />
       </h1>
-      <RevealLines on="load" className="self-end text-right text-claim">
+      {/* data-exit: the lines drift apart and fade as the hero scrolls away (RevealController). */}
+      <RevealLines on="load" className="self-end text-right text-claim" data-exit>
         {site.hero.claim.map((line) => (
           <span key={line} className="block text-balance">
             {line}

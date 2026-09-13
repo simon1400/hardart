@@ -13,7 +13,7 @@ import { site } from '@/content/site'
 export function Work() {
   return (
     <section aria-labelledby="work-heading" className="pt-section">
-      <RevealLines as="h2" id="work-heading" className="px-gutter text-section">
+      <RevealLines as="h2" id="work-heading" className="px-gutter text-section" data-mark-scrub>
         <span className="section-mark">{site.work.label}</span>
       </RevealLines>
       <div className="mt-10 flex flex-col gap-row px-inset md:mt-14">

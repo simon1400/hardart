@@ -13,8 +13,10 @@ export function Contact() {
       <RevealLines as="h2" id="contact-heading" className="text-h">
         {contact.heading}
       </RevealLines>
-      <RevealLines className="mt-4 text-h normal-case">
-        <Link href={`mailto:${contact.email}`}>{contact.email}</Link>
+      <RevealLines className="mt-4 text-h normal-case" data-mark-scrub>
+        <span className="section-mark">
+          <Link href={`mailto:${contact.email}`}>{contact.email}</Link>
+        </span>
       </RevealLines>
 
       <RevealStagger className="mt-16 flex flex-col gap-4" aria-label={contact.peopleLabel}>

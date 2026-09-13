@@ -126,6 +126,165 @@ test('the last lines of the page reveal at max scroll', async ({ page }) => {
   await expect(closing.last()).toHaveCSS('opacity', '1')
 })
 
+const docTop = (page: Page, selector: string) =>
+  page
+    .locator(selector)
+    .first()
+    .evaluate((el) => el.getBoundingClientRect().top + window.scrollY)
+
+const visibleWords = (page: Page) =>
+  page.locator('.word-swap-word').evaluateAll((els) =>
+    els
+      .filter((el) => {
+        const style = getComputedStyle(el)
+        return style.visibility === 'visible' && Number(style.opacity) > 0.99
+      })
+      .map((el) => el.textContent),
+  )
+
+for (const width of [390, 1440]) {
+  test(`word swap cycles all words without changing the line at ${width}px`, async ({ page }) => {
+    test.setTimeout(30_000)
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    await scrollTo(page, (await docTop(page, '[data-statement]')) - 300)
+
+    // The line fits the screen and neither the slot nor the text before it move between words.
+    const samples = await page.evaluate(
+      () =>
+        new Promise<{ words: string[]; boxes: string[]; overflow: boolean }>((resolve) => {
+          const slot = document.querySelector('.word-swap')
+          const line = document.querySelector<HTMLElement>('[data-statement]')
+          const words = new Set<string>()
+          const boxes = new Set<string>()
+          const timer = window.setInterval(() => {
+            if (!slot || !line) return
+            const visible = [...slot.children].find(
+              (el) => Number(getComputedStyle(el).opacity) > 0.99,
+            )
+            if (visible?.textContent) words.add(visible.textContent)
+            const r = slot.getBoundingClientRect()
+            boxes.add([r.left, r.top, r.width, r.height].map((n) => n.toFixed(1)).join())
+            if (words.size === 4) {
+              window.clearInterval(timer)
+              resolve({
+                words: [...words],
+                boxes: [...boxes],
+                overflow: line.scrollWidth > line.clientWidth + 1,
+              })
+            }
+          }, 100)
+        }),
+    )
+    expect(samples.words).toEqual(['MEETINGS.', 'HANDOVERS.', 'ACCOUNT MANAGERS.', 'EXCUSES.'])
+    expect(samples.boxes).toHaveLength(1)
+    expect(samples.overflow).toBe(false)
+  })
+}
+
+test('word swap pauses off screen', async ({ page }) => {
+  await page.goto('/')
+  await scrollTo(page, (await docTop(page, '[data-statement]')) - 300)
+  await expect.poll(() => visibleWords(page), { timeout: 3000 }).not.toEqual(['MEETINGS.'])
+
+  await scrollTo(page, 0)
+  await page.waitForTimeout(700) // a change already under way finishes
+  const paused = await visibleWords(page)
+  await page.waitForTimeout(3000)
+  expect(await visibleWords(page)).toEqual(paused)
+})
+
+test('statement halves slide in and meet', async ({ page }) => {
+  await page.goto('/')
+  const parts = page.locator('[data-statement-part]')
+  const top = await docTop(page, '[data-statement]')
+  const x = (index: number) =>
+    parts.nth(index).evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41)
+
+  await scrollTo(page, top - 800)
+  expect(await x(0)).toBeLessThan(-10)
+  expect(await x(1)).toBeGreaterThan(10)
+
+  await scrollTo(page, top)
+  expect(await x(0)).toBeCloseTo(0, 0)
+  expect(await x(1)).toBeCloseTo(0, 0)
+})
+
+test('hero claim drifts apart and fades as the hero leaves, both ways', async ({ page }) => {
+  await page.goto('/')
+  const masks = page.locator('#top [data-exit] .reveal-line-mask')
+  await expect(masks.first()).toBeAttached()
+  const state = () =>
+    masks.evaluateAll((els) =>
+      els.map((el) => ({
+        y: new DOMMatrix(getComputedStyle(el).transform).m42,
+        opacity: Number(getComputedStyle(el).opacity),
+      })),
+    )
+  const heroHeight = await page.locator('#top').evaluate((el) => el.getBoundingClientRect().height)
+
+  await scrollTo(page, heroHeight / 3)
+  const middle = await state()
+  expect(middle[0]?.y).toBeLessThan(middle.at(-1)?.y ?? 0)
+  expect(middle.at(-1)?.y).toBeLessThan(0)
+  expect(middle[0]?.opacity).toBeLessThan(1)
+
+  await scrollTo(page, 0)
+  for (const mask of await state()) expect(mask).toEqual({ y: 0, opacity: 1 })
+})
+
+test('work media opens once it enters', async ({ page }) => {
+  await page.goto('/')
+  const frame = page.locator('.work-row [data-reveal="media"]').nth(2)
+  const layer = frame.locator('.media-reveal')
+  await expect(layer).toBeAttached()
+  await expect
+    .poll(() => layer.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42))
+    .toBeGreaterThan(0)
+
+  await frame.scrollIntoViewIfNeeded()
+  await expect(layer).toHaveCSS('transform', 'none', { timeout: 3000 })
+  await expect(frame.locator('.media-reveal-inner')).toHaveCSS('transform', 'none')
+})
+
+test('accent stripes are drawn by the scroll', async ({ page }) => {
+  await page.goto('/')
+  const heading = page.locator('#work-heading')
+  const mark = () =>
+    heading.evaluate((el) => getComputedStyle(el).getPropertyValue('--mark').trim())
+  const top = await docTop(page, '#work-heading')
+
+  await scrollTo(page, Math.max(top - 1000, 0))
+  await expect.poll(mark).toBe('0%')
+  await scrollTo(page, top)
+  await expect.poll(mark).toBe('100%')
+})
+
+test('footer slides out from under the page', async ({ page }) => {
+  await page.goto('/')
+  const footer = page.locator('body > footer')
+  const y = () => footer.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42)
+  const mainBottom = await page
+    .locator('main')
+    .evaluate((el) => el.getBoundingClientRect().bottom + window.scrollY)
+  const viewport = await page.evaluate(() => window.innerHeight)
+
+  await scrollTo(page, mainBottom - viewport)
+  expect(await y()).toBeLessThan(-100)
+
+  // Nothing in the footer reveals while the page still covers it.
+  await scrollTo(page, mainBottom - viewport + 100)
+  const covered = await page.evaluate((edge) => {
+    return [...document.querySelectorAll<HTMLElement>('footer [data-reveal="lines"]')]
+      .filter((el) => el.getBoundingClientRect().top < edge)
+      .map((el) => Number(getComputedStyle(el.querySelector('.reveal-line') ?? el).opacity))
+  }, viewport - 100)
+  for (const opacity of covered) expect(opacity).toBe(0)
+
+  await scrollTo(page, 'end')
+  expect(await y()).toBeCloseTo(0, 0)
+})
+
 async function expectStatic(page: Page) {
   const logo = page.locator('[data-scroll-logo]')
   await expect(page.locator('html')).not.toHaveClass(/lenis/)
@@ -136,6 +295,25 @@ async function expectStatic(page: Page) {
   await expect(page.locator('.reveal-line')).toHaveCount(0)
   for (const el of await page.locator('[data-reveal]').all()) {
     await expect(el).toHaveCSS('opacity', '1')
+  }
+  // Phase 5 scenes: nothing moved, the swap shows its first word only, stripes are whole.
+  expect(await visibleWords(page)).toEqual(['MEETINGS.'])
+  await expect(page.locator('.word-swap-word:not([data-first])').first()).toHaveCSS(
+    'visibility',
+    'hidden',
+  )
+  for (const selector of [
+    '[data-statement-part]',
+    '.media-reveal',
+    '.media-reveal-inner',
+    '[data-parallax]',
+    'body > footer',
+  ]) {
+    for (const el of await page.locator(selector).all())
+      await expect(el).toHaveCSS('transform', 'none')
+  }
+  for (const el of await page.locator('[data-mark-scrub]').all()) {
+    expect(await el.evaluate((node) => getComputedStyle(node).getPropertyValue('--mark'))).toBe('')
   }
 
   const heroHeight = await page.locator('#top').evaluate((el) => el.getBoundingClientRect().height)

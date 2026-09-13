@@ -24,7 +24,10 @@ export function WhoWeAre() {
       aria-label={sectionLabel}
       className="who-we-are flex min-h-svh items-end px-gutter pb-section"
     >
-      <RevealLines className="mx-auto w-full text-copy md:w-[min(45vw,56rem)] md:min-w-xl">
+      <RevealLines
+        className="mx-auto w-full text-copy md:w-[min(45vw,56rem)] md:min-w-xl"
+        data-mark-scrub
+      >
         {highlight(paragraphs.join(' '), words)}
       </RevealLines>
     </section>

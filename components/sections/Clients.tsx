@@ -8,7 +8,7 @@ import { site } from '@/content/site'
 export function Clients() {
   return (
     <section aria-labelledby="clients-heading" className="pt-section">
-      <RevealLines as="h2" id="clients-heading" className="px-gutter text-section">
+      <RevealLines as="h2" id="clients-heading" className="px-gutter text-section" data-mark-scrub>
         <span className="section-mark">{site.clients.label}</span>
       </RevealLines>
       <Reveal kind="fade" className="marquee mt-8" data-pause-offscreen>

@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
+import type { ReactNode } from 'react'
 import sharp from 'sharp'
 import { ProjectVideo } from '@/components/media/ProjectVideo'
 import { SiteShot } from '@/components/media/SiteShot'
@@ -18,6 +19,16 @@ function available(slug: string, file: string | undefined): file is string {
   return existsSync(localPath(slug, file))
 }
 
+// E. Two transform layers the RevealController opens like a window: the outer one rises from below
+// while the inner one moves the other way and settles its scale, so the media itself stays put.
+function MediaReveal({ children }: { children: ReactNode }) {
+  return (
+    <div className="media-reveal">
+      <div className="media-reveal-inner">{children}</div>
+    </div>
+  )
+}
+
 // 16:9 frame: video (poster optional), or a still image.
 export function ProjectMedia({ project }: { project: Project }) {
   const { slug, client, video, poster, image } = project
@@ -25,22 +36,30 @@ export function ProjectMedia({ project }: { project: Project }) {
   const hasImage = !hasVideo && available(slug, image)
 
   return (
-    <div className="media-frame aspect-video" data-empty={hasVideo || hasImage ? undefined : ''}>
+    <div
+      className="media-frame aspect-video"
+      data-reveal="media"
+      data-empty={hasVideo || hasImage ? undefined : ''}
+    >
       {hasVideo && video ? (
-        <ProjectVideo
-          src={mediaUrl(slug, video, 'video')}
-          poster={available(slug, poster) ? mediaUrl(slug, poster, 'poster') : undefined}
-          label={client}
-        />
+        <MediaReveal>
+          <ProjectVideo
+            src={mediaUrl(slug, video, 'video')}
+            poster={available(slug, poster) ? mediaUrl(slug, poster, 'poster') : undefined}
+            label={client}
+          />
+        </MediaReveal>
       ) : hasImage && image ? (
-        // eslint-disable-next-line @next/next/no-img-element -- static export, ImageKit resizes
-        <img
-          className="media-fill"
-          src={mediaUrl(slug, image, 'image')}
-          alt={client}
-          loading="lazy"
-          decoding="async"
-        />
+        <MediaReveal>
+          {/* eslint-disable-next-line @next/next/no-img-element -- static export, ImageKit resizes */}
+          <img
+            className="media-fill"
+            src={mediaUrl(slug, image, 'image')}
+            alt={client}
+            loading="lazy"
+            decoding="async"
+          />
+        </MediaReveal>
       ) : // Missing file (local only): an empty frame, nothing to announce.
       null}
     </div>
@@ -63,17 +82,22 @@ async function scrollSeconds(slug: string, file: string) {
   return Math.round(Math.min(Math.max(distance / SPEED, MIN_SECONDS), MAX_SECONDS))
 }
 
-// Portrait window onto a tall full page screenshot that scrolls by itself.
+// Portrait window onto a tall full page screenshot that scrolls by itself. The grid cell stays put
+// (it is the reveal trigger); the frame inside it floats with a scroll parallax on wide screens.
 export async function SiteScroll({ project, label }: { project: Project; label: string }) {
   const { slug, site } = project
   const hasSite = available(slug, site)
   const duration = hasSite && site ? await scrollSeconds(slug, site) : 0
 
   return (
-    <div className="media-frame site-scroll" data-empty={hasSite ? undefined : ''}>
-      {hasSite && site ? (
-        <SiteShot src={mediaUrl(slug, site, 'site')} alt={label} duration={duration} />
-      ) : null}
+    <div className="site-scroll" data-reveal="media">
+      <div className="media-frame site-frame" data-parallax data-empty={hasSite ? undefined : ''}>
+        {hasSite && site ? (
+          <MediaReveal>
+            <SiteShot src={mediaUrl(slug, site, 'site')} alt={label} duration={duration} />
+          </MediaReveal>
+        ) : null}
+      </div>
     </div>
   )
 }
