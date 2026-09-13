@@ -36,7 +36,9 @@ Built: static page (phase 2) with Daniel's XD layout, clients marquee, project m
 (phase 3), scroll logo move from hero to corner turning ink to accent (phase 4), Daniel's project
 copy with 9 featured rows and 5 secondary projects as a typographic index with a scroll drawn
 marker. Motion architecture: sections mark elements with `RevealLines`/`Reveal` (`data-reveal`),
-`components/motion/RevealController.tsx` sets them up (decision 016).
+`components/motion/RevealController.tsx` sets them up (decision 016). Phase 5 (decision 024): word
+swap, media window reveal and website frame parallax, hero claim exit, scroll drawn accent stripes,
+statement halves sliding in, footer curtain; scroll scenes live in `components/motion/scenes.ts`.
 
 Parked questions (do not ask again unless a phase is blocked by one; they live in
 `docs/decisions.md` under "To confirm with Dan" and "Open items"): featured order, tag unification,
@@ -46,7 +48,10 @@ the XD.
 
 ## Phases
 
-### Phase 5, section motion. Status: todo
+### Phase 5, section motion. Status: done (2026-09-13)
+
+Built everything in the list below except the scroll velocity marquee (Dmytro chose reveal only).
+Not built from the proposals: What we do entrance beyond the line reveals.
 
 - D. Word swap in the Statement (`components/motion/WordSwap.tsx`, slot in
   `components/sections/Statement.tsx`): options stacked in one inline grid cell so the line width
@@ -70,6 +75,12 @@ the XD.
 - Dev only stress page with 30 projects (`/dev/work-30`, excluded from the export).
 - Done when: with 30 videos no more than 3 play, no media requests for rows far below the fold,
   CLS 0, a full mobile scroll uses 15 MB or less.
+- Learned in Phase 5: at 6x CPU the motion alone holds 60 fps, but the work rows drop about 20
+  frames (33 to 67 ms) while videos start and the website screenshots decode. Measure the same
+  wheel scroll (rAF frame times) before and after; candidates: posters, `decode()` of the screenshot
+  before its frame opens, starting playback after the media reveal finishes.
+- Media now sits inside `.media-reveal > .media-reveal-inner` (decision 024); the video controller
+  must not add transforms to those layers.
 
 ### Phase 7, feature flags. Status: todo
 
@@ -77,6 +88,10 @@ the XD.
   default, zero bytes when off (check the bundle).
 - Done when: each flag works alone, all three together do not conflict, performance with all on is
   still 60 fps, reduced motion disables all three.
+- `mediaHover` must move a different element than the Phase 5 layers: the website frame already has
+  a scroll parallax (`data-parallax`, yPercent) and the reveal layers are cleared after the reveal.
+- The chrome-devtools MCP was locked by a Chrome left over from an earlier session; Phase 5 used the
+  Playwright MCP with a CDP session (`Emulation.setCPUThrottlingRate`) for the 6x measurement.
 
 ### Phase 8, hardening. Status: todo
 

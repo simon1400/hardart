@@ -234,6 +234,22 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** Phase 5 onwards is designed for impact rather than restraint; every new move still gets the reduced motion and off screen checks.
 
+## 024. Section motion (Phase 5)
+
+**Context.** Moves D, E, F plus extra moves approved by Dmytro on 2026-09-13: hero claim exit, scroll drawn markers, statement slide, footer curtain. The clients marquee stays a CSS loop with its existing fade in (no scroll velocity).
+
+**Decision.**
+
+- Markers stay in server sections (`data-word-swap`, `data-statement`, `data-mark-scrub`, `data-parallax`, `data-curtain`, `data-exit`, reveal kind `media`); `components/motion/scenes.ts` sets them up from `RevealController`, before the reveals and before the one refresh.
+- D. All options share one inline grid cell, the trailing full stop travels with each word, so the free space of a short word sits at the line end. The loop is a repeating one cycle timeline that calls the change, played by a ScrollTrigger toggle. The statement is now `nowrap` on phones too, otherwise the grid shrank and wrapped `ZERO` away from the word.
+- E. Two transform layers inside each frame (`.media-reveal` rises, `.media-reveal-inner` counter moves and settles from scale 1.25, expo out, 1.4 s), so the screenshot's own CSS transform is untouched and no clip-path is repainted. Website frames float ±6 % with a scrub from md up; the grid cell is the trigger, the frame inside it moves.
+- Claim exit scrubs the SplitText masks (the lines belong to the load reveal); the top line rises 0.36 vh more than it scrolls, lower lines proportionally less, opacity reaches 0 at half the hero. Rebuilt on every re-split, killed in `onRevert`.
+- Markers: GSAP scrubs `--mark` on the element; `.section-mark` and `.highlight` read it as background size and fall back to 100 % without motion. Split lines inherit it, so re-splits need nothing.
+- Curtain: `main` is a positioned paper sheet above the footer; the footer moves from `-offset` to 0 between main's bottom reaching the viewport bottom and max scroll (trigger is `main`, which does not move). A footer that fits the viewport is pinned to the bottom edge; a taller one (phones) lags by `0.5 × padding × F / (F − vh)`, which keeps its first heading on screen for a while. Reveals inside the footer compute their start from that linear model (`curtainStart`), uncovered and above 85 %, because a moving trigger measures wrong.
+- Measured, 1440×900, 6x CPU, wheel scroll top to bottom: motion alone 0 and 1 frames over 20 ms in two runs (p95 16.8 ms). With media loading, about 20 frames of 33 to 67 ms, all inside the work rows while videos start and screenshots decode (Phase 6). JS 224 KB gzip.
+
+**Consequence.** Full page baselines (motion off, no JS) are unchanged; only the logo move frames changed. The footer is under the page until the end, so anything added to it must stay inside the footer element to be covered correctly.
+
 ---
 
 ## To confirm with Dan
@@ -248,6 +264,7 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 - Secondary projects as a typographic index with a scroll drawn marker behind the titles (decision 022).
 - Tags are not unified yet (RESEARCH / MARKET RESEARCH / USER RESEARCH, UX / UX/UI / UX/UI/CX, WEB / WEB DESIGN); Daniel offered to unify them.
 - Order of the featured projects on the page (kept from before, Daniel's list is alphabetical).
+- Phase 5 moves (decision 024): on phones the claim fades out within the first half of the hero and briefly crosses the shrinking logo; the email in Contact now carries the accent stripe.
 
 ## Open items
 
