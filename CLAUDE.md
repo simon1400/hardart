@@ -1,7 +1,7 @@
 # HARDART.CZ, engineering brief and build plan
 
 Read this file at the start of every session. It is the engineering source of truth for the hardart.cz website.
-The design source of truth is `docs/hardart-web.md` (written by Daniel, the designer). Read both.
+The design source of truth is `docs/hardart-web.md` (written by Daniel, the designer). Read both. Project copy for the Work section is `docs/hardart-projects.md` (Daniel).
 
 Rule of precedence:
 1. `docs/hardart-web.md` decides **what the site looks like, says and how it moves**. Never change copy, colours, type rules or motion rules on your own.
@@ -22,7 +22,7 @@ Language of communication: Russian or English, whatever Dmytro uses. Code, comme
 
 ## 1. What we are building
 
-A one page studio site. No navigation, scroll is the navigation. English only. Static. Typography carries the page, motion is a brand feature, not decoration. Reference quality bar: Apple product pages, loveandmoney.com, twks.ch. Awwwards level execution, but restrained: the spec is deliberately quiet, so quality shows in timing, smoothness, zero layout shift and flawless mobile scroll, not in extra effects.
+A one page studio site. No navigation, scroll is the navigation. English only. Static. Typography carries the page, motion is a brand feature, not decoration. Reference quality bar: Apple product pages, loveandmoney.com, twks.ch. Awwwards level execution. Motion has no restrictions beyond performance and reduced motion (Dmytro, 2026-09-13): the goal is wow, so propose and build bold moves, while quality still shows in timing, smoothness, zero layout shift and flawless mobile scroll.
 
 Non goals: CMS, backend, forms, i18n, dark mode (`prefers-color-scheme` is ignored, the palette is fixed), blog, case study subpages (may come later, keep the content model ready for it).
 
@@ -170,7 +170,7 @@ export const ProjectSchema = z.object({
 })
 ```
 
-Tag rule (from spec): at least one from the design set (`BRAND`, `ART DIRECTION`, `UX`, `UI`, `COPY`, `CAMPAIGN`) and at least one from the engineering set (`NEXT.JS`, `HEADLESS CMS`, `E-COMMERCE`, `MOTION`, `AI`, `INTEGRATIONS`, `INFRASTRUCTURE`). Validate this in the zod schema with a `refine`, build fails otherwise.
+Superseded by `docs/hardart-projects.md` (Daniel, 2026-09-13, see decision 022): featured projects (media, title, text, tags) and secondary projects (no media), titles are claims and the client name is never shown, tags come from Daniel's list (`TAGS` in `content/projects.ts`, 2 to 4 per project, unknown tags fail the build). The design set / engineering set rule no longer applies.
 
 Until Daniel delivers content, ship **6 placeholder projects** with clearly fake names (`PLACEHOLDER 01`) and grey ImageKit sample media, behind a build-time check that refuses to deploy to production while any placeholder exists (`pnpm build` fails on `main` if `slug.startsWith('placeholder')`). Also test the layout with 30 items locally.
 
@@ -195,7 +195,7 @@ ScrollTrigger.defaults({ once: true, start: 'top 85%' })
 
 Reduced motion is handled with `gsap.matchMedia()`: every animation is registered inside `mm.add('(prefers-reduced-motion: no-preference)', ...)`. Outside that media query nothing animates, the logo is simply in the corner after the hero, the word swap shows `MEETINGS`. Lenis is not started when reduced motion is on. Also expose `?motion=off` query param for QA.
 
-Only `opacity` and `transform` are ever animated. Never `top/left/width/height/filter`. Every animated element gets `will-change: transform, opacity` only while its trigger is active (`onEnter` add, `onComplete` remove).
+Prefer `opacity` and `transform` (compositor only). Other properties (background size, clip-path, filters) are allowed on small elements when a 6× CPU throttle trace still holds 60 fps; never animate layout (`top/left/width/height`). The per-move limits below (one transformation, short distances, once only, a single loop, no marquee, "nothing else moves") are lifted: treat the moves as the minimum, not the maximum.
 
 Text is fully in the markup and readable without JS. Hidden-before-reveal state is applied by CSS only when `html.js` is present (inline script in `<head>` swaps `no-js` → `js`) and reduced motion is not preferred.
 
@@ -216,7 +216,7 @@ Text is fully in the markup and readable without JS. Hidden-before-reveal state 
 - Timeline: `repeat: -1`, per word: current `to { yPercent: -40, opacity: 0, duration: .45 }`, next `from { yPercent: 40, opacity: 0 }` to `{ 0, 1, duration: .45 }`, hold so that the cycle is ~2.5 s per word.
 - Runs only in viewport: ScrollTrigger `once: false`, `onToggle: ({isActive}) => isActive ? tl.play() : tl.pause()`.
 - Reduced motion or no JS: only `MEETINGS` is rendered visible. Screen readers: slot is `aria-hidden`, a `sr-only` span carries the full first sentence once.
-- This is the only looping animation. Do not add another.
+- Other loops are allowed (the single loop rule is lifted); every loop pauses off screen.
 
 **E. Work rows.** Media: `from { scale: 1.04, opacity: 0 }` `to { 1, 1, duration: .6 }`, `overflow: hidden` wrapper so scale does not bleed. Text and tags reveal with `RevealLines` in the same trigger. Nothing else moves.
 
@@ -310,7 +310,7 @@ Flags are read at build time; a disabled flag must tree-shake to zero bytes (che
 
 ## 14. Quality bar, budgets, tests
 
-Budgets (Lighthouse CI, mobile, throttled): Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100. LCP ≤ 1.5 s (hero is text + SVG, nothing heavier may be in the first viewport), CLS = 0, INP ≤ 200 ms, total JS ≤ 160 KB gzip (GSAP core + ScrollTrigger + SplitText + Lenis ≈ 60 KB, React 19 ≈ 45 KB, leave room), no third party requests before interaction except fonts (self) and Umami.
+Budgets (Lighthouse CI, mobile, throttled): Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100. LCP ≤ 1.5 s (hero is text + SVG, nothing heavier may be in the first viewport), CLS = 0, INP ≤ 200 ms, total JS as small as reasonably possible, never at the cost of features or animations (Dmytro, 2026-09-13); current ceiling 300 KB gzip, measured 228 KB in Phase 4 (Next 16 + React 19 runtime ≈ 173 KB, GSAP + plugins ≈ 50 KB, Lenis ≈ 6 KB). Raise the ceiling in a decision when a feature needs it, no third party requests before interaction except fonts (self) and Umami.
 
 Playwright (`tests/`):
 - smoke: page renders all seven sections, copy matches `content/site.ts` verbatim.

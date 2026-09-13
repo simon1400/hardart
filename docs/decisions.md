@@ -191,7 +191,7 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 - Geometry is measured from real rects (hero wordmark, corner slot, untransformed mark) on setup and on every refresh; nothing is duplicated in JS. Position is linear in scroll, scale geometric, so the shrink looks even. The range is the hero height (`top top` to `bottom top`).
 - The hero keeps its static `<h1>` wordmark as the no motion state. The live mark covers it exactly (asserted to 0.5px in tests) and the static one goes to `opacity: 0` in the same layout effect, so the h1 keeps its accessible name.
 - Without motion the corner logo appears once the hero wordmark has left (`.is-docked` via ScrollTrigger; without JS the same from a CSS scroll timeline). No travel, no scale.
-- Footer flip when the middle of the corner logo passes the footer top (a half logo mismatch at most, instead of a whole one).
+- Footer colour: first a whole logo flip at the middle of the logo, replaced the same day by an ink to accent change during the shrink (decision 021).
 - Refresh on `visualViewport` width changes only, debounced; the hero is `100svh` and `ignoreMobileResize` is on, so the iOS URL bar never triggers a mid scroll refresh.
 - Measured: 60 fps (p95 16.8 ms, no frame over 20 ms) scrubbing the hero at 6x CPU slowdown in Chrome; CLS 0; mobile load LCP 1.39 s at 4x CPU and Fast 4G.
 
@@ -201,9 +201,38 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Context.** CLAUDE.md §14 sets 160 KB gzip of JS. Measured on the Phase 4 build: 228 KB gzip on `/`. The Next 16 and React 19 runtime chunks alone are about 173 KB; GSAP with ScrollTrigger and SplitText is about 50 KB, Lenis about 6 KB.
 
-**Decision.** Motion stays as specified. The budget is flagged for Dmytro; Phase 8 decides between a realistic budget (about 240 KB) and trimming the framework runtime.
+**Decision (Dmytro, 2026-09-13).** The budget may grow as far as features and animations need, within reason, and stays as small as possible without cutting either. CLAUDE.md §14 now sets a 300 KB gzip ceiling; raising it needs a decision entry.
 
-**Consequence.** Lighthouse CI must not enforce 160 KB until this is decided.
+**Consequence.** Phase 8 enforces 300 KB in Lighthouse CI. Size still matters: prefer CSS and small hand written code over new libraries.
+
+## 021. Corner logo turns accent as it shrinks
+
+**Context.** Docked in the corner, the ink logo disappeared over ink content. A per pixel inversion (backdrop filter inside the wordmark shape, paper over dark content, an accent copy along the footer edge) was built and rejected the same evening: Dmytro did not like how it looked. Daniel's screenshot shows the small logo in turquoise instead.
+
+**Decision (Dmytro, 2026-09-13).** The wordmark changes from ink to accent while it shrinks, tied 1:1 to the same scroll, and stays accent in the corner everywhere, the footer included. Two identical inline marks are stacked: the accent one fades in with the progress (opacity only, no repaint of the scaled layer) and the ink one is hidden once docked, so no dark fringe remains around the accent edges. Without motion the corner logo is simply accent. The footer flip trigger and all inversion code are removed.
+
+**Consequence.** Over paper the small turquoise logo has about 1.3:1 contrast; it is a decorative link with an accessible name, so axe does not flag it, but it is less legible than ink. Over the turquoise top of the Who we are gradient it blends in until white is under it.
+
+## 022. Project content from Daniel: featured and secondary
+
+**Context.** `docs/hardart-projects.md` (Daniel, 2026-09-13) gives 14 projects: 9 featured with media, 5 secondary without. Titles are 20 to 40 character claims and the client name is never set; tags are Daniel's own (31 of them, not yet unified) and ignore the design set / engineering set rule.
+
+**Decision.**
+
+- `content/projects.ts` has `featuredData` and `secondaryData` with separate schemas (featured requires a video or image, secondary allows no media fields). `client` holds Daniel's project heading (the domain), used only to describe media for screen readers.
+- Tags validate against Daniel's list (`TAGS`), 2 to 4, so typos fail the build. The old set rule is removed from the schema, CLAUDE.md §6 and `docs/content.md`.
+- Page order of featured projects stays as before (Daniel's document is alphabetical); secondary follows his document. No project is `draft` any more.
+- Secondary projects are not a new section: they continue the Work list as a typographic index under the featured rows. Title left (project title size), text in body size and tags right, stacked on phones. The visual is the accent marker from the section headings, drawn behind each title by the scroll (background size, scrubbed both ways, line by line through `box-decoration-break: clone`); the title fades up once, text reveals by line, tags stagger.
+
+**Consequence.** When Daniel unifies the tags, only `TAGS` and the entries change.
+
+## 023. Motion restrictions lifted in the spec
+
+**Context.** Dmytro, 2026-09-13: remove everything in the spec that limits animation, the goal is wow.
+
+**Decision.** `docs/hardart-web.md` §3 now keeps only four principles: text readable without motion, 60 fps, reduced motion respected, loops paused off screen. The limits on one transformation, short distances, once only, a single loop, no marquee and "nothing else moves" are gone, and the moves are a starting point. CLAUDE.md §1 and §7 follow: transform and opacity are preferred, other properties are allowed on small elements when a 6x CPU trace holds 60 fps, layout properties are never animated.
+
+**Consequence.** Phase 5 onwards is designed for impact rather than restraint; every new move still gets the reduced motion and off screen checks.
 
 ---
 
@@ -215,18 +244,20 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 - Clients marquee order (roughly by recognisability) and where the "household names" line goes (under the marquee for now).
 - 404 copy is a proposal, not in the spec: "Nothing here." / "Back to hardart".
 - Favicon and apple icon use the "h" of the wordmark on turquoise.
-- Logo move (decision 019): the shrink runs over the whole hero height; the corner logo overlaps content while scrolling (ink on ink over the large contact email, for example); on desktop the footer is shorter than the viewport, so the accent flip only shows on phones and short windows.
-- Motion beyond the spec: the footer wordmark rises out of its clip box, the clients marquee fades up when it enters, tags and the two contact rows stagger in, section headings and project names reveal line by line.
+- Corner logo is turquoise once docked (decision 021): low contrast over paper and invisible over the turquoise top of the gradient.
+- Secondary projects as a typographic index with a scroll drawn marker behind the titles (decision 022).
+- Tags are not unified yet (RESEARCH / MARKET RESEARCH / USER RESEARCH, UX / UX/UI / UX/UI/CX, WEB / WEB DESIGN); Daniel offered to unify them.
+- Order of the featured projects on the page (kept from before, Daniel's list is alphabetical).
 
 ## Open items
 
 Tracked from `CLAUDE.md` §17.
 
 - Archia web license (Dmytro/Daniel). Not blocking, the site is built with Mont only until decided.
-- JS budget: 228 KB gzip against 160 KB in CLAUDE.md §14, mostly the framework runtime (decision 020). Dmytro.
 - Logo move on a real iPhone (Safari URL bar collapse, momentum scroll) and on Android Chrome. Dmytro, by hand.
+- Projects still undecided in Daniel's document: bukovansky-mlyn.cz, Dykka, Mamelu, Vars.
 - RTR Projects: name read from the logo, confirm the spelling. All 18 clients, Creditas included, approved for display by Dmytro on 2026-09-13.
-- Project content: names, urls, tags and texts for the 9 delivered projects (all `draft`); confirm names Enevjuran, Kersnerova, Shuffle King, Barbitch; video ratios vary (two square, two ultra wide) and are cropped to 16:9.
+- Project media: video ratios vary (two square, two ultra wide) and are cropped to 16:9.
 - Company LinkedIn URL for the footer "LinkedIn." link (personal emails and LinkedIn delivered 2026-09-13). If there is no company page, decide what the link points to.
 - ImageKit account and URL endpoint for production media.
 - Favicon: "h" or the full wordmark (Daniel).

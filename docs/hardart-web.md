@@ -61,19 +61,21 @@ Archia is the minority voice. If a piece of text is longer than a line, it is Mo
 - Mobile: everything stacks to one column. The claim must still fill the screen, it never shrinks to a polite paragraph.
 
 ### Motion
-Motion is a feature of this site, not a decoration on top of it. The reference is Apple: quiet, scroll driven, precise, never playful for its own sake. Full system in part 3.
+Motion is a feature of this site, not a decoration on top of it. The goal is wow: bold, scroll driven, precise, awwwards level. Full system in part 3.
 
 ---
 
 ## 3. Motion system
 
 ### Principles
-1. **Scroll drives everything.** Reveals follow the scroll position, so the visitor controls the pace. Nothing plays on a timer just because the page loaded, with one deliberate exception, the word swap below.
-2. **One transformation per element.** Opacity plus a short rise. Never opacity plus rise plus scale plus rotation.
-3. **Short distances.** 16 to 24 px of travel. Nothing slides in from off screen, nothing travels across the viewport.
-4. **Fast out, slow settle.** No bounce, no elastic, no overshoot. Roughly 400 to 600 ms per reveal.
-5. **Once only.** An element that has been revealed stays revealed. Scrolling back up does not replay it.
-6. **Never block reading.** Text is in the markup from the start and readable with animation disabled. Only opacity and transform are animated.
+Updated 2026-09-13 (Dmytro): the earlier restrictions on motion are lifted. No limit on the number of animations, loops, distances, combined transforms or kinds of move. The aim is that the site feels wow. What stays:
+
+1. **Never block reading.** Text is in the markup from the start and readable with animation disabled.
+2. **Smooth.** Every move holds 60 fps on an average phone; anything that cannot is cut or simplified.
+3. **Reduced motion is respected.** With `prefers-reduced-motion` the page loses movement and nothing else.
+4. **Off screen is paused.** Loops stop while they are not visible.
+
+The moves below are the ones designed so far. They are a starting point, not a limit; more can be added.
 
 ### The moves, in page order
 
@@ -81,15 +83,14 @@ Motion is a feature of this site, not a decoration on top of it. The reference i
 The claim arrives line by line, each line fading up, roughly 80 ms apart. The logo is already there, it does not animate in. Total under one second.
 
 **B. The logo, on scroll.**
-The signature move. As the hero leaves, the wordmark scales down and travels into the top left corner, where it stays fixed for the rest of the page. One continuous movement tied to scroll position, not a delayed animation that plays on its own. In the corner it is small, ink on paper, always legible, always a link back to the top.
-When the corner logo sits over the inverted ink footer, it flips to turquoise. That is the only colour change on the page.
-Note: over white, a turquoise logo would nearly disappear, which is why the change is tied to the dark footer. Turquoise earlier would need a dark chip behind the logo, and that contradicts "no boxes".
+The signature move. As the hero leaves, the wordmark scales down and travels into the top left corner, where it stays fixed for the rest of the page. One continuous movement tied to scroll position, not a delayed animation that plays on its own. In the corner it is small and always a link back to the top.
+As it shrinks, the wordmark changes smoothly from ink to turquoise, tied to the same scroll; in the corner it stays turquoise, over the footer too (Dmytro and Daniel, 2026-09-13).
 
 **C. Paragraph reveal.**
 Body copy reveals **line by line**, not word by word and not as a whole block. Roughly 60 ms between lines. This is the Apple move and it is the backbone of the whole page. Use it for the perex and for project texts.
 
 **D. The word swap.** The one deliberate attention grabber.
-A single statement line where one word replaces another on a slow loop. It sits at the end of "What we do", full width, largest type on the page after the claim.
+A statement line where one word replaces another on a loop. It sits at the end of "What we do", full width, largest type on the page after the claim.
 
 ```
 TWO PEOPLE.
@@ -103,19 +104,17 @@ ZERO [ MEETINGS / HANDOVERS / ACCOUNT MANAGERS / EXCUSES ].
 - It only runs while it is in the viewport. Off screen it is paused.
 - With animation disabled it shows the first option, `MEETINGS`, and nothing else.
 
-This is the only looping animation on the site. One is enough. Two would look like a screensaver.
-
 **E. Work rows.**
-As a row enters, its media settles from 1.04 to 1.00 scale while it fades in. Nothing else moves. Tags appear with the text, not separately.
+As a row enters, its media settles from a larger scale while it fades in. Tags appear with the text.
 
 **F. Client logos.**
-Staggered fade in across the strip, roughly 40 ms apart, once. No marquee, no infinite scrolling belt.
+A running marquee of client logos.
 
 **G. Links and hover.**
-Turquoise underline wipes in from the left, 200 ms. That is the entire hover language of the site.
+Turquoise underline wipes in from the left, 200 ms.
 
 ### Reduced motion
-If the visitor prefers reduced motion: no travel, no scale, no looping word. Everything is simply present, the logo sits in the corner after the hero, the swap line shows its first word. The page must lose nothing but movement.
+If the visitor prefers reduced motion: no travel, no scale, no loops. Everything is simply present, the logo sits in the corner after the hero, the swap line shows its first word. The page must lose nothing but movement. Without motion the corner logo is turquoise.
 
 ---
 
@@ -184,7 +183,7 @@ Spare line, held back for now in case the swap is cut: `That is the entire compa
 ---
 
 ### 04 Work
-**Content is pending.** Daniel will supply the projects, their media and their tags separately. Build the container and the item template now, fill later.
+**Project copy lives in `docs/hardart-projects.md`** (Daniel, 2026-09-13): 9 featured projects with media and 5 secondary projects without media, titles are claims instead of client names, tags per project. That document replaces the item shape and the tag rule below where they differ.
 
 Item shape:
 
