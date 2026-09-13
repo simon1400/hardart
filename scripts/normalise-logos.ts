@@ -7,7 +7,7 @@ import { basename, join } from 'node:path'
 
 const SOURCE_DIR = 'logo-partners'
 const OUT_DIR = 'public/clients'
-const EXCLUDE = new Set(['banka-creditas']) // CLAUDE.md §17: do not include Creditas
+const EXCLUDE = new Set<string>() // Creditas approved by Dmytro on 2026-09-13
 
 const files = readdirSync(SOURCE_DIR).filter((file) => file.endsWith('.svg'))
 const viewBoxes = new Map<string, string[]>()

@@ -1,72 +1,83 @@
-/* Design tokens (CLAUDE.md В§4). Proposed defaults, confirm with Dan on the live site. */
+/* Design tokens. Values follow Daniel's XD (Web 1920 – 9, measured at 1920px) and scale with the viewport.
+   Proposed, confirm with Dan on the live site. See docs/decisions.md 011 and 012. */
 
 :root {
   /* colour, from spec */
   --accent: #00ffc8;
   --paper: #ffffff;
   --ink: #1a1a1a; /* never #000 */
+  --mute: color-mix(in srgb, var(--ink) 18%, var(--paper)); /* XD statement grey */
+  --line: color-mix(in srgb, var(--ink) 22%, transparent); /* media placeholder outline */
 
   /* layout */
-  --gutter: clamp(16px, 2.5vw, 40px);
-  --section-gap: clamp(6rem, 14vh, 12rem);
-  --row-gap: clamp(4rem, 9vh, 7rem); /* between work rows */
+  --gutter: clamp(16px, 1.6vw, 40px); /* XD: 31px at 1920 */
+  --section-gap: clamp(5rem, 12vh, 10rem);
+  --row-gap: clamp(3.5rem, 5vw, 6rem); /* between work rows, XD: 92px */
+  --inset: var(--gutter); /* work rows inset, widened at lg */
   --measure: 60ch;
+  --radius-media: clamp(14px, 1.7vw, 36px); /* XD: ~32px at 1920 */
 
   /* faces; --font-mont is set by next/font on <html> and already carries the metric matched fallback */
   --face-body: var(--font-mont);
   --face-label: var(--font-mont); /* Archia later, one line */
   --fw-body: 500; /* Mont Book */
-  --fw-heavy: 900; /* Mont Heavy */
+  --fw-display: 800; /* Mont Bold */
   --fw-label: 500;
 
-  /* type, Mont */
-  --fs-claim: 12.5vw; /* below md: widest line "BRAND PEOPLE" fills the width at 12.7vw; md+ value below */
-  --lh-claim: 0.92;
-  --ls-claim: -0.03em;
-  --fs-statement: clamp(
-    2.25rem,
-    5vw,
-    5.5rem
-  ); /* always below --fs-claim, spec: largest after the claim */
+  /* type */
+  --fs-claim: 11.5vw; /* mobile: each line breaks once, balanced ("BRAND PEOPLE / CAN'T CODE."); md+ below */
+  --lh-claim: 0.98;
+  --ls-claim: -0.01em;
+  --fs-section: clamp(2rem, 2.4vw, 3rem); /* CLIENTS, SELECTED WORK. XD: 46px */
+  --fs-project: clamp(1.75rem, 2.35vw, 3rem); /* project name. XD: 45px */
+  /* Who we are and project text, Mont Bold. XD: 27px */
+  --fs-text: clamp(1.25rem, 0.75rem + 1vw, 1.75rem);
+  --lh-text: 1.12;
+  --indent: 5em; /* first line indent of text blocks */
+  --fs-statement: 6.5vw; /* mobile, two lines: "ZERO ACCOUNT MANAGERS." is 13.87em */
   --fs-h: clamp(2rem, 4vw, 4.5rem);
   --lh-h: 0.95;
-  --ls-h: -0.02em;
-  --fs-lead: clamp(1.75rem, 1rem + 2.6vw, 3.25rem); /* Who we are, "one large paragraph" */
-  --lh-lead: 1.15;
-  --fs-body: clamp(1.25rem, 1.05rem + 0.7vw, 1.5rem);
+  --ls-h: -0.01em;
+  --fs-body: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
   --lh-body: 1.3;
 
-  /* type, labels */
+  /* labels and pills */
   --fs-label: 0.75rem;
   --ls-label: 0.12em;
-  --fs-list: 1rem; /* What we do discipline lists */
+  --fs-pill: clamp(0.75rem, 0.6rem + 0.35vw, 1rem); /* XD: 16px at 1920 */
+  --ls-pill: 0.08em;
+  --fs-list: 1rem;
   --ls-list: 0.06em;
-  --fs-small: clamp(0.875rem, 0.8rem + 0.2vw, 1rem); /* footer closing line */
+
+  /* brand */
+  --wordmark-w: calc(100vw - var(--gutter) * 2); /* hero and footer wordmark, mobile */
+  --logo-corner-h: 18px;
+  /* shared 654x368 artboard, marks sit inside at ~30 % */
+  --client-logo-h: clamp(72px, 6.4vw, 128px);
+  --marquee-duration: 60s;
+
+  /* focus */
+  --focus-ring: var(--ink);
 
   /* motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-reveal: 0.5s;
   --dur-hover: 0.2s;
   --rise: 20px;
-
-  /* focus */
-  --focus-ring: var(--ink);
-
-  /* corner logo */
-  --logo-corner-h: 18px;
-
-  /* client logos: height of the shared 654x368 artboard, marks sit inside it at ~30 % */
-  --client-logo-h: clamp(64px, 7vw, 104px);
 }
 
 @media (min-width: 51.25rem) {
   :root {
-    --fs-claim: clamp(
-      2.5rem,
-      6.6vw,
-      6rem
-    ); /* widest line is 13.7em, fills 90vw of the 95vw measure */
+    --fs-claim: clamp(1.75rem, 2.6vw, 3.5rem); /* XD: 50px at 1920, right aligned */
+    --fs-statement: 4.6vw; /* one line: the longest option is 20.57em and fills the width */
+    --wordmark-w: 36vw; /* XD: 685px at 1920 */
     --logo-corner-h: 22px;
+  }
+}
+
+@media (min-width: 68.75rem) {
+  :root {
+    --inset: 11.7vw; /* XD: 225px at 1920 */
   }
 }
 
@@ -81,6 +92,7 @@
   --color-accent: var(--accent);
   --color-paper: var(--paper);
   --color-ink: var(--ink);
+  --color-mute: var(--mute);
 
   --font-*: initial;
   --font-body: var(--face-body);
@@ -91,4 +103,5 @@
   --spacing-gutter: var(--gutter);
   --spacing-section: var(--section-gap);
   --spacing-row: var(--row-gap);
+  --spacing-inset: var(--inset);
 }

@@ -26,30 +26,163 @@
   width: auto;
 }
 
+/* Until the Phase 4 scroll move exists, the corner logo fades in as the hero wordmark leaves.
+   Scroll driven CSS, opacity only; browsers without scroll timelines show it from the start. */
+@supports (animation-timeline: scroll()) {
+  .corner-logo:not(:focus-visible) {
+    animation: corner-logo-in linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 40svh;
+  }
+
+  @keyframes corner-logo-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
 .corner-logo.is-over-footer {
   color: var(--accent);
 }
 
-/* What we do statement: the swap slot reserves the width of the widest option in Phase 5. */
-.word-swap-slot {
-  display: inline-block;
+/* Who we are: the hero accent fades into paper (Daniel's XD). */
+.who-we-are {
+  background: linear-gradient(var(--accent), var(--paper) 88%);
 }
 
-/* Work media placeholder until Phase 6 media exists. */
-.project-media-empty {
-  background: color-mix(in srgb, var(--ink) 6%, var(--paper));
+.highlight {
+  background: var(--accent);
+  color: var(--ink);
+  padding-inline: 0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
-/* Clients: every file shares one artboard, so one height equalises them. */
-.clients-strip {
-  gap: clamp(0.25rem, 1vw, 1rem) clamp(0.5rem, 2vw, 2rem);
-  margin-inline: calc(var(--client-logo-h) * -0.2);
+/* Clients marquee. Only transform animates; the second list makes the loop seamless. */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, var(--ink) 5%, var(--ink) 95%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration) linear infinite;
+}
+
+.marquee-list {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 1.5vw, 2rem);
+  padding-inline-end: clamp(0.5rem, 1.5vw, 2rem);
 }
 
 .client-logo svg {
   display: block;
   height: var(--client-logo-h);
   width: auto;
+}
+
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    mask-image: none;
+  }
+
+  .marquee-track {
+    width: auto;
+    animation: none;
+    padding-inline: var(--gutter);
+  }
+
+  .marquee-list {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .marquee-copy {
+    display: none;
+  }
+}
+
+/* Work rows: portrait website frame beside the main media column, sides alternate. */
+.work-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--gutter);
+  align-items: start;
+}
+
+.work-row .site-scroll {
+  order: 2;
+  aspect-ratio: 4 / 5;
+}
+
+@media (min-width: 51.25rem) {
+  .work-row {
+    grid-template-columns: minmax(0, 36fr) minmax(0, 64fr); /* XD: 510 / 904 */
+    column-gap: clamp(1.5rem, 2.9vw, 4rem); /* XD: 56px */
+  }
+
+  .work-row .site-scroll {
+    order: 0;
+    aspect-ratio: 9 / 16;
+  }
+
+  .work-row[data-flip] {
+    grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
+  }
+
+  .work-row[data-flip] .site-scroll {
+    order: 2;
+  }
+
+  .work-row[data-single] .work-main {
+    grid-column: 1 / -1;
+    width: 64%;
+  }
+
+  .work-row[data-single][data-flip] .work-main {
+    justify-self: end;
+  }
+}
+
+.media-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-media);
+}
+
+.media-frame[data-empty] {
+  background: color-mix(in srgb, var(--ink) 6%, var(--paper));
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* Tags: accent outlined pills, ink text. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35em 0.9em 0.3em;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  font-family: var(--face-label);
+  font-weight: var(--fw-label);
+  font-size: var(--fs-pill);
+  line-height: 1;
+  letter-spacing: var(--ls-pill);
+  text-transform: uppercase;
+}
+
+/* What we do statement: the swap slot, Phase 5 animates it. */
+.word-swap-slot {
+  display: inline-block;
 }
 
 /* Icon links share the underline language: the wipe runs under the 20px glyph. */

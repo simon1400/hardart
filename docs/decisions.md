@@ -96,28 +96,53 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** All listed under "To confirm with Dan".
 
+## 012. Visual direction from Daniel's XD mockup
+
+**Context.** On 2026-09-13 Daniel shared an Adobe XD mockup (artboard "Web 1920 – 9"; artboards 1 to 8 are an older concept). It differs from `docs/hardart-web.md` in layout and type. Dmytro: treat it as the direction, not a pixel spec, improve where it helps.
+
+**Decision.** Implemented from the mockup:
+
+- Hero: wordmark top left at 36vw (full width on phones), claim bottom right, right aligned, Mont Bold at 2.6vw (11.5vw on phones, five balanced lines).
+- Who we are: accent to paper gradient band below the hero, one flowing paragraph as a centred block, Mont Bold, names highlighted in accent. Copy stays as in the spec (Dmytro).
+- Section order: Hero, Who we are, Clients, Work, Statement, What we do, Contact, Footer.
+- CLIENTS and SELECTED WORK headings in accent. Client logos run as a CSS marquee (Dmytro approved it although the spec forbids a marquee; reduced motion shows a static wrapped grid).
+- Work rows: optional portrait "website scroll" frame (9:16) beside a 16:9 media column with name, text (5em indent) and tags below; sides alternate; rounded corners. Tags are accent outlined pills in Mont (no monospace, Dmytro). Tag sets keep the spec rule; CUSTOM CMS, DEVELOP and APP join the engineering set (Dmytro).
+- Statement: one full width line in light grey (`--mute`), two lines on phones.
+- Footer: accent wordmark bottom left, tagline uppercase on the right; the three spec columns stay above it.
+- Display face is Mont Bold (800) instead of Heavy; Heavy is no longer shipped.
+- Corner logo fades in with a CSS scroll timeline until the Phase 4 move replaces it.
+
+**Consequence.** `docs/hardart-web.md` is out of date on hero layout, type weights, section order, colour of headings and the marquee. What we do and Contact are marked "zatím neřeš" in the mockup and keep the spec layout for now.
+
+## 013. Contrast exceptions from the mockup (pending)
+
+**Context.** Accent headings on paper measure 1.3:1 and the grey statement 1.45:1. WCAG 1.4.3 asks 3:1 for large text, and Lighthouse Accessibility drops below the 100 budget in CLAUDE.md §14.
+
+**Decision.** Implemented as designed. The axe test excludes exactly these nodes from the color-contrast rule, all other rules still run on them.
+
+**Consequence.** Dmytro decides: keep the look (and accept the score), or darken them (for example an ink heading with an accent rule, or grey at 3:1).
+
 ---
 
 ## To confirm with Dan
 
 - Label weight: Mont Book (500) at 12px with .12em tracking. Regular (600) is the alternative if labels read too light.
-- Claim and statement sizes from decision 011. On a phone the hero still has an empty middle: logo top, claim bottom, as the spec lays it out.
-- Who we are: `--fs-lead` (28 to 52px), three paragraphs each with a 3em first line indent and no gap between them.
-- Tags: plain labels for now. The spec allows turquoise for tags; a turquoise fill behind ink text is the alternative.
-- Clients strip order (currently roughly by recognisability) and the line above it set in body size.
+- Mobile layout of every section (the XD only has desktop). Claim on phones: five balanced lines at 11.5vw.
+- What we do and Contact are not designed in the XD yet.
+- Clients marquee order (roughly by recognisability) and where the "household names" line goes (under the marquee for now).
 - 404 copy is a proposal, not in the spec: "Nothing here." / "Back to hardart".
 - Favicon and apple icon use the "h" of the wordmark on turquoise.
-- Corner logo overlaps content while scrolling (ink on ink over text) until the Phase 4 move; over the footer it is invisible until the colour flip.
+- Corner logo fades in by scroll; it still overlaps content and is invisible over the footer until the Phase 4 move and colour flip.
 
 ## Open items
 
 Tracked from `CLAUDE.md` §17.
 
 - Archia web license (Dmytro/Daniel). Not blocking, the site is built with Mont only until decided.
-- Permission to show each client (direct contract, no NDA). Logos delivered: Ducati, KTM, Vinci Energies, Mergado, Authentica, Tickets GP, Bedy Group, ESOX, POEX, Pellwood, Wannieck Gallery, Míčánek Motorsport, RTR Projects (name read from the logo, confirm), Burger Street Festival, Ples jako Brno, Nová Myslivna, Pizza Bombastica. Banka Creditas delivered and excluded.
+- RTR Projects: name read from the logo, confirm the spelling. All 18 clients, Creditas included, approved for display by Dmytro on 2026-09-13.
 - Project content: name, url, media, tags, text per project (Daniel).
-- Personal emails for Dmytro and Daniel (placeholders now), LinkedIn URLs for both and for the company.
-- Daniel's legal identification for the footer line, or the decision to show only Dmytro's.
+- LinkedIn URLs for Dmytro, Daniel and the company (personal emails delivered 2026-09-13).
+- Daniel's IČO for the footer legal line (surname Kokes delivered).
 - Favicon: "h" or the full wordmark (Daniel).
 - Type scale confirmation on the live site (Daniel).
 - Feature flag decisions (Daniel, after Phase 7).

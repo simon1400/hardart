@@ -17,6 +17,8 @@ export const site = {
   },
   whoWeAre: {
     sectionLabel: 'Who we are',
+    // Rendered as one flowing paragraph; these words get the accent highlight (Daniel's XD).
+    highlight: ['Daniel', 'Dmytro'],
     paragraphs: [
       'An independent creative development studio. Two people, ten years, no departments, no account managers, no handover meetings.',
       'Daniel builds the brand, the interface and everything a visitor judges in the first four seconds. Dmytro builds the part underneath. Banks trust him with theirs. You never notice it. That is the point.',
@@ -53,10 +55,11 @@ export const site = {
   work: {
     label: 'SELECTED WORK',
     tagsLabel: 'Tags',
+    siteLabel: (name: string) => `${name} website`,
   },
   clients: {
+    label: 'CLIENTS', // heading from Daniel's XD
     lines: ['Some of them are household names.', 'We still answer our own phones.'],
-    listLabel: 'Clients',
   },
   contact: {
     heading: 'TELL US ABOUT YOUR PROJECT',
@@ -82,7 +85,7 @@ export const site = {
     },
     closing: 'The kind of art that has a deadline.',
     // Placeholder from CLAUDE.md §12, Dmytro confirms the final wording.
-    legal: 'Dmytro Pechunka, IČO 17407613 · Daniel {{SURNAME}}, IČO {{DAN_ICO}}',
+    legal: 'Dmytro Pechunka, IČO 17407613 · Daniel Kokes, IČO {{DAN_ICO}}',
   },
   notFound: {
     // proposal, not in the spec

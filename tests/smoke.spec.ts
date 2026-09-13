@@ -8,10 +8,10 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/')
 })
 
-test('renders the seven sections in order', async ({ page }) => {
+test('renders every section and the footer', async ({ page }) => {
   await expect(page.locator('#top')).toBeVisible()
   const landmarks = page.locator('main > section, body > footer')
-  await expect(landmarks).toHaveCount(7)
+  await expect(landmarks).toHaveCount(8)
 })
 
 test('copy matches content/site.ts verbatim', async ({ page }) => {
@@ -27,6 +27,7 @@ test('copy matches content/site.ts verbatim', async ({ page }) => {
     site.whatWeDo.statement.first,
     `${site.whatWeDo.statement.before}${site.whatWeDo.statement.options[0]}${site.whatWeDo.statement.after}`,
     site.work.label,
+    site.clients.label,
     ...site.clients.lines,
     site.contact.heading,
     site.contact.email,
@@ -46,7 +47,8 @@ test('copy matches content/site.ts verbatim', async ({ page }) => {
 
 test('work, clients and people are complete', async ({ page }) => {
   await expect(page.locator('article')).toHaveCount(projects.length)
-  await expect(page.locator('.clients-strip svg')).toHaveCount(clients.length)
+  await expect(page.locator('.marquee-list:not(.marquee-copy) svg')).toHaveCount(clients.length)
+  await expect(page.getByRole('img', { name: clients[0]?.name })).toHaveCount(1)
   for (const person of people) {
     await expect(
       page.getByRole('link', { name: site.contact.emailLabel(person.name) }),

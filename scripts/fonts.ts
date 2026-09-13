@@ -8,10 +8,10 @@ import subsetFont from 'subset-font'
 const SOURCE_DIR = 'font/Mont Family'
 const OUT_DIR = 'app/fonts'
 
-// Mont's OS/2 weight classes are shifted: Book is 500, Heavy is 900.
+// Mont's OS/2 weight classes are shifted: Book is 500, Bold is 800.
 const FACES = [
   { source: 'Fontfabric - Mont Book.otf', out: 'mont-book.woff2' },
-  { source: 'Fontfabric - Mont Heavy.otf', out: 'mont-heavy.woff2' },
+  { source: 'Fontfabric - Mont Bold.otf', out: 'mont-bold.woff2' },
 ]
 
 // Latin + Latin-1 Supplement + Latin Extended-A, general punctuation, currency.

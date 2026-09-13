@@ -11,7 +11,7 @@ for (const project of projects) {
   if (project.slug.startsWith('placeholder')) problems.push(`project ${project.slug}`)
 }
 for (const person of people) {
-  if (person.placeholder) problems.push(`person ${person.name} (email, LinkedIn)`)
+  if (person.linkedinPlaceholder) problems.push(`LinkedIn URL for ${person.name}`)
 }
 if (companyLinkedin.placeholder) problems.push('company LinkedIn URL')
 if (site.footer.legal.includes('{{')) problems.push('footer legal line')

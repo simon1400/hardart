@@ -40,7 +40,7 @@ const jsonLd = {
   founder: people.map((person) => ({ '@type': 'Person', name: person.name })),
   sameAs: [
     companyLinkedin,
-    ...people.map((person) => ({ url: person.linkedin, placeholder: person.placeholder })),
+    ...people.map((person) => ({ url: person.linkedin, placeholder: person.linkedinPlaceholder })),
   ]
     .filter((link) => !link.placeholder)
     .map((link) => link.url),

@@ -1,11 +1,11 @@
 import { site } from '@/content/site'
 
+// Not designed in Daniel's XD yet ("zatím neřeš"); kept from the spec layout.
 export function WhatWeDo() {
-  const { people, statement } = site.whatWeDo
-  const [firstOption] = statement.options
+  const { people, sectionLabel } = site.whatWeDo
 
   return (
-    <section aria-label={site.whatWeDo.sectionLabel} className="px-gutter pt-section">
+    <section aria-label={sectionLabel} className="px-gutter pt-section">
       <div className="grid gap-16 md:grid-cols-2 md:gap-gutter">
         {people.map((person) => (
           <div key={person.name} className="flex flex-col gap-6">
@@ -21,16 +21,6 @@ export function WhatWeDo() {
           </div>
         ))}
       </div>
-
-      <p className="mt-section text-statement">
-        <span className="block">{statement.first}</span>
-        <span className="block">
-          {statement.before}
-          {/* Phase 5 turns this slot into the WordSwap; static state shows the first option. */}
-          <span className="word-swap-slot">{firstOption}</span>
-          {statement.after}
-        </span>
-      </p>
     </section>
   )
 }

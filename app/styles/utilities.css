@@ -17,25 +17,51 @@
 
 @utility text-claim {
   font-family: var(--face-body);
-  font-weight: var(--fw-heavy);
+  font-weight: var(--fw-display);
   font-size: var(--fs-claim);
   line-height: var(--lh-claim);
   letter-spacing: var(--ls-claim);
   text-transform: uppercase;
 }
 
+@utility text-section {
+  font-family: var(--face-body);
+  font-weight: var(--fw-display);
+  font-size: var(--fs-section);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+@utility text-project {
+  font-family: var(--face-body);
+  font-weight: var(--fw-display);
+  font-size: var(--fs-project);
+  line-height: 1;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+}
+
+@utility text-copy {
+  font-family: var(--face-body);
+  font-weight: var(--fw-display);
+  font-size: var(--fs-text);
+  line-height: var(--lh-text);
+  text-indent: var(--indent);
+}
+
 @utility text-statement {
   font-family: var(--face-body);
-  font-weight: var(--fw-heavy);
+  font-weight: var(--fw-display);
   font-size: var(--fs-statement);
-  line-height: var(--lh-claim);
-  letter-spacing: var(--ls-claim);
+  line-height: 0.95;
+  letter-spacing: -0.015em;
   text-transform: uppercase;
 }
 
 @utility text-h {
   font-family: var(--face-body);
-  font-weight: var(--fw-heavy);
+  font-weight: var(--fw-display);
   font-size: var(--fs-h);
   line-height: var(--lh-h);
   letter-spacing: var(--ls-h);
@@ -47,14 +73,6 @@
   font-weight: var(--fw-body);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
-}
-
-@utility text-lead {
-  font-family: var(--face-body);
-  font-weight: var(--fw-body);
-  font-size: var(--fs-lead);
-  line-height: var(--lh-lead);
-  letter-spacing: -0.01em;
 }
 
 @utility text-label {
@@ -72,11 +90,4 @@
   font-size: var(--fs-list);
   line-height: 1.5;
   letter-spacing: var(--ls-list);
-}
-
-@utility text-small {
-  font-family: var(--face-body);
-  font-weight: var(--fw-body);
-  font-size: var(--fs-small);
-  line-height: 1.3;
 }

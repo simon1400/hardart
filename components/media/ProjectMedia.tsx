@@ -1,16 +1,30 @@
 import type { Project } from '@/content/projects'
 
-// Phase 2: static frame with the intrinsic aspect ratio, so CLS is 0 before media exists.
+type Media = Project['media']
+type Site = NonNullable<Project['site']>
+
+// Phase 2: frames with fixed aspect ratios, so CLS is 0 before media exists.
 // Phase 6 adds ImageKit video/image loading, posters and the 3-video cap.
-export function ProjectMedia({ media, name }: { media: Project['media']; name: string }) {
+export function ProjectMedia({ media, label }: { media: Media; label: string }) {
   return (
     <div
-      className="project-media relative w-full overflow-hidden"
+      className="media-frame"
       style={{ aspectRatio: `${media.width} / ${media.height}` }}
-    >
-      {media.src === '' ? (
-        <div className="project-media-empty absolute inset-0" role="img" aria-label={name} />
-      ) : null}
-    </div>
+      role="img"
+      aria-label={label}
+      data-empty={media.src === '' ? '' : undefined}
+    />
+  )
+}
+
+// Portrait window onto a tall website screenshot. Phase 5 scrolls the image with the page.
+export function SiteScroll({ site, label }: { site: Site; label: string }) {
+  return (
+    <div
+      className="media-frame site-scroll"
+      role="img"
+      aria-label={label}
+      data-empty={site.src === '' ? '' : undefined}
+    />
   )
 }

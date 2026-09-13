@@ -1,12 +1,13 @@
 // Client logos in display order. Files in public/clients/ are produced by `pnpm logos`.
 // Every logo shares Daniel's 654x368 artboard, so they are optically equal at one height.
-// Permission to show each client is still to be confirmed (docs/decisions.md, open items).
+// Dmytro confirmed on 2026-09-13 that every client, Creditas included, may be shown.
 export type Client = { name: string; file: string }
 
 export const clients: Client[] = [
   { name: 'Ducati', file: 'ducati.svg' },
   { name: 'KTM', file: 'ktm.svg' },
   { name: 'Vinci Energies', file: 'vinci-energies.svg' },
+  { name: 'Banka Creditas', file: 'banka-creditas.svg' },
   { name: 'Mergado', file: 'mergado.svg' },
   { name: 'Authentica', file: 'authentica.svg' },
   { name: 'Tickets GP', file: 'tickets-gp.svg' },

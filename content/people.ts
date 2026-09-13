@@ -6,24 +6,24 @@ export type Person = {
   emailUser: string
   emailDomain: string
   linkedin: string
-  /** true while the data is not confirmed; production builds refuse placeholders */
-  placeholder: boolean
+  /** true while the LinkedIn URL is not delivered; production builds refuse placeholders */
+  linkedinPlaceholder: boolean
 }
 
 export const people: Person[] = [
   {
     name: 'Dmytro',
-    emailUser: 'ZG15dHJv', // placeholder
-    emailDomain: 'aGFyZGFydC5jeg==',
+    emailUser: 'ZG15dHJv',
+    emailDomain: 'cGVjaHVua2EuY29t',
     linkedin: 'https://www.linkedin.com/',
-    placeholder: true,
+    linkedinPlaceholder: true,
   },
   {
     name: 'Daniel',
-    emailUser: 'ZGFuaWVs', // placeholder
-    emailDomain: 'aGFyZGFydC5jeg==',
+    emailUser: 'ZGFuaWVsLmtva2Vz',
+    emailDomain: 'Z21haWwuY29t',
     linkedin: 'https://www.linkedin.com/',
-    placeholder: true,
+    linkedinPlaceholder: true,
   },
 ]
 
