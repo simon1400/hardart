@@ -41,9 +41,8 @@ export function ProjectMedia({ project }: { project: Project }) {
           loading="lazy"
           decoding="async"
         />
-      ) : (
-        <span className="sr-only">{client}</span>
-      )}
+      ) : // Missing file (local only): an empty frame, nothing to announce.
+      null}
     </div>
   )
 }
@@ -74,9 +73,7 @@ export async function SiteScroll({ project, label }: { project: Project; label: 
     <div className="media-frame site-scroll" data-empty={hasSite ? undefined : ''}>
       {hasSite && site ? (
         <SiteShot src={mediaUrl(slug, site, 'site')} alt={label} duration={duration} />
-      ) : (
-        <span className="sr-only">{label}</span>
-      )}
+      ) : null}
     </div>
   )
 }
