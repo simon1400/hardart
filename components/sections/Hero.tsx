@@ -6,8 +6,9 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="flex min-h-svh flex-col justify-between gap-12 bg-accent p-gutter text-ink"
+      className="flex min-h-svh flex-col justify-between gap-12 bg-accent px-gutter pb-gutter text-ink"
     >
+      {/* The tops of the letters sit on the top edge of the window (the SVG has no top padding). */}
       <h1 className="w-(--wordmark-w)">
         <Wordmark title={site.brand.name} className="hero-wordmark block h-auto w-full" />
       </h1>
