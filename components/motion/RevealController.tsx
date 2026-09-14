@@ -19,6 +19,11 @@ import { curtainStart, setupParallax, setupScenes } from '@/components/motion/sc
 
 type Revealed = HTMLElement & { dataset: { reveal: string } }
 
+/** Longest stretch of reveal setup before the main thread gets a turn, ms (a long task is 50). */
+const SLICE_MS = 30
+
+const yieldToMain = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
+
 // Sets up every [data-reveal] element on the page (moves C, E, F) and the scroll scenes
 // (scenes.ts). Renders nothing.
 export function RevealController() {
@@ -33,15 +38,29 @@ export function RevealController() {
       let cleanupScenes: (() => void) | undefined
 
       // Line breaks depend on the font, so nothing is split before fonts are ready (or 1.5 s).
-      fontsReady().then(() => {
+      fontsReady().then(async () => {
         if (!active) return
+        // Scenes first: the footer curtain moves the footer, and the reveals inside it read that.
         context.add(() => {
-          // Scenes first: the footer curtain moves the footer, and the reveals inside it read that.
           cleanupScenes = setupScenes()
-          for (const el of document.querySelectorAll<Revealed>('[data-reveal]')) setup(el)
-          // One pass over all triggers with the split layout in place (clamped starts included).
-          ScrollTrigger.refresh()
         })
+        // Every split measures layout. Done in one go it blocked the main thread for about 275 ms on a
+        // slow phone, so the reveals are set up in slices of a few frames, in page order, yielding in
+        // between (decision 028). Elements not set up yet stay hidden by the CSS gate.
+        const pending = Array.from(document.querySelectorAll<Revealed>('[data-reveal]'))
+        while (pending.length > 0) {
+          const start = performance.now()
+          context.add(() => {
+            while (pending.length > 0 && performance.now() - start < SLICE_MS) {
+              const el = pending.shift()
+              if (el) setup(el)
+            }
+          })
+          await yieldToMain()
+          if (!active) return
+        }
+        // One pass over all triggers with the split layout in place (clamped starts included).
+        context.add(() => ScrollTrigger.refresh())
       })
 
       return () => {
