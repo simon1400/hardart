@@ -9,7 +9,7 @@
 //                                                  public/projects/<slug>/site-600.webp   phones
 //   projects/<slug>.jpg   same, jpg/webp also accepted
 //
-// Videos are cropped to the 16:9 frame they are shown in, lose their audio track, run at 30 fps at
+// Videos keep their aspect ratio (it prints the size to copy into content/projects.ts), lose their audio track, run at 30 fps at
 // most and start playing before they finish downloading (faststart). The -800 and -600 files are
 // the local stand-ins for the ImageKit width presets in lib/imagekit.ts; the files without a
 // suffix are what gets uploaded to ImageKit.
@@ -71,22 +71,36 @@ function report(target: string, extra = '') {
   console.log(`  ${target.replace(`${OUT_DIR}/`, '')}  ${mb(statSync(target).size)}${extra}`)
 }
 
+/** One frame as PNG; empty past the end of the video. */
+function frameAt(bin: string, video: string, time: number) {
+  return execFileSync(
+    bin,
+    [
+      ...['-hide_banner', '-loglevel', 'error', '-ss', String(time), '-i', video],
+      ...['-frames:v', '1', '-f', 'image2pipe', '-c:v', 'png', '-'],
+    ],
+    { maxBuffer: 64 * 1024 * 1024 },
+  )
+}
+
 async function prepareVideo(source: string, dir: string) {
   const bin = ffmpeg()
-  // Crop to 16:9 around the centre, like object-fit: cover in the frame.
-  const crop = "crop='min(iw,ih*16/9)':'min(ih,iw*9/16)'"
   for (const { file, width, crf, maxrate } of VIDEO) {
     const target = join(dir, file)
     if (fresh(source, target)) continue
+    // Never cropped: the frame takes the video's own aspect ratio (width and height in content).
+    // x264 needs even sides.
     execFileSync(bin, [
       ...['-hide_banner', '-loglevel', 'error', '-y', '-i', source, '-an'],
-      ...['-vf', `${crop},scale='min(${width},iw)':-2,fps='min(30,source_fps)'`],
+      ...['-vf', `scale='trunc(min(${width},iw)/2)*2':-2,fps='min(30,source_fps)'`],
       ...['-c:v', 'libx264', '-preset', 'slow', '-crf', String(crf), '-profile:v', 'high'],
       ...['-maxrate', maxrate, '-bufsize', `${parseInt(maxrate, 10) * 2}k`],
       ...['-pix_fmt', 'yuv420p', '-movflags', '+faststart', target],
     ])
     report(target)
   }
+  const size = await sharp(frameAt(bin, join(dir, 'video.mp4'), 0)).metadata()
+  console.log(`  size  width: ${size.width}, height: ${size.height}`)
 
   // Poster: it is all that shows without motion, so not a flat intro frame (many videos fade in from
   // black or white). The first frame in the opening seconds with real detail, else the most detailed.
@@ -96,14 +110,7 @@ async function prepareVideo(source: string, dir: string) {
   let frame: Buffer | undefined
   let best = -1
   for (const time of POSTER_TIMES) {
-    const candidate = execFileSync(
-      bin,
-      [
-        ...['-hide_banner', '-loglevel', 'error', '-ss', String(time), '-i', video],
-        ...['-frames:v', '1', '-f', 'image2pipe', '-c:v', 'png', '-'],
-      ],
-      { maxBuffer: 64 * 1024 * 1024 },
-    )
+    const candidate = frameAt(bin, video, time)
     if (candidate.length === 0) break // past the end of a short video
     const { entropy } = await sharp(candidate).stats()
     if (entropy > best) {
