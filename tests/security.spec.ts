@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs'
 import { expect, type Page, test } from '@playwright/test'
 import { headerPolicy } from '../lib/security'
 
-const NGINX_ORIGINS = { imagekit: 'https://ik.imagekit.io', umami: 'https://{{UMAMI_HOST}}' }
+// Umami is not installed yet; its origin joins both the snippet and this object when it is.
+const NGINX_ORIGINS = { imagekit: 'https://ik.imagekit.io' }
 const PAGES = ['index.html', '404.html']
 
 function nginxPolicy() {
@@ -43,9 +44,9 @@ for (const file of PAGES) {
 }
 
 // Serves documents with the Nginx header on top of the meta policy, as production does, and records
-// every violation. The Umami placeholder becomes a valid host so the header parses cleanly.
+// every violation.
 async function withProductionPolicies(page: Page) {
-  const header = nginxPolicy().replaceAll('{{UMAMI_HOST}}', 'umami.invalid')
+  const header = nginxPolicy()
   await page.route('**/*', async (route) => {
     if (route.request().resourceType() !== 'document') return route.continue()
     const response = await route.fetch()

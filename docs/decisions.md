@@ -315,6 +315,19 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** Every build rewrites the HTML after Next, so anything that post-processes `out/` must run before `scripts/csp.ts` or re-run it. A new third party host goes into `lib/security.ts` and the Nginx snippet together. Real users on a slow connection see the claim once Mont has loaded plus 0.6 s; Chrome does not report that paint as LCP (the first paint is fully clipped), which only matters for field data.
 
+## 029. Deploy: build in Actions, releases on the VPS
+
+**Context.** The VPS (`ssh het`) is shared with about 25 production apps, including the priority sites barbitch, burger and ddsirup. It runs Node 20 without pnpm (the project needs Node 24, pnpm, and `process.loadEnvFile` in `scripts/csp.ts`), nginx 1.24, 11 GB of free disk, and prod apps use most of the RAM. CLAUDE.md §13 planned to build on the VPS. Dmytro (2026-09-14): deploy like barbitch (GitHub Actions over SSH as root with the existing `github-actions-deploy` key), without affecting the other projects; the site is public (no basic auth), the company LinkedIn placeholder stays for now, Umami later.
+
+**Decision.**
+
+- `.github/workflows/deploy.yml` runs after CI succeeds on `main` (`workflow_run`, or by hand): builds with Node 24 and pnpm on the runner (ImageKit endpoint secret, JS budget, CSP meta check), rsyncs `out/` into `/opt/hardart/releases/<sha>` (hard links to the live release for unchanged files, `--no-owner --no-group` because the runner uid 1001 matches orphaned files on the server), swaps `/opt/hardart/current` atomically (`ln -sfn` + `mv -T`), keeps 5 releases, then fetches https://hardart.cz and compares it with the build. Nothing of hardart runs on the VPS: no git checkout, Node or PM2.
+- Secrets as in the barbitch repos: `SSH_HOST`, `SSH_USER` (root), `SSH_PRIVATE_KEY` (the existing `github-actions-deploy` key), plus `SSH_KNOWN_HOSTS` (host keys checked against the ones this machine already trusts).
+- `nginx/setup-server.sh` does the one time server part and can run again: `/opt/hardart`, nginx backup in `/root`, domain conflict check, header snippet, certbot webroot certificate for hardart.cz and www (`/var/www/letsencrypt`, renewals use the port 80 block), the site config from the repo, `nginx -t` with rollback, and a check that the neighbouring sites still answer. It ran on 2026-09-14; the first attempt failed `nginx -t` on `http2 on;` (needs nginx 1.25.1), was rolled back automatically, and the config now uses `listen 443 ssl http2`.
+- The deploy build does not set `HARDART_ENV=production` yet, because the company LinkedIn URL is still a placeholder (Phase 10). The header snippet has no Umami origin until Umami exists.
+
+**Consequence.** A push reaches the site after CI plus about two minutes. Rollback: `ln -sfn /opt/hardart/releases/<older sha> /opt/hardart/current` on the server. Old `_next/static` chunks disappear with their release, which only matters for a tab open across a deploy. Changes to `nginx/*.conf` are not deployed by the workflow: re-run `nginx/setup-server.sh`.
+
 ---
 
 ## To confirm with Dan

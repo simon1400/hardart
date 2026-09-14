@@ -1,0 +1,88 @@
+name: Deploy
+
+# Publishes main to hardart.cz once CI has passed on the same commit (decision 029). The site is built
+# here, not on the shared VPS (Node 20 there, no pnpm, and a build would compete with the other
+# apps), then synced as a new release into /opt/hardart/releases/<sha> and switched live by one
+# atomic symlink swap. Rollback: point /opt/hardart/current at an older release. SSH secrets are the
+# same as in the barbitch repos (SSH_HOST, SSH_USER, SSH_PRIVATE_KEY) plus SSH_KNOWN_HOSTS.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  RELEASES: /opt/hardart/releases
+  KEEP_RELEASES: 5
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT: ${{ secrets.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT }}
+        run: |
+          pnpm build
+          pnpm check-budget
+          grep -q 'http-equiv="Content-Security-Policy"' out/index.html
+
+      - name: SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Upload release
+        env:
+          TARGET: ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          set -euo pipefail
+          ssh="ssh -i $HOME/.ssh/deploy -o IdentitiesOnly=yes -o BatchMode=yes"
+          # Unchanged files are hard links to the live release, so a deploy costs only what changed.
+          rsync -a --no-owner --no-group --chmod=D755,F644 --delete --link-dest="$RELEASES/../current/" -e "$ssh" out/ "$TARGET:$RELEASES/$SHA/"
+          $ssh "$TARGET" "set -euo pipefail
+            test -f $RELEASES/$SHA/index.html
+            ln -sfn $RELEASES/$SHA /opt/hardart/current.next
+            mv -Tf /opt/hardart/current.next /opt/hardart/current
+            cd $RELEASES && ls -1t | tail -n +$((KEEP_RELEASES + 1)) | xargs -r rm -rf
+            readlink /opt/hardart/current"
+
+      - name: Verify
+        env:
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 20 https://hardart.cz/ -o live.html
+          grep -q 'http-equiv="Content-Security-Policy"' live.html
+          cmp -s live.html out/index.html && echo "live page matches the build of $SHA"
+          curl -sI --max-time 20 https://hardart.cz/ | grep -iE '^(HTTP|content-security-policy|strict-transport-security)'
