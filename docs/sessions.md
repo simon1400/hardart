@@ -132,6 +132,13 @@ args: ['--enable-gpu', '--use-angle=d3d11', '--ignore-gpu-blocklist'] })`). The 
 - `deploy.yml` (push to `main` builds on the VPS and syncs `out/`, `HARDART_ENV=production`),
   reference Nginx config applied by Dmytro, TLS, `www` redirect, optional basic auth, Umami on the VPS.
 - Needs from Dmytro: VPS secrets in GitHub, Umami host, decision on basic auth. Ask at the start.
+- Dmytro (2026-09-14): Claude does the whole deploy itself, server side included (`ssh het`), following
+  the barbitch and server-monitor pattern. Project memory `server-het` and `deploy-pattern` has the
+  facts: shared prod server with priority sites (barbitch, burger, ddsirup, never touch them),
+  Node 20 and no pnpm on the server (our build needs Node 24 and pnpm), 11 GB disk free, no brotli
+  module, Umami not installed. `hardart.cz` has no A record and `www` does not exist yet (DNS at
+  WEDOS). Proposal to confirm at the start: build in GitHub Actions and rsync `out/` into
+  `/opt/hardart/releases/<sha>` with a `current` symlink, instead of building on the VPS.
 - ImageKit is live (decision 026): the secret `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` is set in GitHub,
   `deploy.yml` must pass it to the build. Media is uploaded with `pnpm media:upload`. CSP needs
   `ik.imagekit.io` in `img-src` and `media-src`.
