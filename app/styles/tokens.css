@@ -17,7 +17,8 @@
   --gutter: clamp(16px, 1.6vw, 40px); /* XD: 31px at 1920 */
   --section-gap: clamp(5rem, 12vh, 10rem);
   --row-gap: clamp(3.5rem, 5vw, 6rem); /* between work rows, XD: 92px */
-  --work-col-gap: clamp(3rem, 5.8vw, 8rem); /* between two projects side by side (work-pair), 2x XD (Dmytro, 2026-09-14) */
+  /* between two projects side by side (work-pair), 2x XD (Dmytro, 2026-09-14) */
+  --work-col-gap: clamp(3rem, 5.8vw, 8rem);
   --inset: var(--gutter); /* work rows inset, widened at lg */
   --measure: 60ch;
   --radius-media: clamp(14px, 1.7vw, 36px); /* XD: ~32px at 1920 */
@@ -43,7 +44,8 @@
   --fs-statement: 6.5vw; /* mobile, two lines: "ZERO ACCOUNT MANAGERS." is 13.87em */
   --fs-h: clamp(2rem, 4vw, 4.5rem);
   /* statement and footer, Daniel's footer design (2026-09-14, 1280 px screenshot) */
-  --fs-footer: min(1rem, 3.5vw); /* mobile: each discipline line fits on one line (Dmytro, 2026-09-14) */
+  /* mobile: each discipline line fits on one line (Dmytro, 2026-09-14) */
+  --fs-footer: min(1rem, 3.5vw);
   --fs-closing: 7vw; /* THE KIND OF ART THAT HAS A DEADLINE., mobile */
   --fs-legal: clamp(0.625rem, 0.7vw, 0.875rem);
   --finale-inset: var(--gutter); /* left edge of the statement and the people, lg below */

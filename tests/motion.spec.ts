@@ -209,7 +209,13 @@ for (const width of [390, 1440]) {
           }, 100)
         }),
     )
-    expect(samples.words).toEqual(['MIDDLEMEN.', 'DEPARTMENTS.', 'ESCALATIONS.', 'EXCUSES.', 'ORG CHART.'])
+    expect(samples.words).toEqual([
+      'MIDDLEMEN.',
+      'DEPARTMENTS.',
+      'ESCALATIONS.',
+      'EXCUSES.',
+      'ORG CHART.',
+    ])
     expect(samples.boxes).toHaveLength(1)
     expect(samples.overflow).toBe(false)
   })
