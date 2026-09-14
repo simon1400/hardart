@@ -127,7 +127,21 @@ args: ['--enable-gpu', '--use-angle=d3d11', '--ignore-gpu-blocklist'] })`). The 
   open windows either.
 - CSP: the grain flag needs nothing extra (WebGL, inline canvas); flags do not add third party hosts.
 
-### Phase 9, deploy. Status: todo
+### Phase 9, deploy. Status: done except Umami (2026-09-14)
+
+- Live on https://hardart.cz (decision 029): `deploy.yml` builds in Actions after CI and rsyncs a release
+  to `/opt/hardart/releases/<sha>`, `current` symlink, SSH as root with the barbitch deploy key.
+  `nginx/setup-server.sh` set up nginx, the snippet and the certificate; re-run it after changing
+  `nginx/*`. Verified: live page equals the build, HTTP/2, TLS 1.3, CSP and HSTS headers, gzip, cache
+  headers, 404 page, no CSP violations or console errors, neighbouring sites still answer.
+- Decisions (Dmytro): public, no basic auth; company LinkedIn placeholder stays, so the deploy build
+  does not set `HARDART_ENV=production` yet; Umami later as its own step (Node app on the server
+  with its own database in the existing PostgreSQL, subdomain like stats.hardart.cz), then add its
+  origin to `lib/security.ts`, the Nginx snippet and `NGINX_ORIGINS` in the security test.
+- Left: Umami, securityheaders.com check, switch on `HARDART_ENV=production` in `deploy.yml` once
+  the LinkedIn URL exists (Phase 10).
+
+Original plan:
 
 - `deploy.yml` (push to `main` builds on the VPS and syncs `out/`, `HARDART_ENV=production`),
   reference Nginx config applied by Dmytro, TLS, `www` redirect, optional basic auth, Umami on the VPS.
