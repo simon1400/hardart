@@ -51,7 +51,8 @@ after `next build`, policy in `lib/security.ts`); `nginx/hardart.cz.conf` plus `
 are the reference server config with security headers. CI runs the JS budget (`pnpm check-budget`),
 Lighthouse CI (`lighthouserc.json`, 2x CPU on runners) and visual tests against linux baselines
 (`visual-baselines.yml`, manual). The hero claim reveals in CSS on the compositor once Mont is loaded
-(head script adds `fonts-ready`), is no longer split, and reveal setup runs in 12 ms slices. Umami
+(head script adds `fonts-ready`), is no longer split, and reveal setup runs in 12 ms slices. The static
+hero wordmark is an `<img>` (ink SVG data URI), which is the LCP element on every platform. Umami
 script renders with `NEXT_PUBLIC_UMAMI_HOST` and `NEXT_PUBLIC_UMAMI_ID`. README exists.
 
 Parked questions (do not ask again unless a phase is blocked by one; they live in
@@ -105,9 +106,11 @@ Not built from the proposals: What we do entrance beyond the line reveals.
 - Fixed on the way: hero claim waited for the JS bundle (LCP), font swap shifted the claim (CLS),
   collapsed negative margins made split paragraphs taller than unsplit ones, the font wait rejected
   at once where Arial is missing (Linux, Android), one 275 ms setup task (TBT).
-- Measured (decision 028): CI Performance 0.98, LCP 2.4 s, TBT 30 to 40 ms, CLS 0, other categories
+- Measured (decision 028): CI Performance 0.98, LCP 2.4 s, TBT 10 ms, CLS 0, other categories
   100; locally Performance 95, LCP 2.9 s, TBT 10 to 20 ms; JS 225.7 KiB gzip; load and scroll frames
   at 6x CPU equal to the Phase 7 build.
+- Note: `pnpm lighthouse` locally (4x CPU) sits at the LCP limit, about 3.0 s simulated, while CI
+  (2x CPU on half as fast runners) gives 2.4 s; trust CI, the local number is Lantern noise on localhost.
 
 Original plan:
 
