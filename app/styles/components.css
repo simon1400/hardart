@@ -511,11 +511,37 @@ html.lenis body {
   visibility: hidden;
 }
 
-/* Footer curtain: the page is a sheet above the footer, which slides out from under it. */
-main {
-  position: relative;
-  z-index: 1;
-  background: var(--paper);
+/* Statement on the accent ground: sticks to the screen while the footer slides over it, and keeps its
+   line above the part the footer covers at the end of the page (--footer-cover, FooterCover.tsx). */
+.statement {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100svh;
+  overflow: clip;
+  padding-inline: var(--gutter);
+  padding-bottom: calc(var(--footer-cover) + var(--statement-pad));
+}
+
+@media (min-width: 51.25rem) {
+  .statement {
+    padding-left: var(--finale-inset);
+  }
+}
+
+/* Paper, then paper into accent where the footer's top edge ends up. Without motion it is shown at the
+   end state; with motion scenes.ts raises it from 0 to -50 % as the section arrives. */
+.statement-ground {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: -1;
+  height: 200%;
+  background: linear-gradient(var(--paper) 50%, var(--accent) calc(100% - var(--footer-cover)));
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 /* Icon links share the underline language: the wipe runs under the 20px glyph. */
@@ -537,22 +563,58 @@ main {
   background-size: 20px 2px;
 }
 
-/* Footer: the one inverted surface. */
+/* Footer: the one inverted surface, above the sticky statement. */
 .site-footer {
   --focus-ring: var(--accent);
+  position: relative;
+  z-index: 1;
 }
 
-.footer-column {
+.footer-people {
+  display: grid;
+  gap: 2.5rem;
+  padding-top: var(--footer-pad);
+  padding-inline: var(--gutter);
+}
+
+@media (min-width: 51.25rem) {
+  .footer-people {
+    grid-template-columns: var(--finale-col) 1fr;
+    gap: 0;
+    padding-left: var(--finale-inset);
+  }
+}
+
+.footer-name {
+  font-weight: var(--fw-display);
+}
+
+/* Footer contact icons sit close together (Daniel's design): 26 px wide, 44 px tall hit areas. */
+.icon-link-tight {
+  min-width: 26px;
+  background-position: 3px calc(100% - 8px);
+}
+
+.footer-closing {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2.5rem;
+  margin-top: var(--footer-gap);
+  padding-inline: var(--gutter);
 }
 
-.footer-column > h2 {
-  border-top: 1px solid rgb(255 255 255 / 0.2);
-  padding-top: 0.75rem;
+@media (min-width: 51.25rem) {
+  .footer-closing {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
 }
 
 .footer-legal {
-  color: color-mix(in srgb, var(--paper) 60%, transparent);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.5em;
+  padding: 1.25rem var(--gutter) var(--gutter);
+  color: color-mix(in srgb, var(--paper) 55%, transparent);
 }

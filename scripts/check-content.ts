@@ -18,7 +18,7 @@ for (const person of people) {
   if (person.linkedinPlaceholder) problems.push(`LinkedIn URL for ${person.name}`)
 }
 if (companyLinkedin.placeholder) problems.push('company LinkedIn URL')
-if (site.footer.legal.includes('{{')) problems.push('footer legal line')
+if (site.footer.legal.some((line) => line.includes('{{'))) problems.push('footer legal line')
 
 // Locally (no ImageKit endpoint) report media files that a project names but that are missing.
 if (!process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT) {

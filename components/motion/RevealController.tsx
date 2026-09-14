@@ -15,7 +15,7 @@ import {
   useGSAP,
   WIDE_QUERY,
 } from '@/lib/motion'
-import { curtainStart, setupParallax, setupScenes } from '@/components/motion/scenes'
+import { setupParallax, setupScenes } from '@/components/motion/scenes'
 
 type Revealed = HTMLElement & { dataset: { reveal: string } }
 
@@ -40,7 +40,6 @@ export function RevealController() {
       // Line breaks depend on the font, so nothing is split before fonts are ready (or 1.5 s).
       fontsReady().then(async () => {
         if (!active) return
-        // Scenes first: the footer curtain moves the footer, and the reveals inside it read that.
         context.add(() => {
           cleanupScenes = setupScenes()
         })
@@ -84,10 +83,7 @@ function setup(el: Revealed) {
   // A trigger must not be the element that moves, or its start is measured with the offset applied.
   const movesItself = el.dataset.reveal === 'fade' || el.dataset.reveal === 'rise'
   const trigger = movesItself ? (el.parentElement ?? el) : el
-  // Inside the curtain footer the trigger moves with the footer, so the start is computed.
-  const scrollTrigger = el.closest('[data-curtain]')
-    ? { trigger, start: () => curtainStart(trigger) }
-    : { trigger }
+  const scrollTrigger = { trigger }
 
   switch (el.dataset.reveal) {
     case 'lines': {

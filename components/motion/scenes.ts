@@ -1,7 +1,7 @@
 import { ease, gsap, ScrollTrigger } from '@/lib/motion'
 
 // Scroll scenes beyond the reveals (Phase 5): word swap (D), statement slide, marker stripes, work
-// media parallax, hero claim exit and the footer curtain. Called by RevealController inside its
+// media parallax, hero claim exit and the statement ground. Called by RevealController inside its
 // motion gated matchMedia context, so everything created synchronously here is reverted with it.
 
 /** D. Seconds per word, seconds of the change, travel of a word in % of its height. */
@@ -25,7 +25,7 @@ export function setupScenes() {
     claimExit(claim, Array.from(claim.children))
   }
   heroGround()
-  curtain()
+  statementGround()
   return () => {
     for (const cleanup of cleanups) cleanup()
   }
@@ -90,7 +90,8 @@ function wordSwap(slot: HTMLElement) {
     .set({}, {}, SWAP.cycle)
 
   ScrollTrigger.create({
-    trigger: slot,
+    // A slot in the sticky statement is measured through its wrapper, which scrolls normally.
+    trigger: slot.closest<HTMLElement>('.finale') ?? slot,
     start: 'top bottom',
     end: 'bottom top',
     once: false,
@@ -105,8 +106,8 @@ function wordSwap(slot: HTMLElement) {
   }
 }
 
-// The two halves of the statement travel towards each other and meet as the line reaches the middle
-// of the screen (one line on wide screens, two lines on phones).
+// The two lines of the statement travel towards each other and meet as the section fills the screen.
+// The section is sticky, so the trigger is its wrapper, which scrolls normally.
 function statement(line: HTMLElement) {
   const [first, second] = line.querySelectorAll<HTMLElement>('[data-statement-part]')
   if (!first || !second) return
@@ -114,9 +115,9 @@ function statement(line: HTMLElement) {
   gsap
     .timeline({
       scrollTrigger: {
-        trigger: line,
+        trigger: line.closest('.finale') ?? line,
         start: 'top bottom',
-        end: 'bottom 55%',
+        end: 'top top',
         scrub: true,
         once: false,
         invalidateOnRefresh: true,
@@ -199,67 +200,28 @@ function claimExit(claim: HTMLElement, lines: Element[]) {
     .fromTo(lines, { opacity: 1 }, { opacity: 0, ease: 'power1.in', duration: 0.5 }, 0)
 }
 
-// Footer curtain. The page (main, above the footer) scrolls off while the footer slides out from
-// under it. A footer that fits the screen stays pinned to the bottom edge the whole way; a taller one
-// (phones) only lags behind by as much as keeps its first heading visible for a while.
-
-function curtainParts() {
-  const footer = document.querySelector<HTMLElement>('[data-curtain]')
-  const main = document.querySelector('main')
-  return footer && main ? { footer, main } : undefined
-}
-
-/** How far the footer starts above its place, px. */
-function curtainOffset(footer: HTMLElement) {
-  const height = footer.offsetHeight
-  const viewport = window.innerHeight
-  if (height <= viewport) return height
-  const pad = parseFloat(getComputedStyle(footer).paddingTop) || 0
-  return Math.min(viewport, (0.5 * pad * height) / (height - viewport))
-}
-
-function curtain() {
-  const parts = curtainParts()
-  if (!parts) return
-  const { footer, main } = parts
+/**
+ * Work to the statement, the hero change in reverse. The ground (paper, then paper into accent) rises
+ * as the section comes up, so the accent floods in from the bottom and the gradient is complete when
+ * the section fills the screen. The wrapper is the trigger: the section itself is sticky.
+ */
+function statementGround() {
+  const ground = document.querySelector<HTMLElement>('[data-statement-ground]')
+  const finale = ground?.closest<HTMLElement>('.finale')
+  if (!ground || !finale) return
   gsap.fromTo(
-    footer,
-    { y: () => -curtainOffset(footer) },
+    ground,
+    { y: 0, yPercent: 0 },
     {
-      y: 0,
+      yPercent: -50,
       ease: 'none',
       scrollTrigger: {
-        trigger: main,
-        start: 'bottom bottom',
-        end: 'max',
+        trigger: finale,
+        start: 'top bottom',
+        end: 'top top',
         scrub: true,
         once: false,
-        invalidateOnRefresh: true,
       },
     },
   )
-}
-
-/**
- * Reveal start (scroll px) for an element inside the curtain footer. The footer moves, so a plain
- * trigger would fire while the element is still under the page. With s the scroll past the start of
- * the curtain, F the footer height, Y the offset and o the element's top inside the footer, the
- * element's top on screen is vh - Y + o - s (1 - Y / F) and the page edge is at vh - s. It reveals
- * once it is uncovered and above 85 % of the screen, whichever is later, clamped to max scroll.
- */
-export function curtainStart(el: HTMLElement) {
-  const parts = curtainParts()
-  if (!parts) return 0
-  const { footer, main } = parts
-  const vh = window.innerHeight
-  const height = footer.offsetHeight
-  const offset = curtainOffset(footer)
-  const top = el.getBoundingClientRect().top - footer.getBoundingClientRect().top
-  const uncovered = top >= offset ? 0 : height * (1 - top / offset)
-  const rate = 1 - offset / height
-  // A pinned footer (rate 0) does not move on screen, so only uncovering counts.
-  const inView = rate > 0 ? (0.15 * vh - offset + top) / rate : 0
-  const start = main.getBoundingClientRect().bottom + window.scrollY - vh
-  const lead = 0.08 * vh
-  return Math.min(start + Math.max(uncovered, inView, 0) + lead, ScrollTrigger.maxScroll(window))
 }

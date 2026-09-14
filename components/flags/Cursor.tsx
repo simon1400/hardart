@@ -46,11 +46,9 @@ export function Cursor() {
   )
 }
 
-/** A link and its untransformed box in page coordinates. Footer links move with the curtain, so
- *  they are measured live instead. */
+/** A link and its untransformed box in page coordinates. */
 type Target = {
   link: HTMLAnchorElement
-  live: boolean
   left: number
   top: number
   w: number
@@ -77,7 +75,7 @@ function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
   const magnetic = new WeakMap<HTMLAnchorElement, boolean>()
   let targets: Target[] = []
   let heroBottom = 0
-  let mainBottom = Number.POSITIVE_INFINITY
+  let footerTop = Number.POSITIVE_INFINITY
   let pointer: { x: number; y: number } | undefined
   let active: HTMLAnchorElement | undefined
   let grown = false
@@ -104,22 +102,20 @@ function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
     for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href]')) {
       // The corner logo is measured by the scroll logo move; it does not lean.
       if (link.hasAttribute('data-scroll-logo')) continue
-      const live = !!link.closest('[data-curtain]')
-      targets.push({ link, live, ...(live ? { left: 0, top: 0, w: 0, h: 0 } : pageBox(link)) })
+      targets.push({ link, ...pageBox(link) })
     }
     const hero = document.getElementById('top')
-    const main = document.querySelector('main')
+    const footer = document.querySelector<HTMLElement>('[data-footer]')
     heroBottom = hero ? pageBox(hero).top + hero.offsetHeight : 0
-    mainBottom = main ? pageBox(main).top + main.offsetHeight : Number.POSITIVE_INFINITY
+    footerTop = footer ? pageBox(footer).top : Number.POSITIVE_INFINITY
     dirty = true
   }
   collect()
   ScrollTrigger.addEventListener('refresh', collect)
 
   // Colour follows the surface under the pointer: paper dot on the ink footer, ink ring on the hero.
-  // The footer shows only below the bottom edge of main, which slides off it like a curtain.
   const surface = (y: number, scrollY: number) => {
-    const onInk = y > mainBottom - scrollY
+    const onInk = y > footerTop - scrollY
     cursor.classList.toggle(styles.onInk ?? '', onInk)
     cursor.classList.toggle(styles.onAccent ?? '', !onInk && y < heroBottom - scrollY)
   }
@@ -169,25 +165,13 @@ function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
     const at = pointer
     const scrollX = window.scrollX
     const scrollY = window.scrollY
-    const inFooter = at.y > mainBottom - scrollY
     let nearest: HTMLAnchorElement | undefined
     let nearestDistance: number = MAGNET.radius
     let center = { x: 0, y: 0 }
     for (const target of targets) {
-      let { left, top, w, h } = target
-      if (target.live) {
-        if (!inFooter) continue
-        // Only the few footer links, only while the pointer is over the footer.
-        const rect = target.link.getBoundingClientRect()
-        const pulled = pulls.has(target.link)
-        left = rect.left - (pulled ? Number(gsap.getProperty(target.link, 'x')) : 0)
-        top = rect.top - (pulled ? Number(gsap.getProperty(target.link, 'y')) : 0)
-        w = rect.width
-        h = rect.height
-      } else {
-        left -= scrollX
-        top -= scrollY
-      }
+      const { w, h } = target
+      const left = target.left - scrollX
+      const top = target.top - scrollY
       const dx = Math.max(left - at.x, 0, at.x - left - w)
       const dy = Math.max(top - at.y, 0, at.y - top - h)
       const distance = Math.hypot(dx, dy)

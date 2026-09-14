@@ -41,6 +41,16 @@
   --indent: 5em; /* first line indent of text blocks */
   --fs-statement: 6.5vw; /* mobile, two lines: "ZERO ACCOUNT MANAGERS." is 13.87em */
   --fs-h: clamp(2rem, 4vw, 4.5rem);
+  /* statement and footer, Daniel's footer design (2026-09-14, 1280 px screenshot) */
+  --fs-footer: clamp(1rem, 1.33vw, 1.625rem); /* names, taglines, disciplines: 17px at 1280 */
+  --fs-closing: 7vw; /* THE KIND OF ART THAT HAS A DEADLINE., mobile */
+  --fs-legal: clamp(0.625rem, 0.7vw, 0.875rem);
+  --finale-inset: var(--gutter); /* left edge of the statement and the people, lg below */
+  --finale-col: 1fr;
+  --footer-pad: clamp(3rem, 6vw, 7rem); /* footer top to the names */
+  --footer-gap: clamp(5rem, 16vw, 18rem); /* people to the wordmark */
+  --footer-cover: 50svh; /* footer height at the end of the page; FooterCover.tsx measures it */
+  --statement-pad: clamp(1.5rem, 4vw, 4rem); /* statement line to the footer edge */
   --lh-h: 0.95;
   --ls-h: -0.01em;
   --fs-body: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
@@ -84,7 +94,8 @@
 @media (min-width: 51.25rem) {
   :root {
     --fs-claim: clamp(2.1rem, 3.12vw, 4.2rem); /* XD 50px at 1920 plus 20 % (Dmytro, 2026-09-14) */
-    --fs-statement: 4.6vw; /* one line: the longest option is 20.57em and fills the width */
+    --fs-statement: 4.3vw; /* two lines, left edge at --finale-inset */
+    --fs-closing: 2.65vw; /* 34px at 1280 */
     --wordmark-w: 36vw; /* XD: 685px at 1920 */
     --logo-corner-h: 22px;
   }
@@ -93,6 +104,8 @@
 @media (min-width: 68.75rem) {
   :root {
     --inset: 11.7vw; /* XD: 225px at 1920 */
+    --finale-inset: 14.7vw; /* 188px at 1280 */
+    --finale-col: 39.7vw; /* second person starts at 54.4vw */
   }
 }
 

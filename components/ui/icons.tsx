@@ -11,11 +11,27 @@ const base = {
   focusable: 'false',
 } as const
 
-export function MailIcon(props: IconProps) {
+// Footer contact glyphs from Daniel's footer design: outlined @ and phone, filled LinkedIn square.
+
+export function AtIcon(props: IconProps) {
   return (
-    <svg {...base} fill="none" stroke="currentColor" strokeWidth={1.75} {...props}>
-      <rect x="1.5" y="3.5" width="17" height="13" rx="1" />
-      <path d="M2 4.5 10 11l8-6.5" strokeLinejoin="round" />
+    <svg {...base} fill="none" stroke="currentColor" strokeWidth={1.4} {...props}>
+      <circle cx="10" cy="10" r="3.4" />
+      <path
+        d="M13.4 7v4.1c0 1.5 1 2.4 2.2 2.4 1.5 0 2.4-1.4 2.4-3.5a8 8 0 1 0-3.2 6.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+export function PhoneIcon(props: IconProps) {
+  return (
+    <svg {...base} fill="none" stroke="currentColor" strokeWidth={1.4} {...props}>
+      <path
+        d="M6.6 2.5 4.3 2.4c-1 0-1.9.9-1.8 2 .4 6.8 6.3 12.7 13.1 13.1 1.1.1 2-.8 2-1.8l-.1-2.3-3.6-1.4-1.8 1.8a10.6 10.6 0 0 1-4.9-4.9L9 7.1Z"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
@@ -23,9 +39,10 @@ export function MailIcon(props: IconProps) {
 export function LinkedinIcon(props: IconProps) {
   return (
     <svg {...base} fill="currentColor" {...props}>
-      <rect x="2" y="7" width="3.5" height="11" />
-      <circle cx="3.75" cy="3.75" r="2" />
-      <path d="M8 7h3.3v1.6c.6-1.1 2-1.9 3.6-1.9 3 0 3.6 1.9 3.6 4.5V18H15v-6c0-1.4-.2-2.4-1.6-2.4-1.5 0-1.9 1-1.9 2.4v6H8V7Z" />
+      <path
+        fillRule="evenodd"
+        d="M3.5 2h13A1.5 1.5 0 0 1 18 3.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 2 16.5v-13A1.5 1.5 0 0 1 3.5 2ZM5 8.2v7h2.2v-7Zm1.1-3.6a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6Zm3 3.6v7h2.2v-3.7c0-1 .3-1.8 1.4-1.8 1 0 1.1.9 1.1 1.9v3.6H15v-4.1c0-2-.5-3.1-2.5-3.1-1 0-1.8.5-2.1 1.1v-.9Z"
+      />
     </svg>
   )
 }

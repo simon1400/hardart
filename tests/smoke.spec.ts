@@ -10,8 +10,8 @@ test.beforeEach(async ({ page }) => {
 
 test('renders every section and the footer', async ({ page }) => {
   await expect(page.locator('#top')).toBeVisible()
-  const landmarks = page.locator('main > section, body > footer')
-  await expect(landmarks).toHaveCount(8)
+  const landmarks = page.locator('main > section, .finale > section, .finale > footer')
+  await expect(landmarks).toHaveCount(6)
 })
 
 test('copy matches content/site.ts verbatim', async ({ page }) => {
@@ -19,24 +19,13 @@ test('copy matches content/site.ts verbatim', async ({ page }) => {
   const expected = [
     ...site.hero.claim,
     ...site.whoWeAre.paragraphs,
-    ...site.whatWeDo.people.flatMap((person) => [
-      person.name,
-      person.tagline,
-      ...person.disciplines,
-    ]),
-    site.whatWeDo.statement.first,
-    `${site.whatWeDo.statement.before}${site.whatWeDo.statement.options[0]}${site.whatWeDo.statement.after}`,
+    site.statement.first,
+    `${site.statement.before}${site.statement.options[0]}${site.statement.after}`,
     site.work.label,
     site.clients.label,
-    site.contact.heading,
-    site.contact.email,
-    site.footer.columns.social.heading,
-    site.footer.columns.social.link,
-    site.footer.columns.social.text,
-    site.footer.columns.contact.heading,
-    site.footer.columns.studio.heading,
-    ...site.footer.columns.studio.lines,
+    ...site.footer.people.flatMap((person) => [person.name, person.tagline, ...person.disciplines]),
     site.footer.closing,
+    ...site.footer.legal,
     ...projects.flatMap((project) => [project.title, project.text, ...project.tags]),
   ]
   for (const copy of expected) {
@@ -55,9 +44,9 @@ test('work, clients and people are complete', async ({ page }) => {
   await expect(page.locator('.marquee-list:not(.marquee-copy) svg')).toHaveCount(clients.length)
   await expect(page.getByRole('img', { name: clients[0]?.name, exact: true })).toHaveCount(1)
   for (const person of people) {
-    await expect(
-      page.getByRole('link', { name: site.contact.emailLabel(person.name) }),
-    ).toHaveCount(1)
+    await expect(page.getByRole('link', { name: site.footer.emailLabel(person.name) })).toHaveCount(
+      1,
+    )
   }
 })
 

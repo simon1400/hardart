@@ -3,7 +3,7 @@
 export const featureDefaults = {
   heroGrain: false,
   mediaHover: false,
-  cursor: false,
+  cursor: true, // on for the live site (Dmytro, 2026-09-14)
 }
 
 export type Feature = keyof typeof featureDefaults

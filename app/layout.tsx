@@ -44,7 +44,7 @@ const jsonLd = {
   '@type': 'Organization',
   name: site.brand.name,
   url: `${site.meta.url}/`,
-  email: site.contact.email,
+  email: site.meta.email,
   foundingDate: site.meta.foundingDate,
   founder: people.map((person) => ({ '@type': 'Person', name: person.name })),
   sameAs: [

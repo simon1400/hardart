@@ -7,6 +7,7 @@ export const site = {
       'An independent creative development studio. Two people, ten years, no departments.',
     url: 'https://hardart.cz',
     foundingDate: '2016',
+    email: 'hello@hardart.cz', // structured data only, not shown on the page
   },
   brand: {
     name: 'hardart',
@@ -20,37 +21,15 @@ export const site = {
     // Rendered as one flowing paragraph; these words get the accent highlight (Daniel's XD).
     highlight: ['Daniel', 'Dmytro'],
     paragraphs: [
-      'An independent creative development studio. Two people, ten years, no departments, no account managers, no handover meetings.',
-      'Daniel builds the brand, the interface and everything a visitor judges in the first four seconds. Dmytro builds the part underneath. Banks trust him with theirs. You never notice it. That is the point.',
-      'We design it and we build it. Nobody else touches it.',
+      'An independent creative development studio. Two people, ten years, no departments, no account managers, no meetings about meetings.',
+      'Daniel builds the brand, the interface and everything a visitor judges in the first four seconds. Dmytro builds the part nobody sees, and the part everything else stands on.',
     ],
   },
-  whatWeDo: {
-    sectionLabel: 'What we do',
-    people: [
-      {
-        name: 'DANIEL',
-        tagline: 'Everything you can see.',
-        disciplines: [
-          'Brand identity. Art direction. UX and UI. Copy.',
-          'Research. Analytics. Marketing. SEO.',
-        ],
-      },
-      {
-        name: 'DMYTRO',
-        tagline: "Everything you can't.",
-        disciplines: [
-          'Full stack development. Architecture. Integrations.',
-          'Performance. Infrastructure. Automation.',
-        ],
-      },
-    ],
-    statement: {
-      first: 'TWO PEOPLE.',
-      before: 'ZERO ',
-      options: ['MEETINGS', 'HANDOVERS', 'ACCOUNT MANAGERS', 'EXCUSES'],
-      after: '.',
-    },
+  statement: {
+    first: 'TWO PEOPLE.',
+    before: 'ZERO ',
+    options: ['MEETINGS', 'HANDOVERS', 'ACCOUNT MANAGERS', 'EXCUSES'],
+    after: '.',
   },
   work: {
     label: 'SELECTED WORK',
@@ -60,30 +39,33 @@ export const site = {
   clients: {
     label: 'CLIENTS', // heading from Daniel's XD; the line under the logos was removed (Dmytro, 2026-09-14)
   },
-  contact: {
-    heading: 'TELL US ABOUT YOUR PROJECT',
-    peopleLabel: 'The two of us',
-    email: 'hello@hardart.cz',
-    emailLabel: (name: string) => `Email ${name}`,
-    linkedinLabel: (name: string) => `${name} on LinkedIn`,
-  },
   footer: {
-    columns: {
-      social: {
-        heading: 'SOCIAL MEDIA',
-        link: 'LinkedIn.',
-        text: 'We make digital for a living, which is exactly why this is the only one we kept.',
+    // Daniel's footer design (2026-09-14): Dmytro left, Daniel right. `person` matches content/people.ts.
+    people: [
+      {
+        person: 'Dmytro',
+        name: 'Dmytro Pechunka',
+        tagline: "Everything you can't.",
+        disciplines: [
+          'Full stack development. Architecture. Integrations.',
+          'Performance. Infrastructure. Automation.',
+        ],
       },
-      contact: {
-        heading: 'CONTACT',
+      {
+        person: 'Daniel',
+        name: 'Daniel Kokeš',
+        tagline: 'Everything you can see.',
+        disciplines: [
+          'Brand identity. Art direction. UX and UI. Copy.',
+          'Research. Analytics. Marketing. SEO.',
+        ],
       },
-      studio: {
-        heading: 'HARDART',
-        lines: ['hardart.cz', 'Czech Republic', 'Together since 2016'],
-      },
-    },
+    ],
+    emailLabel: (name: string) => `Email ${name}`,
+    phoneLabel: (name: string) => `Call ${name}`,
+    linkedinLabel: (name: string) => `${name} on LinkedIn`,
     closing: 'The kind of art that has a deadline.',
-    legal: 'Dmytro Pechunka, IČO 17407613 · Daniel Kokes, IČO 11988215',
+    legal: ['IČO 17407613', 'IČO 11988215'],
   },
   notFound: {
     // proposal, not in the spec

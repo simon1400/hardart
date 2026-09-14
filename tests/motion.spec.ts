@@ -17,7 +17,7 @@ function expectSameBox(actual: Box, expected: Box, tolerance = 0.5) {
 // Scrolls without Lenis smoothing (native scroll, Lenis syncs to it) and lets triggers update.
 async function scrollTo(page: Page, y: number | 'footer' | 'end') {
   await page.evaluate((target) => {
-    const footer = document.querySelector<HTMLElement>('body > footer')
+    const footer = document.querySelector<HTMLElement>('footer')
     const top =
       target === 'end'
         ? document.documentElement.scrollHeight
@@ -230,11 +230,11 @@ test('word swap pauses off screen', async ({ page }) => {
 test('statement halves slide in and meet', async ({ page }) => {
   await page.goto('/')
   const parts = page.locator('[data-statement-part]')
-  const top = await docTop(page, '[data-statement]')
+  const top = await docTop(page, '.finale')
   const x = (index: number) =>
     parts.nth(index).evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41)
 
-  await scrollTo(page, top - 800)
+  await scrollTo(page, top - 500)
   expect(await x(0)).toBeLessThan(-10)
   expect(await x(1)).toBeGreaterThan(10)
 
@@ -343,29 +343,30 @@ test('accent stripes are drawn by the scroll', async ({ page }) => {
   await expect.poll(mark).toBe('100%')
 })
 
-test('footer slides out from under the page', async ({ page }) => {
+test('statement ground rises in and the footer slides over the sticky statement', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
-  const footer = page.locator('body > footer')
-  const y = () => footer.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42)
-  const mainBottom = await page
-    .locator('main')
-    .evaluate((el) => el.getBoundingClientRect().bottom + window.scrollY)
-  const viewport = await page.evaluate(() => window.innerHeight)
+  const ground = page.locator('[data-statement-ground]')
+  const shift = () =>
+    ground.evaluate(
+      (el) => new DOMMatrix(getComputedStyle(el).transform).m42 / el.getBoundingClientRect().height,
+    )
+  const top = await docTop(page, '.finale')
 
-  await scrollTo(page, mainBottom - viewport)
-  expect(await y()).toBeLessThan(-100)
+  await scrollTo(page, top - 900)
+  expect(await shift()).toBeCloseTo(0, 2)
+  await scrollTo(page, top)
+  await expect.poll(shift).toBeCloseTo(-0.5, 2)
 
-  // Nothing in the footer reveals while the page still covers it.
-  await scrollTo(page, mainBottom - viewport + 100)
-  const covered = await page.evaluate((edge) => {
-    return [...document.querySelectorAll<HTMLElement>('footer [data-reveal="lines"]')]
-      .filter((el) => el.getBoundingClientRect().top < edge)
-      .map((el) => Number(getComputedStyle(el.querySelector('.reveal-line') ?? el).opacity))
-  }, viewport - 100)
-  for (const opacity of covered) expect(opacity).toBe(0)
-
+  // At the end the statement still fills the screen and its line sits above the footer.
   await scrollTo(page, 'end')
-  expect(await y()).toBeCloseTo(0, 0)
+  const statement = await box(page, '[data-statement-section]')
+  expect(statement.y).toBeCloseTo(0, 0)
+  const line = await box(page, '[data-statement]')
+  const footer = await box(page, 'footer')
+  expect(line.y + line.height).toBeLessThanOrEqual(footer.y)
 })
 
 async function expectStatic(page: Page) {
@@ -390,7 +391,7 @@ async function expectStatic(page: Page) {
     '.media-reveal',
     '.media-reveal-inner',
     '[data-parallax]',
-    'body > footer',
+    'footer',
   ]) {
     for (const el of await page.locator(selector).all())
       await expect(el).toHaveCSS('transform', 'none')
