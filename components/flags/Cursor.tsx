@@ -46,9 +46,10 @@ export function Cursor() {
   )
 }
 
-/** A link and its untransformed box in page coordinates. */
+/** A link, the element that leans for it, and that element's untransformed box in page coordinates. */
 type Target = {
   link: HTMLAnchorElement
+  mover: HTMLElement
   left: number
   top: number
   w: number
@@ -67,17 +68,28 @@ function pageBox(el: HTMLElement) {
   return { left, top, w: el.offsetWidth, h: el.offsetHeight }
 }
 
+/** Transforms do not apply to an inline link broken over lines. Its nearest non inline ancestor leans
+ *  instead when it holds nothing but that link (a two line project title in its heading). */
+function wrapperOf(link: HTMLAnchorElement) {
+  if (getComputedStyle(link).display !== 'inline' || link.getClientRects().length < 2) return
+  const text = link.textContent.trim()
+  for (let node = link.parentElement; node && node !== document.body; node = node.parentElement) {
+    if (node.textContent.trim() !== text) return
+    if (getComputedStyle(node).display !== 'inline') return node
+  }
+}
+
 function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
   const root = document.documentElement
   const toX = gsap.quickTo(cursor, 'x', FOLLOW)
   const toY = gsap.quickTo(cursor, 'y', FOLLOW)
-  const pulls = new Map<HTMLAnchorElement, Pull>()
-  const magnetic = new WeakMap<HTMLAnchorElement, boolean>()
+  const pulls = new Map<HTMLElement, Pull>()
+  const magnetic = new WeakMap<HTMLElement, boolean>()
   let targets: Target[] = []
   let heroBottom = 0
   let footerTop = Number.POSITIVE_INFINITY
   let pointer: { x: number; y: number } | undefined
-  let active: HTMLAnchorElement | undefined
+  let active: HTMLElement | undefined
   let grown = false
   let moved = false
   let dirty = false
@@ -102,7 +114,8 @@ function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
     for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href]')) {
       // The corner logo is measured by the scroll logo move; it does not lean.
       if (link.hasAttribute('data-scroll-logo')) continue
-      targets.push({ link, ...pageBox(link) })
+      const mover = wrapperOf(link) ?? link
+      targets.push({ link, mover, ...pageBox(mover) })
     }
     const hero = document.getElementById('top')
     const footer = document.querySelector<HTMLElement>('[data-footer]')
@@ -120,7 +133,7 @@ function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
     cursor.classList.toggle(styles.onAccent ?? '', !onInk && y < heroBottom - scrollY)
   }
 
-  const pullOf = (link: HTMLAnchorElement) => {
+  const pullOf = (link: HTMLElement) => {
     let pull = pulls.get(link)
     if (!pull) {
       pull = { x: gsap.quickTo(link, 'x', GROW), y: gsap.quickTo(link, 'y', GROW) }
@@ -131,7 +144,7 @@ function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
 
   // Transforms do not apply to inline boxes. A single line link becomes inline-block, unless that
   // moves its text (then it keeps its layout and is not magnetic). Checked once per element.
-  const canMove = (link: HTMLAnchorElement) => {
+  const canMove = (link: HTMLElement) => {
     const known = magnetic.get(link)
     if (known !== undefined) return known
     let result = getComputedStyle(link).display !== 'inline'
@@ -149,7 +162,7 @@ function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
     return result
   }
 
-  const release = (link: HTMLAnchorElement | undefined) => {
+  const release = (link: HTMLElement | undefined) => {
     const pull = link && pulls.get(link)
     if (!pull) return
     pull.x(0)
@@ -165,7 +178,7 @@ function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
     const at = pointer
     const scrollX = window.scrollX
     const scrollY = window.scrollY
-    let nearest: HTMLAnchorElement | undefined
+    let nearest: HTMLElement | undefined
     let nearestDistance: number = MAGNET.radius
     let center = { x: 0, y: 0 }
     for (const target of targets) {
@@ -176,7 +189,7 @@ function track(cursor: HTMLElement, dot: HTMLElement, ring: HTMLElement) {
       const dy = Math.max(top - at.y, 0, at.y - top - h)
       const distance = Math.hypot(dx, dy)
       if (distance <= nearestDistance) {
-        nearest = target.link
+        nearest = target.mover
         nearestDistance = distance
         center = { x: left + w / 2, y: top + h / 2 }
       }

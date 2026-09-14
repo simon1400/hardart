@@ -45,7 +45,7 @@ CZECHIA'S BIGGEST FOOD FESTIVAL
 ```
 
 ```
-Ten years, nine cities, a quarter of a million visitors. All of the design is
+10 years, 50+ cities, a quarter of a million visitors/year. All of the design is
 ours, plus the vendor sign up system and the in app voting that crowns the best
 burger.
 ```
