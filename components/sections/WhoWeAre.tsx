@@ -16,13 +16,14 @@ function highlight(text: string, words: readonly string[]) {
   )
 }
 
-// Daniel's XD: accent fades into paper, the paragraph sits as a centred block near the bottom.
+// Daniel's XD: accent fades into paper (the hero ground), the paragraph is a centred block, centred
+// on the screen too (Dmytro, 2026-09-14).
 export function WhoWeAre() {
   const { paragraphs, highlight: words, sectionLabel } = site.whoWeAre
   return (
     <section
       aria-label={sectionLabel}
-      className="who-we-are flex min-h-svh items-end px-gutter pb-section"
+      className="who-we-are flex min-h-svh items-center px-gutter py-section"
     >
       <RevealLines
         className="mx-auto w-full text-copy md:w-[min(45vw,56rem)] md:min-w-xl"

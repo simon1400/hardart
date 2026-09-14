@@ -100,7 +100,7 @@ function setup(el: Revealed) {
         // SplitText re-splits on resize and font swap, and carries the returned tween's progress over.
         onSplit: (self) => {
           removeEmptyClones(self.lines)
-          if (el.hasAttribute('data-intro')) return intro(self.masks, self.lines)
+          if (el.hasAttribute('data-intro')) return intro(self.lines)
           return gsap.fromTo(
             self.lines,
             { yPercent: LINE_FROM, opacity: 0 },
@@ -234,36 +234,31 @@ function setup(el: Revealed) {
   gsap.set(el, { opacity: 1 })
 }
 
-/** Intro lines trail the page by this much of the screen height at the start of the hero exit. */
-const INTRO_LAG = 0.35
+/** Intro lines start rising once the hero exit has run this far. */
+const INTRO_AT = 0.4
 
-// Who we are arrives with the hero exit instead of on its own trigger, scrubbed both ways: the block
-// trails the page (so it is on screen early, rising slower than the scroll) while its lines rise out
-// of their masks one after another, the last one landing as the hero leaves the top.
-function intro(masks: Element[], lines: Element[]) {
-  return gsap
-    .timeline({
+// Who we are arrives with the hero change instead of on its own trigger. Its lines rise at their own
+// pace (a scrub would finish with the fast start of the scroll and look static), played once the
+// hero exit is under way and played back when the page returns to the top.
+function intro(lines: Element[]) {
+  const hero = document.getElementById('top')
+  return gsap.fromTo(
+    lines,
+    { yPercent: LINE_FROM, opacity: 0 },
+    {
+      yPercent: 0,
+      opacity: 1,
+      ease,
+      duration: duration.intro,
+      stagger: stagger.intro,
       scrollTrigger: {
-        trigger: document.getElementById('top') ?? masks[0],
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true,
+        trigger: hero ?? lines[0],
+        start: () => (hero ? hero.offsetHeight * INTRO_AT : 0),
         once: false,
-        invalidateOnRefresh: true,
+        toggleActions: 'play none none reverse',
       },
-    })
-    .fromTo(
-      masks,
-      { y: () => -INTRO_LAG * window.innerHeight },
-      { y: 0, ease: 'none', duration: 1 },
-      0,
-    )
-    .fromTo(
-      lines,
-      { yPercent: LINE_FROM, opacity: 0 },
-      { yPercent: 0, opacity: 1, ease: 'power2.out', duration: 0.4, stagger: { amount: 0.35 } },
-      0.25,
-    )
+    },
+  )
 }
 
 // SplitText (3.15, deepSlice) leaves an empty copy of an inline element (link, highlight) in front

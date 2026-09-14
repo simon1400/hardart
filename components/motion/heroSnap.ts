@@ -1,9 +1,9 @@
 import type Lenis from 'lenis'
 
 /** Length of the hero to Who we are change, s. */
-const DURATION = 1.2
-/** Quart out: answers the gesture at once and settles slowly, like the reveals. */
-const easing = (t: number) => 1 - Math.pow(1 - t, 4)
+const DURATION = 2
+/** Cubic out: answers the gesture at once and settles slowly, less front loaded than the reveals. */
+const easing = (t: number) => 1 - Math.pow(1 - t, 3)
 
 const KEYS_DOWN = new Set(['ArrowDown', 'PageDown', ' '])
 const KEYS_UP = new Set(['ArrowUp', 'PageUp'])
