@@ -29,7 +29,7 @@ One phase per session. Do not start the next one, even if time is left; propose 
 - Every non-obvious technical decision gets an entry in `docs/decisions.md`.
 - Communicate with Dmytro in Russian; code, comments, commits and docs in English.
 
-## Current state (2026-09-14)
+## Current state (2026-09-14, after Phase 8)
 
 Built: static page (phase 2) with Daniel's XD layout, clients marquee, project media pipeline
 (`pnpm media`), self scrolling website screenshots, Lenis + GSAP motion core with line reveals
@@ -46,6 +46,13 @@ dev only stress page `/dev/work-30` (`page.dev.tsx`, run `pnpm dev`).
 Phase 7 (decision 027): feature flags `heroGrain`, `mediaHover`, `cursor` in `components/flags/`, all
 off; one boolean each in `lib/features.ts` (`featureDefaults`), `HARDART_FLAGS=all` (or names) turns
 them on for a build; disabled flag modules are aliased to `Off.tsx` and ship zero bytes.
+Phase 8 (decision 028): every exported HTML gets a meta CSP with inline script hashes (`scripts/csp.ts`
+after `next build`, policy in `lib/security.ts`); `nginx/hardart.cz.conf` plus `nginx/hardart-headers.conf`
+are the reference server config with security headers. CI runs the JS budget (`pnpm check-budget`),
+Lighthouse CI (`lighthouserc.json`, 2x CPU on runners) and visual tests against linux baselines
+(`visual-baselines.yml`, manual). The hero claim reveals in CSS on the compositor once Mont is loaded
+(head script adds `fonts-ready`), is no longer split, and reveal setup runs in 12 ms slices. Umami
+script renders with `NEXT_PUBLIC_UMAMI_HOST` and `NEXT_PUBLIC_UMAMI_ID`. README exists.
 
 Parked questions (do not ask again unless a phase is blocked by one; they live in
 `docs/decisions.md` under "To confirm with Dan" and "Open items"): featured order, tag unification,
@@ -90,7 +97,19 @@ Not built from the proposals: What we do entrance beyond the line reveals.
   20 ms of about 845, p95 16.8 ms); JS 227.4 KB gzip with all on, 225.0 KB off.
 - Waiting on Daniel: which flags go live (open item).
 
-### Phase 8, hardening. Status: todo
+### Phase 8, hardening. Status: done (2026-09-14)
+
+- Built: CSP meta with hashes plus Nginx header policy and security headers, full reference Nginx
+  config, Umami script by env, Lighthouse CI and JS budget in CI, linux visual baselines, security
+  tests, README. LCP budget raised to 3.0 s by Dmytro (1.5 s is out of reach without cutting motion).
+- Fixed on the way: hero claim waited for the JS bundle (LCP), font swap shifted the claim (CLS),
+  collapsed negative margins made split paragraphs taller than unsplit ones, the font wait rejected
+  at once where Arial is missing (Linux, Android), one 275 ms setup task (TBT).
+- Measured (decision 028): CI Performance 0.98, LCP 2.4 s, TBT 30 to 40 ms, CLS 0, other categories
+  100; locally Performance 95, LCP 2.9 s, TBT 10 to 20 ms; JS 225.7 KiB gzip; load and scroll frames
+  at 6x CPU equal to the Phase 7 build.
+
+Original plan:
 
 - CSP and security headers in `nginx/hardart.cz.conf` (self, ImageKit, Umami).
 - Lighthouse CI in `ci.yml` with the budgets from CLAUDE.md §14 (JS ceiling 300 KB gzip).
@@ -113,6 +132,12 @@ args: ['--enable-gpu', '--use-angle=d3d11', '--ignore-gpu-blocklist'] })`). The 
 - ImageKit is live (decision 026): the secret `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` is set in GitHub,
   `deploy.yml` must pass it to the build. Media is uploaded with `pnpm media:upload`. CSP needs
   `ik.imagekit.io` in `img-src` and `media-src`.
+- From Phase 8: the deploy must run `pnpm build` (it writes the CSP meta after `next build`), set
+  `NEXT_PUBLIC_UMAMI_HOST` and `NEXT_PUBLIC_UMAMI_ID` for the build, and Dmytro installs
+  `nginx/hardart-headers.conf` as `/etc/nginx/snippets/hardart-headers.conf` with `{{UMAMI_HOST}}`
+  replaced (keep `tests/security.spec.ts` in sync: it compares the snippet with `headerPolicy()`).
+  HSTS is on in the snippet, so enable it only once TLS works. rsync must not leave old `_next`
+  chunks referenced by cached HTML (HTML is no-cache).
 - Done when: a push to `main` updates hardart.cz within 3 minutes, Umami counts a view, headers
   verified with `curl -I`, securityheaders.com grade A.
 

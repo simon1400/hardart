@@ -1,6 +1,6 @@
 import { Grain } from '@/components/flags/Grain'
-import { Wordmark } from '@/components/ui/Wordmark'
 import { site } from '@/content/site'
+import { palette, wordmark, wordmarkDataUri } from '@/lib/brand'
 import { features } from '@/lib/features'
 
 // Daniel's XD: wordmark top left, claim bottom right, right aligned.
@@ -13,9 +13,19 @@ export function Hero() {
       {features.heroGrain ? <Grain /> : null}
       {/* The tops of the letters sit on the top edge of the window (the SVG has no top padding).
           This static wordmark is the no motion state; with motion the fixed ScrollLogo covers it
-          exactly and it turns transparent (still in the accessibility tree as the h1). */}
+          exactly and it turns transparent (still in the accessibility tree as the h1). An image, not
+          inline SVG, so the first frame always has a largest contentful paint (decision 028). Width
+          and height carry the exact viewBox ratio, so nothing moves while it decodes. */}
       <h1 className="w-(--wordmark-w)">
-        <Wordmark title={site.brand.name} className="block h-auto w-full" data-hero-wordmark />
+        {/* eslint-disable-next-line @next/next/no-img-element -- static export, nothing to optimise */}
+        <img
+          src={wordmarkDataUri(palette.ink)}
+          alt={site.brand.name}
+          width={wordmark.ratio.width}
+          height={wordmark.ratio.height}
+          className="block h-auto w-full"
+          data-hero-wordmark
+        />
       </h1>
       {/* A. data-claim: the lines rise in CSS as soon as Mont is loaded, without waiting for the JS
           bundle (components.css, decision 028). data-exit: they drift apart and fade as the hero

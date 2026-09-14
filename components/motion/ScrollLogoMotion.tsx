@@ -11,7 +11,7 @@ export function ScrollLogoMotion() {
     const slot = logo?.querySelector<HTMLElement>('[data-scroll-logo-slot]')
     const mark = logo?.querySelector<HTMLElement>('[data-scroll-logo-mark]')
     const hero = document.getElementById('top')
-    const heroMark = hero?.querySelector<SVGSVGElement>('[data-hero-wordmark]')
+    const heroMark = hero?.querySelector<HTMLElement>('[data-hero-wordmark]')
     const ink = logo?.querySelector<SVGSVGElement>('[data-scroll-logo-ink]')
     const accent = logo?.querySelector<SVGSVGElement>('[data-scroll-logo-accent]')
     if (!logo || !slot || !mark || !hero || !heroMark || !ink || !accent) return
@@ -80,7 +80,7 @@ export function ScrollLogoMotion() {
   return null
 }
 
-function docked(logo: HTMLElement, heroMark: SVGSVGElement) {
+function docked(logo: HTMLElement, heroMark: HTMLElement) {
   ScrollTrigger.create({
     trigger: heroMark,
     start: 'bottom top',
@@ -93,7 +93,7 @@ function docked(logo: HTMLElement, heroMark: SVGSVGElement) {
 // Transforms (origin top left) that lay the untransformed mark over the hero wordmark (0) and over
 // the corner slot (1). Hero coordinates are taken at scroll 0, where the move starts. Resets the
 // mark's transform; the caller applies the current progress right after.
-function measure(mark: HTMLElement, slot: HTMLElement, heroMark: SVGSVGElement): Geometry {
+function measure(mark: HTMLElement, slot: HTMLElement, heroMark: HTMLElement): Geometry {
   gsap.set(mark, { x: 0, y: 0, scale: 1 })
   const m = mark.getBoundingClientRect()
   const c = slot.getBoundingClientRect()
