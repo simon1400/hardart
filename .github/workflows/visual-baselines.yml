@@ -32,8 +32,6 @@ jobs:
 
       # Rewrites every linux baseline; delete them first so changes under the threshold are kept too.
       - name: Render
-        env:
-          HARDART_RENDER_BASELINES: '1'
         run: |
           find tests/__screenshots__ -name '*-linux.png' -delete
           pnpm exec playwright test --grep @visual --update-snapshots
