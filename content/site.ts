@@ -65,7 +65,7 @@ export const site = {
     phoneLabel: (name: string) => `Call ${name}`,
     linkedinLabel: (name: string) => `${name} on LinkedIn`,
     closing: 'The kind of art that has a deadline.',
-    legal: ['IČO 17407613', 'IČO 11988215'],
+    legal: ['Dmytro Pechunka, IČO 17407613', 'Daniel Kokeš, IČO 11988215'],
   },
   notFound: {
     // proposal, not in the spec

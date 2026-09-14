@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 
 /** The footer covers at most this share of the screen; a taller one (phones) scrolls on over it. */
-const MAX_COVER = 0.6
+const MAX_COVER = 0.75
 
 // Sets --footer-cover on <html>: how much of the screen the footer takes at the end of the page, so
 // the sticky statement keeps its line and gradient above it (Statement.tsx). Layout, not motion: it
