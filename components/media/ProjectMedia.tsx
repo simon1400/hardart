@@ -51,35 +51,44 @@ function Picture({ slug, file, preset, alt }: PictureProps) {
 // E. Two transform layers the RevealController opens like a window: the outer one rises from below
 // while the inner one moves the other way and settles its scale, so the media itself stays put.
 // With the mediaHover flag a third layer inside them follows the pointer (components/flags).
+// The shadow sits outside the clip on a layer of its own, so it can fade in as the media arrives
+// instead of waiting in the empty frame.
 function MediaReveal({ children }: { children: ReactNode }) {
   return (
-    <div className="media-reveal">
-      <div className="media-reveal-inner">
-        {features.mediaHover ? (
-          <div className="absolute inset-0" data-media-hover>
-            {children}
+    <>
+      <div className="media-shadow" aria-hidden="true" />
+      <div className="media-clip">
+        <div className="media-reveal">
+          <div className="media-reveal-inner">
+            {features.mediaHover ? (
+              <div className="absolute inset-0" data-media-hover>
+                {children}
+              </div>
+            ) : (
+              children
+            )}
           </div>
-        ) : (
-          children
-        )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
-// 16:9 frame: a video over its poster image, or a still image.
+// Frame in the media's own aspect ratio, never cropped: a video over its poster image, or a still image.
 export function ProjectMedia({ project }: { project: Project }) {
-  const { slug, client, video, image } = project
+  const { slug, client, video, image, width, height } = project
   const hasVideo = available(slug, video)
   const hasImage = !hasVideo && available(slug, image)
   const poster = posterFile(project)
 
   return (
     <div
-      className="media-frame aspect-video"
+      className="media-frame"
       data-reveal="media"
       data-empty={hasVideo || hasImage ? undefined : ''}
     >
+      {/* Holds the aspect ratio: a style attribute would be blocked by the CSP (style-src 'self'). */}
+      <svg className="media-sizer" viewBox={`0 0 ${width} ${height}`} aria-hidden="true" />
       {hasVideo && video ? (
         <MediaReveal>
           {/* The poster is the still state: before playback, without JS and without motion. The

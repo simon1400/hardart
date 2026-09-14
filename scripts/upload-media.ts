@@ -13,6 +13,7 @@ import { join } from 'node:path'
 const DIR = 'public/projects'
 const API = 'https://api.imagekit.io/v1/files'
 const UPLOAD = 'https://upload.imagekit.io/api/v1/files/upload'
+const PURGE = 'https://api.imagekit.io/v1/files/purge'
 const VARIANT = /-\d+\.\w+$/
 const MEDIA = /\.(mp4|webp|jpe?g|png|avif)$/i
 
@@ -22,6 +23,7 @@ if (!key) {
   console.error('upload-media: IMAGEKIT_PRIVATE_KEY is missing (.env.local)')
   process.exit(1)
 }
+const endpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT?.replace(/\/$/, '')
 const auth = `Basic ${Buffer.from(`${key}:`).toString('base64')}`
 const mb = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(2)} MB`
 
@@ -51,6 +53,19 @@ async function upload(path: string, folder: string, name: string) {
   if (!response.ok) throw new Error(`upload ${path}: ${response.status} ${await response.text()}`)
 }
 
+// An overwritten file keeps its URL, so the CDN would go on serving the old one (and its
+// transformations) until the cache expires.
+async function purge(path: string) {
+  if (!endpoint)
+    return console.warn(`  not purged, NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT is missing: ${path}`)
+  const response = await fetch(PURGE, {
+    method: 'POST',
+    headers: { Authorization: auth, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: `${endpoint}${path}` }),
+  })
+  if (!response.ok) throw new Error(`purge ${path}: ${response.status} ${await response.text()}`)
+}
+
 let sent = 0
 let skipped = 0
 for (const slug of readdirSync(DIR).sort()) {
@@ -67,6 +82,7 @@ for (const slug of readdirSync(DIR).sort()) {
       continue
     }
     await upload(path, folder, name)
+    if (remote.has(name)) await purge(`${folder}/${name}`)
     console.log(`  ${folder}/${name}  ${mb(size)}`)
     sent++
   }

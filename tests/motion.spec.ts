@@ -321,8 +321,12 @@ test('work media opens once it enters', async ({ page }) => {
     .poll(() => layer.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42))
     .toBeGreaterThan(0)
 
+  // The shadow waits for the media instead of standing in the empty frame.
+  await expect(frame.locator('.media-shadow')).toHaveCSS('opacity', '0')
+
   await frame.scrollIntoViewIfNeeded()
   await expect(layer).toHaveCSS('transform', 'none', { timeout: 3000 })
+  await expect(frame.locator('.media-shadow')).toHaveCSS('opacity', '1')
   await expect(frame.locator('.media-reveal-inner')).toHaveCSS('transform', 'none')
 })
 

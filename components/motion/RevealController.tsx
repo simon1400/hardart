@@ -129,6 +129,7 @@ function setup(el: Revealed) {
         gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: duration.reveal, scrollTrigger })
         return
       }
+      const shadow = el.querySelector('.media-shadow')
       gsap
         .timeline({ scrollTrigger })
         .fromTo(
@@ -148,6 +149,19 @@ function setup(el: Revealed) {
             clearProps: 'transform',
           },
           0,
+        )
+        // The shadow belongs to the media, not to the empty frame: it glows up as the window is
+        // almost open (expo.out covers most of the travel in the first third).
+        .fromTo(
+          shadow,
+          { opacity: 0 },
+          {
+            opacity: 1,
+            duration: duration.media * 0.6,
+            ease: 'power1.inOut',
+            clearProps: 'opacity',
+          },
+          duration.media * 0.2,
         )
       break
     }

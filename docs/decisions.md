@@ -367,6 +367,16 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 ---
 
+## 033. Media in its own aspect ratio, pairs without screenshot, shadow on its own layer
+
+**Context.** Dmytro (2026-09-14): videos were cropped to 16:9 by `pnpm media` and shown in a 16:9 frame, which cut square and very wide deliveries; projects without a website screenshot stood alone at 64 % width; the media shadow stood in the empty frame while the media was still rising into it.
+
+**Decision.** `pnpm media` no longer crops and prints the encoded size; featured entries carry `width` and `height`, and the frame takes that ratio from an inline SVG sizer (a `style` attribute would be blocked by the CSP). Consecutive projects without `site` share rows, two side by side from md, with the text at body size (`text-copy-sm`). The shadow is a `.media-shadow` layer outside the clip, faded in by the media reveal from 20 % to 80 % of its duration.
+
+**Consequence.** Rows with a square video are as tall as the portrait screenshot beside them. A new delivery needs its size copied into content; a wrong size shows as letterboxing-free cropping (`object-fit: cover`), not as layout shift.
+
+---
+
 ## To confirm with Dan
 
 - Label weight: Mont Book (500) at 12px with .12em tracking. Regular (600) is the alternative if labels read too light.

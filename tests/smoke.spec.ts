@@ -47,7 +47,8 @@ test('copy matches content/site.ts verbatim', async ({ page }) => {
 
 test('work, clients and people are complete', async ({ page }) => {
   await expect(page.locator('article')).toHaveCount(projects.length)
-  await expect(page.locator('.work-row')).toHaveCount(featured.length)
+  await expect(page.locator('.work-main')).toHaveCount(featured.length)
+  await expect(page.locator('.work-row')).toHaveCount(featured.filter((p) => p.site).length)
   await expect(page.locator('.work-more-item')).toHaveCount(secondary.length)
   // Client names are never set as text (Daniel's project copy).
   await expect(page.locator('main')).not.toContainText(/burgerstreetfestival\.cz/i)

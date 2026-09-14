@@ -328,14 +328,20 @@ html.lenis body {
   .work-row[data-flip] .site-scroll {
     order: 2;
   }
+}
 
-  .work-row[data-single] .work-main {
-    grid-column: 1 / -1;
-    width: 64%;
-  }
+/* Projects without a website screenshot: two side by side from md, stacked below. */
+.work-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--row-gap) var(--gutter);
+  align-items: start;
+}
 
-  .work-row[data-single][data-flip] .work-main {
-    justify-self: end;
+@media (min-width: 51.25rem) {
+  .work-pair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 2.9vw, 4rem);
   }
 }
 
@@ -360,11 +366,32 @@ html.lenis body {
   }
 }
 
+/* The frame does not clip: its shadow layer lies outside the box. .media-clip clips the media. */
 .media-frame {
   position: relative;
   width: 100%;
-  overflow: hidden;
   border-radius: var(--radius-media);
+}
+
+.media-sizer {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.media-clip,
+.media-shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.media-clip {
+  overflow: hidden;
+}
+
+/* Faded in by the media reveal once the media has arrived (RevealController). */
+.media-shadow {
   box-shadow: var(--shadow-media);
 }
 

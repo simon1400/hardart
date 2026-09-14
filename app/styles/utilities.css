@@ -50,6 +50,15 @@
   text-indent: var(--indent);
 }
 
+/* text-copy at body size: project text in the half width pairs of Work. */
+@utility text-copy-sm {
+  font-family: var(--face-body);
+  font-weight: var(--fw-display);
+  font-size: var(--fs-body);
+  line-height: 1.2;
+  text-indent: var(--indent);
+}
+
 @utility text-statement {
   font-family: var(--face-body);
   font-weight: var(--fw-display);

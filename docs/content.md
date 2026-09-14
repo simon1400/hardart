@@ -20,11 +20,11 @@ projects/<slug>.png   the full page screenshot of the website (optional, jpg or 
 
 It writes into `public/projects/<slug>/`:
 
-| File                             | What                                                                                                      |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `video.mp4`, `video-800.mp4`     | the video cropped to 16:9, no sound, up to 1600 px wide, and a small copy for phones                      |
-| `poster.webp`, `poster-800.webp` | a still from the first seconds (skipping black or white intros), shown before playback and without motion |
-| `site.webp`, `site-600.webp`     | the screenshot at 1000 px and 600 px wide                                                                 |
+| File                             | What                                                                                                         |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `video.mp4`, `video-800.mp4`     | the video in its own aspect ratio (never cropped), no sound, up to 1600 px wide, and a small copy for phones |
+| `poster.webp`, `poster-800.webp` | a still from the first seconds (skipping black or white intros), shown before playback and without motion    |
+| `site.webp`, `site-600.webp`     | the screenshot at 1000 px and 600 px wide                                                                    |
 
 The first run downloads ffmpeg once. Only new or changed deliveries are processed; `pnpm media --force` redoes everything. A video usually shrinks from 5 to 10 MB to 1 to 4 MB (phones: under 2 MB). If a poster shows the wrong moment, replace `poster.webp` and `poster-800.webp` by hand.
 
@@ -49,12 +49,14 @@ The copy source is `docs/hardart-projects.md`. There are two lists in `content/p
   title: "CZECHIA'S BIGGEST FOOD FESTIVAL",
   url: 'https://burgerstreetfestival.cz/', // optional
   video: 'video.mp4',                 // or image: 'image.jpg'
-  site: 'site.webp',                  // optional
+  width: 1080,                        // pixel size `pnpm media` prints (for an image: its size);
+  height: 1080,                       // the frame takes this aspect ratio, nothing is cropped
+  site: 'site.webp',                  // optional; projects without it sit two to a row
   text: 'One to two sentences: what it is, then what we did.',
   tags: ['BRAND', 'DESIGN', 'CUSTOM SYSTEMS', 'EMAIL'],
 },
 
-// secondary: the same without video, image, poster and site
+// secondary: the same without video, image, poster, width, height and site
 ```
 
 Rules the build checks:
