@@ -68,6 +68,8 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-site: cubic-bezier(0.45, 0, 0.55, 1); /* gentle in and out for the screenshot scroll */
   --dur-reveal: 0.5s;
+  --dur-claim: 0.6s; /* duration.claim in lib/motion.ts; the claim reveal itself is CSS */
+  --stagger-claim: 0.08s;
   --dur-hover: 0.2s;
   --rise: 20px;
 

@@ -1,5 +1,4 @@
 import { Grain } from '@/components/flags/Grain'
-import { RevealLines } from '@/components/motion/RevealLines'
 import { Wordmark } from '@/components/ui/Wordmark'
 import { site } from '@/content/site'
 import { features } from '@/lib/features'
@@ -18,14 +17,17 @@ export function Hero() {
       <h1 className="w-(--wordmark-w)">
         <Wordmark title={site.brand.name} className="block h-auto w-full" data-hero-wordmark />
       </h1>
-      {/* data-exit: the lines drift apart and fade as the hero scrolls away (RevealController). */}
-      <RevealLines on="load" className="self-end text-right text-claim" data-exit>
+      {/* A. data-claim: the lines rise in CSS as soon as Mont is loaded, without waiting for the JS
+          bundle (components.css, decision 028). data-exit: they drift apart and fade as the hero
+          scrolls away (scenes.ts). The block fills the hero below the wordmark and sets its lines at the
+          bottom, so its top never moves when Mont replaces the fallback and the lines rewrap (CLS). */}
+      <p className="flex grow flex-col justify-end text-right text-claim" data-claim data-exit>
         {site.hero.claim.map((line) => (
           <span key={line} className="block text-balance">
             {line}
           </span>
         ))}
-      </RevealLines>
+      </p>
     </section>
   )
 }

@@ -29,8 +29,10 @@ export const viewport: Viewport = {
 }
 
 // Before first paint: swaps no-js for js, so hidden-before-reveal CSS only applies when JS runs, and
-// marks ?motion=off (QA switch, behaves like reduced motion).
-const jsClassScript = `(function(c){c.replace('no-js','js');if(/[?&]motion=off(&|$)/.test(location.search))c.add('motion-off')})(document.documentElement.classList)`
+// marks ?motion=off (QA switch, behaves like reduced motion). Adds fonts-ready once the display face
+// has loaded, or after 1.5 s, which starts the hero claim (components.css). It runs after the
+// stylesheet, so the @font-face rules exist and fonts.load fetches the preloaded file.
+const jsClassScript = `(function(d,c){c.replace('no-js','js');if(/[?&]motion=off(&|$)/.test(location.search))c.add('motion-off');var r=function(){c.add('fonts-ready')};if(!d.fonts)return r();Promise.race([d.fonts.load(${JSON.stringify(`800 1em ${mont.style.fontFamily}`)}),new Promise(function(s){setTimeout(s,1500)})]).then(r,r)})(document,document.documentElement.classList)`
 
 const jsonLd = {
   '@context': 'https://schema.org',

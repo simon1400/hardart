@@ -18,7 +18,7 @@ export const MOTION_QUERY = '(prefers-reduced-motion: no-preference)'
 export const ease = 'power4.out'
 
 export const duration = { reveal: 0.5, claim: 0.6, media: 1.4 } as const
-export const stagger = { lines: 0.06, claim: 0.08, items: 0.04 } as const
+export const stagger = { lines: 0.06, items: 0.04 } as const
 
 /** Hidden lines start one line height below their mask (plus the mask bleed, see components.css). */
 export const LINE_FROM = 120

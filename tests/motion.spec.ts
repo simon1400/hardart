@@ -102,21 +102,36 @@ test('text reveals line by line, once', async ({ page }) => {
   await expect(lines.last()).toHaveCSS('opacity', '1')
 })
 
-test('hero claim arrives on load', async ({ page }) => {
+// A. The claim rises in CSS once Mont is loaded, before and without the JS bundle, and is never
+// split, so its layout never changes (decision 028).
+const claimLines = (page: Page) => page.locator('#top [data-claim] > *')
+
+test('hero claim arrives on load, after the display face', async ({ page }) => {
   await page.goto('/')
-  const lines = page.locator('#top [data-reveal-on="load"] .reveal-line')
-  await expect(lines).toHaveCount(3)
-  await expect(lines.last()).toHaveCSS('opacity', '1', { timeout: 3000 })
+  await expect(page.locator('html')).toHaveClass(/fonts-ready/)
+  await expect(claimLines(page)).toHaveCount(3)
+  await expect(claimLines(page).last()).toHaveCSS('clip-path', 'none', { timeout: 3000 })
+  await expect(page.locator('#top [data-claim] .reveal-line')).toHaveCount(0)
 })
 
-test('claim still reveals when fonts are blocked', async ({ page }) => {
-  await page.route('**/*.woff2', (route) => route.abort())
+test('hero claim arrives without the JS bundle', async ({ page }) => {
+  await page.route('**/_next/static/chunks/*.js', (route) => route.abort())
   await page.goto('/')
-  await expect(page.locator('#top [data-reveal-on="load"] .reveal-line').last()).toHaveCSS(
-    'opacity',
-    '1',
-    { timeout: 4000 },
-  )
+  await expect(claimLines(page).last()).toHaveCSS('clip-path', 'none', { timeout: 3000 })
+})
+
+test('claim waits for the font, and still reveals when fonts are blocked', async ({ page }) => {
+  let release: () => void = () => undefined
+  const held = new Promise<void>((resolve) => (release = resolve))
+  await page.route('**/*.woff2', async (route) => {
+    await held
+    await route.abort()
+  })
+  await page.goto('/', { waitUntil: 'commit' })
+  await page.waitForTimeout(500)
+  await expect(claimLines(page).first()).toHaveCSS('clip-path', /120%/)
+  release()
+  await expect(claimLines(page).last()).toHaveCSS('clip-path', 'none', { timeout: 4000 })
 })
 
 test('the last lines of the page reveal at max scroll', async ({ page }) => {
@@ -212,7 +227,15 @@ test('statement halves slide in and meet', async ({ page }) => {
 
 test('hero claim drifts apart and fades as the hero leaves, both ways', async ({ page }) => {
   await page.goto('/')
-  const masks = page.locator('#top [data-exit] .reveal-line-mask')
+  const masks = claimLines(page)
+  // The CSS rise wins over the scrub while it runs.
+  await page.waitForFunction(
+    () =>
+      document.documentElement.classList.contains('fonts-ready') &&
+      !document
+        .getAnimations()
+        .some((animation) => (animation as CSSAnimation).animationName === 'claim-rise'),
+  )
   await expect(masks.first()).toBeAttached()
   const state = () =>
     masks.evaluateAll((els) =>

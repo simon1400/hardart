@@ -21,6 +21,9 @@ export function setupScenes() {
   }
   for (const line of document.querySelectorAll<HTMLElement>('[data-statement]')) statement(line)
   for (const el of document.querySelectorAll<HTMLElement>('[data-mark-scrub]')) markScrub(el)
+  for (const claim of document.querySelectorAll<HTMLElement>('[data-exit]')) {
+    claimExit(claim, Array.from(claim.children))
+  }
   curtain()
   return () => {
     for (const cleanup of cleanups) cleanup()
@@ -143,8 +146,8 @@ function markScrub(el: HTMLElement) {
 }
 
 /** Claim exit: lines drift apart upwards and fade while the hero scrolls away. */
-export function claimExit(claim: HTMLElement, masks: Element[]) {
-  const count = masks.length
+function claimExit(claim: HTMLElement, lines: Element[]) {
+  const count = lines.length
   return gsap
     .timeline({
       scrollTrigger: {
@@ -157,7 +160,7 @@ export function claimExit(claim: HTMLElement, masks: Element[]) {
       },
     })
     .fromTo(
-      masks,
+      lines,
       { y: 0 },
       {
         y: (i: number) => (-(count - i) / count) * EXIT_SPREAD * window.innerHeight,
@@ -166,7 +169,7 @@ export function claimExit(claim: HTMLElement, masks: Element[]) {
       },
       0,
     )
-    .fromTo(masks, { opacity: 1 }, { opacity: 0, ease: 'power1.in', duration: 0.5 }, 0)
+    .fromTo(lines, { opacity: 1 }, { opacity: 0, ease: 'power1.in', duration: 0.5 }, 0)
 }
 
 // Footer curtain. The page (main, above the footer) scrolls off while the footer slides out from

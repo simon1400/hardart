@@ -15,11 +15,11 @@ import {
   useGSAP,
   WIDE_QUERY,
 } from '@/lib/motion'
-import { claimExit, curtainStart, setupParallax, setupScenes } from '@/components/motion/scenes'
+import { curtainStart, setupParallax, setupScenes } from '@/components/motion/scenes'
 
-type Revealed = HTMLElement & { dataset: { reveal: string; revealOn?: string; exit?: string } }
+type Revealed = HTMLElement & { dataset: { reveal: string } }
 
-// Sets up every [data-reveal] element on the page (moves A, C, E, F) and the scroll scenes
+// Sets up every [data-reveal] element on the page (moves C, E, F) and the scroll scenes
 // (scenes.ts). Renders nothing.
 export function RevealController() {
   useGSAP(() => {
@@ -62,20 +62,16 @@ export function RevealController() {
 }
 
 function setup(el: Revealed) {
-  const onLoad = el.dataset.revealOn === 'load'
   // A trigger must not be the element that moves, or its start is measured with the offset applied.
   const movesItself = el.dataset.reveal === 'fade' || el.dataset.reveal === 'rise'
   const trigger = movesItself ? (el.parentElement ?? el) : el
   // Inside the curtain footer the trigger moves with the footer, so the start is computed.
-  const scrollTrigger = onLoad
-    ? undefined
-    : el.closest('[data-curtain]')
-      ? { trigger, start: () => curtainStart(trigger) }
-      : { trigger }
+  const scrollTrigger = el.closest('[data-curtain]')
+    ? { trigger, start: () => curtainStart(trigger) }
+    : { trigger }
 
   switch (el.dataset.reveal) {
     case 'lines': {
-      let exit: gsap.core.Timeline | undefined
       SplitText.create(el, {
         type: 'lines',
         mask: 'lines',
@@ -85,8 +81,6 @@ function setup(el: Revealed) {
         // SplitText re-splits on resize and font swap, and carries the returned tween's progress over.
         onSplit: (self) => {
           removeEmptyClones(self.lines)
-          // The claim's masks leave with the hero; a new split gets a new exit.
-          if (el.dataset.exit !== undefined) exit = claimExit(el, self.masks)
           return gsap.fromTo(
             self.lines,
             { yPercent: LINE_FROM, opacity: 0 },
@@ -94,17 +88,12 @@ function setup(el: Revealed) {
               yPercent: 0,
               opacity: 1,
               ease,
-              duration: onLoad ? duration.claim : duration.reveal,
-              stagger: onLoad ? stagger.claim : stagger.lines,
+              duration: duration.reveal,
+              stagger: stagger.lines,
               scrollTrigger,
               clearProps: 'transform,opacity',
             },
           )
-        },
-        onRevert: () => {
-          exit?.scrollTrigger?.kill()
-          exit?.kill()
-          exit = undefined
         },
       })
       break
