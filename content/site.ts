@@ -40,17 +40,9 @@ export const site = {
     label: 'CLIENTS', // heading from Daniel's XD; the line under the logos was removed (Dmytro, 2026-09-14)
   },
   footer: {
-    // Daniel's footer design (2026-09-14): Dmytro left, Daniel right. `person` matches content/people.ts.
+    // Daniel's footer design (2026-09-14), swapped by Dmytro the same day: Daniel left, Dmytro right.
+    // `person` matches content/people.ts.
     people: [
-      {
-        person: 'Dmytro',
-        name: 'Dmytro Pechunka',
-        tagline: "Everything you can't.",
-        disciplines: [
-          'Full stack development. Architecture. Integrations.',
-          'Performance. Infrastructure. Automation.',
-        ],
-      },
       {
         person: 'Daniel',
         name: 'Daniel Kokeš',
@@ -58,6 +50,15 @@ export const site = {
         disciplines: [
           'Brand identity. Art direction. UX and UI. Copy.',
           'Research. Analytics. Marketing. SEO.',
+        ],
+      },
+      {
+        person: 'Dmytro',
+        name: 'Dmytro Pechunka',
+        tagline: "Everything you can't.",
+        disciplines: [
+          'Full stack development. Architecture. Integrations.',
+          'Performance. Infrastructure. Automation.',
         ],
       },
     ],
