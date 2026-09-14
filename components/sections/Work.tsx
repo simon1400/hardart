@@ -15,8 +15,8 @@ type WorkProps = { featured?: Project[]; secondary?: SecondaryProject[] }
 
 // Daniel's XD: portrait website frame beside a 16:9 media with the text under it, sides alternate.
 // Titles are claims, not client names (Daniel's project copy); the link says who it is.
-// Secondary projects have no media and continue the same list as a typographic index, their titles
-// marked with the accent stripe as they scroll in. The lists are props only for the dev stress page.
+// All project titles are marked with the accent stripe as they scroll in (Dmytro, 2026-09-14);
+// secondary projects have no media and continue the same list as a typographic index. The lists are props only for the dev stress page.
 export function Work({ featured = allFeatured, secondary = allSecondary }: WorkProps) {
   return (
     <section aria-labelledby="work-heading" className="pt-section">
@@ -36,9 +36,17 @@ export function Work({ featured = allFeatured, secondary = allSecondary }: WorkP
             ) : null}
             <div className="work-main">
               <ProjectMedia project={project} />
-              <RevealLines as="h3" className="mt-8 text-project md:mt-12">
-                {project.url ? <Link href={project.url}>{project.title}</Link> : project.title}
-              </RevealLines>
+              <Reveal kind="marker" as="h3" className="mt-8 text-project md:mt-12">
+                <span className="marker">
+                  {project.url ? (
+                    <Link href={project.url} wipe={false}>
+                      {project.title}
+                    </Link>
+                  ) : (
+                    project.title
+                  )}
+                </span>
+              </Reveal>
               <RevealLines className="mt-6 text-copy md:mt-10">{project.text}</RevealLines>
               <RevealStagger className="mt-6 flex flex-wrap gap-2" aria-label={site.work.tagsLabel}>
                 {project.tags.map((tag) => (
@@ -55,7 +63,13 @@ export function Work({ featured = allFeatured, secondary = allSecondary }: WorkP
           <article key={project.slug} className="work-more-item">
             <Reveal kind="marker" as="h3" className="text-project">
               <span className="marker">
-                {project.url ? <Link href={project.url}>{project.title}</Link> : project.title}
+                {project.url ? (
+                  <Link href={project.url} wipe={false}>
+                    {project.title}
+                  </Link>
+                ) : (
+                  project.title
+                )}
               </span>
             </Reveal>
             <div>

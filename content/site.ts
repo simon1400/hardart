@@ -58,8 +58,7 @@ export const site = {
     siteLabel: (name: string) => `${name} website`,
   },
   clients: {
-    label: 'CLIENTS', // heading from Daniel's XD
-    lines: ['Some of them are household names.', 'We still answer our own phones.'],
+    label: 'CLIENTS', // heading from Daniel's XD; the line under the logos was removed (Dmytro, 2026-09-14)
   },
   contact: {
     heading: 'TELL US ABOUT YOUR PROJECT',

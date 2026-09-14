@@ -20,6 +20,7 @@
   --inset: var(--gutter); /* work rows inset, widened at lg */
   --measure: 60ch;
   --radius-media: clamp(14px, 1.7vw, 36px); /* XD: ~32px at 1920 */
+  --shadow-media: 0 0 30px color-mix(in srgb, var(--accent) 20%, transparent); /* XD drop shadow */
 
   /* faces; --font-mont is set by next/font on <html> and already carries the metric matched fallback */
   --face-body: var(--font-mont);
@@ -29,7 +30,7 @@
   --fw-label: 500;
 
   /* type */
-  --fs-claim: 11.5vw; /* mobile: each line breaks once, balanced ("BRAND PEOPLE / CAN'T CODE."); md+ below */
+  --fs-claim: 8.05vw; /* mobile: 11.5vw minus 30 % (Dmytro, 2026-09-14); md+ below */
   --lh-claim: 0.98;
   --ls-claim: -0.01em;
   --fs-section: clamp(2rem, 2.4vw, 3rem); /* CLIENTS, SELECTED WORK. XD: 46px */
@@ -82,7 +83,7 @@
 
 @media (min-width: 51.25rem) {
   :root {
-    --fs-claim: clamp(1.75rem, 2.6vw, 3.5rem); /* XD: 50px at 1920, right aligned */
+    --fs-claim: clamp(2.1rem, 3.12vw, 4.2rem); /* XD 50px at 1920 plus 20 % (Dmytro, 2026-09-14) */
     --fs-statement: 4.6vw; /* one line: the longest option is 20.57em and fills the width */
     --wordmark-w: 36vw; /* XD: 685px at 1920 */
     --logo-corner-h: 22px;

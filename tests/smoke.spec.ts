@@ -28,7 +28,6 @@ test('copy matches content/site.ts verbatim', async ({ page }) => {
     `${site.whatWeDo.statement.before}${site.whatWeDo.statement.options[0]}${site.whatWeDo.statement.after}`,
     site.work.label,
     site.clients.label,
-    ...site.clients.lines,
     site.contact.heading,
     site.contact.email,
     site.footer.columns.social.heading,

@@ -196,9 +196,10 @@ function setup(el: Revealed) {
       )
       break
     case 'marker': {
-      // Secondary project titles: the title fades up once, and its accent stripe is drawn by the
-      // scroll, forwards and back, line by line (box-decoration-break clones the background).
-      const row = el.parentElement ?? el
+      // Project titles: the title fades up once, and its accent stripe is drawn by the scroll,
+      // forwards and back, line by line (box-decoration-break clones the background). A secondary
+      // title triggers with its row; a featured title sits under its media, so it triggers itself.
+      const row = el.closest<HTMLElement>('.work-more-item') ?? el
       gsap.fromTo(
         el,
         { y: RISE, opacity: 0 },

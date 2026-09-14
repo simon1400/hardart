@@ -29,13 +29,6 @@ export function Clients() {
           </ul>
         </div>
       </Reveal>
-      <RevealLines className="mt-8 px-gutter text-body">
-        {site.clients.lines.map((line) => (
-          <span key={line} className="block">
-            {line}
-          </span>
-        ))}
-      </RevealLines>
     </section>
   )
 }

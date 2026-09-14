@@ -345,6 +345,16 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 ---
 
+## 031. Claim size, clients line, project titles, media shadow
+
+**Context.** Dmytro (2026-09-14) reviewed the live site: the claim is too small on desktop and too large on phones, the line under the client logos should go, featured project titles had the thin underline wipe on hover instead of the accent stripe every other heading has, and project media should carry the drop shadow from Daniel's XD (accent at 20 %, x 0, y 0, blur 30).
+
+**Decision.** `--fs-claim` from md is `clamp(2.1rem, 3.12vw, 4.2rem)` (+20 %), below md `8.05vw` (−30 %, lines now break more than once on phones). `site.clients.lines` and its block are removed; the marquee is unchanged. Featured titles use the same `marker` reveal as secondary titles (fade up once, stripe drawn by the scroll), triggered by the title itself because it sits under its media; title links use `Link wipe={false}`. `--shadow-media: 0 0 30px` accent 20 % on `.media-frame` (video, image and website frame).
+
+**Consequence.** Project titles no longer have a hover state beyond the pointer cursor. Visual baselines regenerated (win32); linux baselines need the Visual baselines workflow.
+
+---
+
 ## To confirm with Dan
 
 - Label weight: Mont Book (500) at 12px with .12em tracking. Regular (600) is the alternative if labels read too light.
