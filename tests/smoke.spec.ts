@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 
 test('renders every section and the footer', async ({ page }) => {
   await expect(page.locator('#top')).toBeVisible()
-  const landmarks = page.locator('main > section, .finale > section, .finale > footer')
+  const landmarks = page.locator('main > section, .statement-track > section, .finale > footer')
   await expect(landmarks).toHaveCount(6)
 })
 

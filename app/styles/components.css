@@ -512,7 +512,12 @@ html.lenis body {
 }
 
 /* Statement on the accent ground: sticks to the screen while the footer slides over it, and keeps its
-   line above the part the footer covers at the end of the page (--footer-cover, FooterCover.tsx). */
+   line above the part the footer covers at the end of the page (--footer-cover, FooterCover.tsx).
+   The track holds it for exactly that part; the footer overlaps the track by the same amount. */
+.statement-track {
+  height: calc(100svh + var(--footer-cover));
+}
+
 .statement {
   position: sticky;
   top: 0;
@@ -568,6 +573,7 @@ html.lenis body {
   --focus-ring: var(--accent);
   position: relative;
   z-index: 1;
+  margin-top: calc(-1 * var(--footer-cover));
 }
 
 .footer-people {

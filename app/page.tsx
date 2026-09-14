@@ -22,9 +22,12 @@ export default function Home() {
         <Clients />
         <Work />
       </main>
-      {/* The statement sticks while the footer slides over it (Statement.tsx). */}
+      {/* The statement sticks while the footer slides over it (Statement.tsx), for the covered part
+          only: the track ends there, so a footer taller than the screen (phones) takes it along. */}
       <div className="finale">
-        <Statement />
+        <div className="statement-track">
+          <Statement />
+        </div>
         <Footer />
       </div>
       <FooterCover />
