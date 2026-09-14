@@ -29,11 +29,15 @@ export const viewport: Viewport = {
   colorScheme: 'only light',
 }
 
+// Only the Mont face: the generated fallback face is local('Arial'), which fails where Arial is not
+// installed (Linux, Android) and would reject the whole load at once.
+const displayFamily = mont.style.fontFamily.split(',')[0] ?? ''
+
 // Before first paint: swaps no-js for js, so hidden-before-reveal CSS only applies when JS runs, and
 // marks ?motion=off (QA switch, behaves like reduced motion). Adds fonts-ready once the display face
 // has loaded, or after 1.5 s, which starts the hero claim (components.css). It runs after the
 // stylesheet, so the @font-face rules exist and fonts.load fetches the preloaded file.
-const jsClassScript = `(function(d,c){c.replace('no-js','js');if(/[?&]motion=off(&|$)/.test(location.search))c.add('motion-off');var r=function(){c.add('fonts-ready')};if(!d.fonts)return r();Promise.race([d.fonts.load(${JSON.stringify(`800 1em ${mont.style.fontFamily}`)}),new Promise(function(s){setTimeout(s,1500)})]).then(r,r)})(document,document.documentElement.classList)`
+const jsClassScript = `(function(d,c){c.replace('no-js','js');if(/[?&]motion=off(&|$)/.test(location.search))c.add('motion-off');var r=function(){c.add('fonts-ready')};if(!d.fonts)return r();Promise.race([d.fonts.load(${JSON.stringify(`800 1em ${displayFamily}`)}),new Promise(function(s){setTimeout(s,1500)})]).then(r,r)})(document,document.documentElement.classList)`
 
 const jsonLd = {
   '@context': 'https://schema.org',
