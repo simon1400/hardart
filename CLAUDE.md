@@ -317,7 +317,7 @@ Playwright (`tests/`):
 - motion: after scrolling past the hero, the logo has the corner transform; over the footer it has the accent class; word swap changes text within 3 s while visible and does not change while scrolled away.
 - reduced motion (`emulateMedia({ reducedMotion: 'reduce' })`): no transforms applied, logo in corner, swap shows `MEETINGS`, page is fully readable.
 - email: `out/index.html` contains no personal address and no `mailto:` except `hello@hardart.cz`.
-- visual: removed (Dmytro, 2026-09-14, decision 031). Screenshot baselines failed CI on every deliberate design change and blocked the deploy; layouts are checked by eye at 390, 820, 1440.
+- visual: removed (Dmytro, 2026-09-14, decision 032). Screenshot baselines failed CI on every deliberate design change and blocked the deploy; layouts are checked by eye at 390, 820, 1440.
 - a11y: axe-core run, zero violations.
 
 Manual checks before calling a phase done: real iPhone Safari and Android Chrome (scroll, logo move, video autoplay, URL bar behaviour), keyboard only navigation with visible focus, 6× CPU throttle 60 fps on logo scrub, fonts blocked (readable fallback), JS disabled (all text visible, logo in hero, no broken layout).

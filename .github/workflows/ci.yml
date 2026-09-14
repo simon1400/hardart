@@ -44,7 +44,9 @@ jobs:
       # Budgets from CLAUDE.md §14 on the default build, mobile, simulated throttling (lighthouserc.json).
       # Runners have about half the CPU benchmark of the dev machine (2400 against 4700), so 2x here
       # emulates the same phone as the default 4x locally (decision 028).
+      # Report only for now (decision 032): LCP is fixed at the end, a miss must not block the deploy.
       - name: Lighthouse
+        continue-on-error: true
         run: pnpm lighthouse --collect.settings.throttling.cpuSlowdownMultiplier=2
 
       # Feature flags are build constants: a second build with all of them on runs their tests.

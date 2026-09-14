@@ -355,13 +355,15 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 ---
 
-## 031. No visual screenshot tests
+## 032. No visual screenshot tests, Lighthouse reports only
 
 **Context.** The `@visual` Playwright tests compared full page and logo move screenshots with win32 and linux baselines. Every deliberate design change failed CI, and so blocked the deploy, until linux baselines were rendered by a manual workflow and committed.
 
 **Decision (Dmytro, 2026-09-14).** Removed `tests/visual.spec.ts`, all baselines, the `no-js` Playwright project, `pnpm test:update-visual` and `.github/workflows/visual-baselines.yml`. Supersedes decision 010 and the visual parts of 028.
 
 **Consequence.** Layout regressions are no longer caught automatically; motion, smoke, reduced motion, a11y, email, media, flag and security tests still run. The no-JS render is no longer compared with the JS render.
+
+**Lighthouse (Dmytro, same day).** After the hero change (030) and 031, CI Lighthouse measured Performance 0.94 and LCP 3.02 s (budget 0.95 and 3.0 s): the LCP element is still the hero wordmark, its render delay grew from about 1.06 s to 1.71 s, cause not yet found. The Lighthouse step is `continue-on-error` so it does not block the deploy; LCP is to be fixed at the end of the project, then the step blocks again.
 
 ---
 

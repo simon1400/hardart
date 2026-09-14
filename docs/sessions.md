@@ -15,7 +15,7 @@ One phase per session. Do not start the next one, even if time is left; propose 
 - Work directly in `main`, no branches or PRs. Conventional commits. Before every commit:
   `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`. After every push
   wait for CI (`gh run watch`) and fix it if red.
-- No visual screenshot tests (decision 031, Dmytro): check layouts by eye in the browser.
+- No visual screenshot tests (decision 032, Dmytro): check layouts by eye in the browser.
 - Check in the browser with the chrome-devtools MCP at 1440, 820 and 390 (mobile, touch). Serve the
   build with `pnpm exec serve out -l 4320 --no-clipboard` in the background and stop it at the end.
 - Motion has no limits except: text readable without motion, 60 fps at 6x CPU slowdown (measure it),
