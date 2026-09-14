@@ -20,7 +20,6 @@
     "media": "tsx scripts/prepare-media.ts",
     "media:upload": "tsx scripts/upload-media.ts",
     "test": "tsx scripts/check-copy.ts && playwright test",
-    "test:update-visual": "playwright test --grep @visual --update-snapshots",
     "lighthouse": "lhci autorun"
   },
   "pnpm": {

@@ -15,9 +15,7 @@ One phase per session. Do not start the next one, even if time is left; propose 
 - Work directly in `main`, no branches or PRs. Conventional commits. Before every commit:
   `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`. After every push
   wait for CI (`gh run watch`) and fix it if red.
-- Visual baselines change only in a separate commit `visual: …`. They are win32 only; CI skips
-  `@visual`. `--update-snapshots` does not rewrite a baseline whose change is within the pixel
-  threshold: delete the file first when a small element changed.
+- No visual screenshot tests (decision 031, Dmytro): check layouts by eye in the browser.
 - Check in the browser with the chrome-devtools MCP at 1440, 820 and 390 (mobile, touch). Serve the
   build with `pnpm exec serve out -l 4320 --no-clipboard` in the background and stop it at the end.
 - Motion has no limits except: text readable without motion, 60 fps at 6x CPU slowdown (measure it),
@@ -49,8 +47,8 @@ them on for a build; disabled flag modules are aliased to `Off.tsx` and ship zer
 Phase 8 (decision 028): every exported HTML gets a meta CSP with inline script hashes (`scripts/csp.ts`
 after `next build`, policy in `lib/security.ts`); `nginx/hardart.cz.conf` plus `nginx/hardart-headers.conf`
 are the reference server config with security headers. CI runs the JS budget (`pnpm check-budget`),
-Lighthouse CI (`lighthouserc.json`, 2x CPU on runners) and visual tests against linux baselines
-(`visual-baselines.yml`, manual). The hero claim reveals in CSS on the compositor once Mont is loaded
+Lighthouse CI (`lighthouserc.json`, 2x CPU on runners). Visual screenshot tests were removed later
+(decision 031). The hero claim reveals in CSS on the compositor once Mont is loaded
 (head script adds `fonts-ready`), is no longer split, and reveal setup runs in 12 ms slices. The static
 hero wordmark is an `<img>` (ink SVG data URI), which is the LCP element on every platform. Umami
 script renders with `NEXT_PUBLIC_UMAMI_HOST` and `NEXT_PUBLIC_UMAMI_ID`. README exists.

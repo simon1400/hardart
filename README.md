@@ -70,14 +70,7 @@ Extras beyond the design (`heroGrain`, `mediaHover`, `cursor`) are off. Turn one
 
 ## Tests and CI
 
-`.github/workflows/ci.yml` runs on every push and pull request: lint, typecheck, formatting, copy check, build, JS budget, Playwright (smoke, motion, reduced motion, email, security, accessibility, visual), Lighthouse CI, and a second build with all feature flags on. CI builds without project media, so frames render empty there.
-
-Visual baselines are platform specific. Windows baselines come from `pnpm test:update-visual`; Linux baselines, which CI compares against, are rendered by the manual workflow `.github/workflows/visual-baselines.yml`:
-
-```sh
-gh workflow run visual-baselines.yml
-gh run download <run id> -n visual-baselines -D tests/__screenshots__
-```
+`.github/workflows/ci.yml` runs on every push and pull request: lint, typecheck, formatting, copy check, build, JS budget, Playwright (smoke, motion, reduced motion, email, security, accessibility, feature flags), Lighthouse CI, and a second build with all feature flags on. CI builds without project media, so frames render empty there.
 
 ## Security headers and CSP
 

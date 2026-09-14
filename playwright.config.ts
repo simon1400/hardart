@@ -9,23 +9,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
-  // Baselines per platform: win32 from the dev machine, linux from .github/workflows/visual-baselines.yml.
-  // Shared by the js and no-js projects, so a no-js render must match the js baseline.
-  snapshotPathTemplate: '{testDir}/__screenshots__/{testFileName}/{arg}-{platform}{ext}',
-  expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.002, animations: 'disabled' } },
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: 'retain-on-failure',
   },
-  projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    {
-      name: 'no-js',
-      use: { ...devices['Desktop Chrome'], javaScriptEnabled: false },
-      grep: /@visual/,
-      grepInvert: /@motion/,
-    },
-  ],
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: `pnpm exec serve out -l ${PORT} --no-clipboard`,
     url: `http://localhost:${PORT}`,

@@ -42,7 +42,7 @@ Non goals: CMS, backend, forms, i18n, dark mode (`prefers-color-scheme` is ignor
 | Fonts | `next/font/local`, self hosted woff2 | Mont (licensed), Archia (license to be confirmed, see §5). Never load fonts from a third party. |
 | Analytics | **Umami** self hosted (cookieless) | Script tag only in production. No cookie banner needed. |
 | Lint/format | ESLint (next/core-web-vitals + typescript-eslint strict), Prettier | `pnpm lint`, `pnpm typecheck` must pass before every commit. |
-| Tests | Playwright (smoke + visual + reduced motion), Lighthouse CI | See §14. |
+| Tests | Playwright (smoke + motion + reduced motion), Lighthouse CI | See §14. |
 | Hosting | Dmytro's VPS, Nginx serving `out/` | Deploy via GitHub Actions over SSH. See §13. |
 
 Do not add libraries without asking. Specifically no: framer-motion/motion, locomotive-scroll, react-spring, three.js (unless the grain flag in §10 needs a tiny shader, then hand written WebGL, no three), lodash, moment, styled-components, any UI kit, any icon font.
@@ -317,7 +317,7 @@ Playwright (`tests/`):
 - motion: after scrolling past the hero, the logo has the corner transform; over the footer it has the accent class; word swap changes text within 3 s while visible and does not change while scrolled away.
 - reduced motion (`emulateMedia({ reducedMotion: 'reduce' })`): no transforms applied, logo in corner, swap shows `MEETINGS`, page is fully readable.
 - email: `out/index.html` contains no personal address and no `mailto:` except `hello@hardart.cz`.
-- visual: screenshots at 390, 820, 1440 widths, compared against baselines in the repo (update baselines only with an explicit commit message `visual: …`).
+- visual: removed (Dmytro, 2026-09-14, decision 031). Screenshot baselines failed CI on every deliberate design change and blocked the deploy; layouts are checked by eye at 390, 820, 1440.
 - a11y: axe-core run, zero violations.
 
 Manual checks before calling a phase done: real iPhone Safari and Android Chrome (scroll, logo move, video autoplay, URL bar behaviour), keyboard only navigation with visible focus, 6× CPU throttle 60 fps on logo scrub, fonts blocked (readable fallback), JS disabled (all text visible, logo in hero, no broken layout).

@@ -341,7 +341,7 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 - The Who we are paragraph (`data-intro`) is centred on the screen (Dmytro) and its lines rise at their own pace (0.9 s, 0.08 s stagger) once the scroll is 40 % through the hero, played back when it returns. A first version scrubbed the lines with the scroll; the eased scroll finished them in its fast start and they looked static. Claim exit spread 0.36 to 0.5 screen heights.
 - Grain opacity 0.06 to 0.14 (flag still off by default).
 
-**Consequence.** From the top, one wheel notch lands on Who we are, and the page cannot rest halfway through the hero by wheel or touch. Measured at 6x CPU on the GPU with the 1.2 s version, three changes down and up: p95 16.9 ms, no frame over 20 ms at 1440 and 390. Not yet checked on a real iPhone (lock during momentum). Logo move visual baselines changed; linux baselines need the Visual baselines workflow. At 0.14 the grain makes the accent look slightly darker on average (multiply).
+**Consequence.** From the top, one wheel notch lands on Who we are, and the page cannot rest halfway through the hero by wheel or touch. Measured at 6x CPU on the GPU with the 1.2 s version, three changes down and up: p95 16.9 ms, no frame over 20 ms at 1440 and 390. Not yet checked on a real iPhone (lock during momentum). At 0.14 the grain makes the accent look slightly darker on average (multiply).
 
 ---
 
@@ -352,6 +352,16 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 **Decision.** `--fs-claim` from md is `clamp(2.1rem, 3.12vw, 4.2rem)` (+20 %), below md `8.05vw` (−30 %, lines now break more than once on phones). `site.clients.lines` and its block are removed; the marquee is unchanged. Featured titles use the same `marker` reveal as secondary titles (fade up once, stripe drawn by the scroll), triggered by the title itself because it sits under its media; title links use `Link wipe={false}`. `--shadow-media: 0 0 30px` accent 20 % on `.media-frame` (video, image and website frame).
 
 **Consequence.** Project titles no longer have a hover state beyond the pointer cursor. Visual baselines regenerated (win32); linux baselines need the Visual baselines workflow.
+
+---
+
+## 031. No visual screenshot tests
+
+**Context.** The `@visual` Playwright tests compared full page and logo move screenshots with win32 and linux baselines. Every deliberate design change failed CI, and so blocked the deploy, until linux baselines were rendered by a manual workflow and committed.
+
+**Decision (Dmytro, 2026-09-14).** Removed `tests/visual.spec.ts`, all baselines, the `no-js` Playwright project, `pnpm test:update-visual` and `.github/workflows/visual-baselines.yml`. Supersedes decision 010 and the visual parts of 028.
+
+**Consequence.** Layout regressions are no longer caught automatically; motion, smoke, reduced motion, a11y, email, media, flag and security tests still run. The no-JS render is no longer compared with the JS render.
 
 ---
 
