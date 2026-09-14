@@ -310,7 +310,7 @@ Flags are read at build time; a disabled flag must tree-shake to zero bytes (che
 
 ## 14. Quality bar, budgets, tests
 
-Budgets (Lighthouse CI, mobile, throttled): Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100. LCP ≤ 1.5 s (hero is text + SVG, nothing heavier may be in the first viewport), CLS = 0, INP ≤ 200 ms, total JS as small as reasonably possible, never at the cost of features or animations (Dmytro, 2026-09-13); current ceiling 300 KB gzip, measured 228 KB in Phase 4 (Next 16 + React 19 runtime ≈ 173 KB, GSAP + plugins ≈ 50 KB, Lenis ≈ 6 KB). Raise the ceiling in a decision when a feature needs it, no third party requests before interaction except fonts (self) and Umami.
+Budgets (Lighthouse CI, mobile, throttled): Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100. LCP ≤ 3.0 s (Dmytro, 2026-09-14, decision 028: 1.5 s is out of reach under Lighthouse mobile throttling without cutting the hero animation; the hero stays text + SVG, nothing heavier may be in the first viewport), CLS = 0, INP ≤ 200 ms (TBT ≤ 200 ms in the lab), total JS as small as reasonably possible, never at the cost of features or animations (Dmytro, 2026-09-13); current ceiling 300 KB gzip, measured 228 KB in Phase 4 (Next 16 + React 19 runtime ≈ 173 KB, GSAP + plugins ≈ 50 KB, Lenis ≈ 6 KB). Raise the ceiling in a decision when a feature needs it, no third party requests before interaction except fonts (self) and Umami.
 
 Playwright (`tests/`):
 - smoke: page renders all seven sections, copy matches `content/site.ts` verbatim.

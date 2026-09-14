@@ -1,6 +1,9 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const PORT = 4320
+// Linux baselines are rendered by .github/workflows/visual-baselines.yml; until they are committed,
+// CI skips the visual tests (decision 010).
+const skipVisual = !!process.env.CI && !process.env.HARDART_RENDER_BASELINES
 
 // Tests run against the static export in out/, so run `pnpm build` first.
 export default defineConfig({
@@ -9,9 +12,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
-  // Visual baselines are rendered on the dev machine (win32). CI (linux) skips them until
-  // linux baselines are committed, see docs/decisions.md 009.
-  grepInvert: process.env.CI ? /@visual/ : undefined,
+  grepInvert: skipVisual ? /@visual/ : undefined,
   // Shared by the js and no-js projects, so a no-js render must match the js baseline.
   snapshotPathTemplate: '{testDir}/__screenshots__/{testFileName}/{arg}-{platform}{ext}',
   expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.002, animations: 'disabled' } },
@@ -26,7 +27,7 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], javaScriptEnabled: false },
       grep: /@visual/,
       // A project grepInvert replaces the global one, so the CI exclusion of @visual is repeated.
-      grepInvert: process.env.CI ? /@visual|@motion/ : /@motion/,
+      grepInvert: skipVisual ? /@visual|@motion/ : /@motion/,
     },
   ],
   webServer: {

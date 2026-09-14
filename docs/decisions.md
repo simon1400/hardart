@@ -296,6 +296,22 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** Turning a flag on for the live site is `featureDefaults.<name> = true` and a deploy. A new flag needs its module name in `flagModules` and an export in `Off.tsx`.
 
+## 028. Hardening (Phase 8): CSP, headers, Lighthouse CI, hero LCP
+
+**Context.** Phase 8 enforces CLAUDE.md §14 in CI and writes the security headers. Next's static export inlines about 16 `self.__next_f` payload scripts per page whose text changes with every build, so a static Nginx CSP can only allow them with `'unsafe-inline'`. The first Lighthouse CI run (mobile, simulated throttling) scored Performance 89 to 91 with LCP 3.3 to 3.7 s: the LCP element was the hero claim, hidden until the JS bundle split and revealed it.
+
+**Decision.**
+
+- CSP in two layers, both enforced by the browser. `scripts/csp.ts` runs after `next build` and writes a `<meta>` policy into every exported HTML file, right after the charset: inline scripts only by sha256 hash, `style-src 'self'` (GSAP and SplitText only touch styles through the CSSOM), ImageKit in `img-src`/`media-src`, Umami in `script-src`/`connect-src`, origins from the build env (`lib/security.ts`). `nginx/hardart-headers.conf` sends the same policy with `'unsafe-inline'` instead of hashes plus `frame-ancestors 'none'`, and HSTS (one year, no subdomains), `nosniff`, `X-Frame-Options DENY`, `Referrer-Policy`, a minimal `Permissions-Policy` and COOP. The snippet is included in every location, because `add_header` in a location drops the server level ones. `tests/security.spec.ts` checks that the snippet equals `headerPolicy()`, that the meta hashes match every inline script, and walks the page (and the flags build in CI) under both policies with zero violations; a planted inline style and a foreign image were caught when the test was checked.
+- Umami: `layout.tsx` renders the script only in production builds with both `NEXT_PUBLIC_UMAMI_HOST` and `NEXT_PUBLIC_UMAMI_ID`; the Nginx snippet has `{{UMAMI_HOST}}` until Phase 9.
+- Hero claim (move A) no longer waits for JS. Its lines rise in CSS through a clip that stays in place (transform and clip-path, same curve, 0.6 s, 0.08 s stagger), paused on the hidden first frame until the head script adds `fonts-ready` (`document.fonts.load` of Mont Bold, or 1.5 s), so the fallback font never shows. No opacity in the keyframes: Chrome ignored text that first paints transparent and reported no LCP at all. The claim is not split any more; the exit scrub moves its three lines directly, which on phones means three sentences instead of five visual lines. The claim block fills the hero below the wordmark with its lines at the bottom, so the font swap cannot move its top (CLS 0.041 under devtools throttling before).
+- Line masks: adjacent negative margins collapse to one, so each split paragraph was 0.15em per line taller than the unsplit text (28 px on the phone claim, visible on resize). The overlap now sits on the top margin of every mask after the first; the claim matches the unsplit layout to 0.06 px, the page is 53 px taller than without motion at 390 px instead of 309 px (the rest is inside Who we are, hidden until its reveal).
+- LCP budget (Dmytro, 2026-09-14): 3.0 s instead of 1.5 s. Lantern counts every request that finished before the observed LCP, and on a local server the 230 KB of JS finish within 40 ms, so the simulated LCP includes them however early the claim paints; with devtools throttling even FCP is 1.6 s. Lighthouse CI (`lighthouserc.json`, `pnpm lighthouse`): mobile, simulated, median of 3, Performance ≥ 0.95, Accessibility, Best Practices and SEO 1, LCP ≤ 3000 ms, CLS 0, TBT ≤ 200 ms (the lab stand-in for INP). `pnpm check-budget` measures the JS itself (gzip level 6 of every script on the page, 300 KiB ceiling), because Lighthouse 12 no longer has resource budgets. A test asserts no requests to other origins than the site and its ImageKit media before interaction.
+- Linux visual baselines are rendered by the manual workflow `visual-baselines.yml` on the CI image and committed as `visual: …`; `HARDART_RENDER_BASELINES` lets that run include `@visual`.
+- Measured locally after the change: Performance 94 to 95, FCP 1.1 s, LCP 2.9 s, TBT 90 ms, CLS 0, Accessibility, Best Practices and SEO 100; JS 225.5 KiB gzip.
+
+**Consequence.** Every build rewrites the HTML after Next, so anything that post-processes `out/` must run before `scripts/csp.ts` or re-run it. A new third party host goes into `lib/security.ts` and the Nginx snippet together. Real users on a slow connection see the claim once Mont has loaded plus 0.6 s; Chrome does not report that paint as LCP (the first paint is fully clipped), which only matters for field data.
+
 ---
 
 ## To confirm with Dan
@@ -312,6 +328,7 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 - Order of the featured projects on the page (kept from before, Daniel's list is alphabetical).
 - Video posters are picked automatically (decision 025); Daniel may want specific stills.
 - Feature flags (decision 027), all off: grain 6 % multiply at 12 fps; media lean 6 px and scale 1.02; cursor dot 12 px, ring 40 px, paper dot on the footer, ink ring on the hero, links lean up to 10 px.
+- Hero claim on phones (decision 028): the three sentences rise and leave as three blocks, not as five visual lines.
 - Phase 5 moves (decision 024): on phones the claim fades out within the first half of the hero and briefly crosses the shrinking logo; the email in Contact now carries the accent stripe.
 
 ## Open items

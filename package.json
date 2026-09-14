@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.34.5",
   "scripts": {
     "dev": "next dev",
-    "build": "tsx scripts/check-copy.ts && tsx scripts/check-content.ts && next build",
+    "build": "tsx scripts/check-copy.ts && tsx scripts/check-content.ts && next build && tsx scripts/csp.ts",
     "start": "serve out",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -14,12 +14,14 @@
     "format:check": "prettier --check .",
     "check-copy": "tsx scripts/check-copy.ts",
     "check-content": "tsx scripts/check-content.ts",
+    "check-budget": "tsx scripts/check-budget.ts",
     "fonts": "tsx scripts/fonts.ts",
     "logos": "tsx scripts/normalise-logos.ts",
     "media": "tsx scripts/prepare-media.ts",
     "media:upload": "tsx scripts/upload-media.ts",
     "test": "tsx scripts/check-copy.ts && playwright test",
-    "test:update-visual": "playwright test --grep @visual --update-snapshots"
+    "test:update-visual": "playwright test --grep @visual --update-snapshots",
+    "lighthouse": "lhci autorun"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -41,6 +43,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@lhci/cli": "0.15.1",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "^24.13.4",

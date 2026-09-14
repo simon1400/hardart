@@ -5,6 +5,7 @@ import { LenisProvider } from '@/components/motion/LenisProvider'
 import { companyLinkedin, people } from '@/content/people'
 import { site } from '@/content/site'
 import { palette } from '@/lib/brand'
+import { umamiConfig } from '@/lib/security'
 import './styles/globals.css'
 
 export const metadata: Metadata = {
@@ -50,6 +51,9 @@ const jsonLd = {
     .map((link) => link.url),
 }
 
+// Cookieless analytics, production builds with NEXT_PUBLIC_UMAMI_HOST and NEXT_PUBLIC_UMAMI_ID only.
+const umami = process.env.NODE_ENV === 'production' ? umamiConfig() : undefined
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`no-js ${mont.variable}`} suppressHydrationWarning>
@@ -59,6 +63,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
         />
+        {umami && <script defer src={umami.script} data-website-id={umami.websiteId} />}
       </head>
       <body>
         <LenisProvider>{children}</LenisProvider>
