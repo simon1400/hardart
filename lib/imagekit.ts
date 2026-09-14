@@ -8,6 +8,10 @@
 
 const endpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT?.replace(/\/$/, '')
 
+/** Bump after re-uploading changed media under the same names: browsers and CDN edges keep the old
+ *  files for the same URL (the 16:9 videos outlived their re-encode in original ratio). */
+const MEDIA_VERSION = '2'
+
 /** Widths for phones (below md), per kind of media. */
 export const MOBILE_WIDTH = { video: 800, poster: 800, image: 800, site: 600 } as const
 
@@ -41,5 +45,5 @@ export function mediaUrl(slug: string, file: string, preset: Preset, size: Size 
   const ownFile = size === 'mobile' && (!endpoint || OWN_SIZES.includes(preset))
   const name = ownFile ? variant(file, MOBILE_WIDTH[preset]) : file
   const path = `/projects/${slug}/${name}`
-  return endpoint ? `${endpoint}${path}?tr=${presets[preset][size]}` : path
+  return endpoint ? `${endpoint}${path}?tr=${presets[preset][size]}&v=${MEDIA_VERSION}` : path
 }
