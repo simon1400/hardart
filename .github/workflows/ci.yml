@@ -39,6 +39,14 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec playwright test
 
+      # Feature flags are build constants: a second build with all of them on runs their tests.
+      - name: Feature flags
+        env:
+          HARDART_FLAGS: all
+        run: |
+          pnpm build
+          pnpm exec playwright test tests/flags.spec.ts --project=chromium
+
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

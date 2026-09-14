@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { ProjectVideo } from '@/components/media/ProjectVideo'
 import { SiteShot } from '@/components/media/SiteShot'
 import { posterFile, type Project } from '@/content/projects'
+import { features } from '@/lib/features'
 import {
   MOBILE_QUERY,
   MOBILE_WIDTH,
@@ -49,10 +50,19 @@ function Picture({ slug, file, preset, alt }: PictureProps) {
 
 // E. Two transform layers the RevealController opens like a window: the outer one rises from below
 // while the inner one moves the other way and settles its scale, so the media itself stays put.
+// With the mediaHover flag a third layer inside them follows the pointer (components/flags).
 function MediaReveal({ children }: { children: ReactNode }) {
   return (
     <div className="media-reveal">
-      <div className="media-reveal-inner">{children}</div>
+      <div className="media-reveal-inner">
+        {features.mediaHover ? (
+          <div className="absolute inset-0" data-media-hover>
+            {children}
+          </div>
+        ) : (
+          children
+        )}
+      </div>
     </div>
   )
 }

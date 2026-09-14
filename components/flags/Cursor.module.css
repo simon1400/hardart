@@ -1,0 +1,63 @@
+/* Fixed above everything, the corner logo included; never takes the pointer. */
+.cursor {
+  --cursor-fill: var(--ink);
+  --cursor-edge: var(--accent);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  /* Always its own compositor layer: it moves on every pointer move. */
+  will-change: transform;
+  transition: opacity var(--dur-hover) var(--ease-out);
+}
+
+.visible {
+  opacity: 1;
+}
+
+.onInk {
+  --cursor-fill: var(--paper);
+}
+
+.onAccent {
+  --cursor-edge: var(--ink);
+}
+
+.dot,
+.ring {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.dot {
+  top: calc(var(--cursor-dot) / -2);
+  left: calc(var(--cursor-dot) / -2);
+  width: var(--cursor-dot);
+  height: var(--cursor-dot);
+  background: var(--cursor-fill);
+  transition: background-color var(--dur-hover);
+}
+
+.ring {
+  top: calc(var(--cursor-ring) / -2);
+  left: calc(var(--cursor-ring) / -2);
+  width: var(--cursor-ring);
+  height: var(--cursor-ring);
+  border: 2px solid var(--cursor-edge);
+  opacity: 0;
+  transform: scale(0.3);
+  transition: border-color var(--dur-hover);
+}
+
+/* On the root while the custom cursor is shown. */
+.hidesCursor,
+.hidesCursor * {
+  cursor: none;
+}
+
+/* A single line text link that leans toward the pointer needs a box that takes transforms. */
+.magnet {
+  display: inline-block;
+}

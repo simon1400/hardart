@@ -1,3 +1,5 @@
+import { Cursor } from '@/components/flags/Cursor'
+import { MediaHover } from '@/components/flags/MediaHover'
 import { RevealController } from '@/components/motion/RevealController'
 import { ScrollLogo } from '@/components/motion/ScrollLogo'
 import { Clients } from '@/components/sections/Clients'
@@ -8,6 +10,7 @@ import { Statement } from '@/components/sections/Statement'
 import { WhatWeDo } from '@/components/sections/WhatWeDo'
 import { WhoWeAre } from '@/components/sections/WhoWeAre'
 import { Work } from '@/components/sections/Work'
+import { features } from '@/lib/features'
 
 // Section order follows Daniel's XD (docs/decisions.md 012).
 export default function Home() {
@@ -25,6 +28,9 @@ export default function Home() {
       </main>
       <Footer />
       <RevealController />
+      {/* Extras beyond the spec, off by default (lib/features.ts). */}
+      {features.mediaHover ? <MediaHover /> : null}
+      {features.cursor ? <Cursor /> : null}
     </>
   )
 }

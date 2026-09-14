@@ -25,6 +25,9 @@ export const LINE_FROM = 120
 /** Travel of non text reveals, px. Spec: 16 to 24. */
 export const RISE = 20
 
+/** Pointer devices only: touch has no hover to follow (feature flags). */
+export const POINTER_QUERY = '(hover: hover) and (pointer: fine)'
+
 /** Two column layouts start here (--breakpoint-md). */
 export const WIDE_QUERY = '(min-width: 51.25rem)'
 

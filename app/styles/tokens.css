@@ -70,6 +70,11 @@
   --dur-reveal: 0.5s;
   --dur-hover: 0.2s;
   --rise: 20px;
+
+  /* feature flags (CLAUDE.md §10) */
+  --grain-opacity: 0.06;
+  --cursor-dot: 12px;
+  --cursor-ring: 40px;
 }
 
 @media (min-width: 51.25rem) {
