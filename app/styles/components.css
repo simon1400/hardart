@@ -313,7 +313,7 @@ html.lenis body {
 @media (min-width: 51.25rem) {
   .work-row {
     grid-template-columns: minmax(0, 36fr) minmax(0, 64fr); /* XD: 510 / 904 */
-    column-gap: var(--work-col-gap);
+    column-gap: clamp(1.5rem, 2.9vw, 4rem); /* XD: 56px */
   }
 
   .work-row .site-scroll {

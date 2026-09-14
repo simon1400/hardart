@@ -17,7 +17,7 @@
   --gutter: clamp(16px, 1.6vw, 40px); /* XD: 31px at 1920 */
   --section-gap: clamp(5rem, 12vh, 10rem);
   --row-gap: clamp(3.5rem, 5vw, 6rem); /* between work rows, XD: 92px */
-  --work-col-gap: clamp(3rem, 5.8vw, 8rem); /* between projects side by side, 2x XD (Dmytro, 2026-09-14) */
+  --work-col-gap: clamp(3rem, 5.8vw, 8rem); /* between two projects side by side (work-pair), 2x XD (Dmytro, 2026-09-14) */
   --inset: var(--gutter); /* work rows inset, widened at lg */
   --measure: 60ch;
   --radius-media: clamp(14px, 1.7vw, 36px); /* XD: ~32px at 1920 */
