@@ -57,7 +57,7 @@ test.describe('heroGrain', () => {
     await page.setViewportSize({ width: 1440, height: 900 })
     await page.goto('/')
     const grain = page.locator('[data-grain]')
-    await expect(grain).toHaveCSS('opacity', '0.06', { timeout: 5000 })
+    await expect(grain).toHaveCSS('opacity', '0.14', { timeout: 5000 })
     const draws = () =>
       page.evaluate(() => (window as unknown as { grainDraws: number }).grainDraws)
     const first = await draws()

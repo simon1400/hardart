@@ -11,7 +11,7 @@ const STATEMENT_TRAVEL = 0.35
 /** Website frames float this far up and down, in % of their height. */
 const PARALLAX = 6
 /** Extra rise of the top claim line as the hero leaves, in viewport heights; lower lines rise less. */
-const EXIT_SPREAD = 0.36
+const EXIT_SPREAD = 0.5
 
 /** Sets up every scene on the page; returns cleanup for state made outside the context. */
 export function setupScenes() {
@@ -24,6 +24,7 @@ export function setupScenes() {
   for (const claim of document.querySelectorAll<HTMLElement>('[data-exit]')) {
     claimExit(claim, Array.from(claim.children))
   }
+  heroGround()
   curtain()
   return () => {
     for (const cleanup of cleanups) cleanup()
@@ -140,6 +141,32 @@ function markScrub(el: HTMLElement) {
         end: 'clamp(bottom 50%)',
         scrub: true,
         once: false,
+      },
+    },
+  )
+}
+
+/**
+ * Hero to Who we are. The accent ground slides up faster than the page, by the height of its fade, so
+ * the gradient leaves the top of the screen exactly as the hero does and Who we are arrives on paper.
+ */
+function heroGround() {
+  const hero = document.getElementById('top')
+  const ground = hero?.querySelector<HTMLElement>('[data-hero-ground]')
+  if (!hero || !ground) return
+  gsap.fromTo(
+    ground,
+    { y: 0 },
+    {
+      y: () => hero.offsetHeight - ground.offsetHeight,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: hero,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true,
+        once: false,
+        invalidateOnRefresh: true,
       },
     },
   )

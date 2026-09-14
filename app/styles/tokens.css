@@ -72,9 +72,10 @@
   --stagger-claim: 0.08s;
   --dur-hover: 0.2s;
   --rise: 20px;
+  --hero-fade: 88svh; /* accent to paper band below the hero; XD: the fade fills Who we are */
 
   /* feature flags (CLAUDE.md §10) */
-  --grain-opacity: 0.06;
+  --grain-opacity: 0.14;
   --cursor-dot: 12px;
   --cursor-ring: 40px;
 }

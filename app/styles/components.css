@@ -181,9 +181,20 @@ html.lenis body {
   overflow: clip;
 }
 
-/* Who we are: the hero accent fades into paper (Daniel's XD). */
+/* The hero ground: accent over the hero, then a fade into paper over the top of Who we are (Daniel's
+   XD). Behind the hero content (the hero is isolated); Who we are is positioned, so its text paints
+   above the part of the ground that runs into it. */
+.hero-ground {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: -1;
+  height: calc(100% + var(--hero-fade));
+  background: linear-gradient(var(--accent) calc(100% - var(--hero-fade)), var(--paper));
+  pointer-events: none;
+}
+
 .who-we-are {
-  background: linear-gradient(var(--accent), var(--paper) 88%);
+  position: relative;
 }
 
 /* Section headings: ink text on an accent stripe, the same marker language as the highlights.

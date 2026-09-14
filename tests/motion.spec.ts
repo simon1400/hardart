@@ -84,7 +84,7 @@ test('logo turns from ink to accent as it shrinks', async ({ page }) => {
 
 test('text reveals line by line, once', async ({ page }) => {
   await page.goto('/')
-  const paragraph = page.locator('.who-we-are [data-reveal="lines"]')
+  const paragraph = page.locator('.work-row p[data-reveal="lines"]').first()
   const lines = paragraph.locator('.reveal-line')
   await expect(lines.first()).toBeAttached()
   expect(await lines.count()).toBeGreaterThan(3)
@@ -272,6 +272,37 @@ test('hero claim drifts apart and fades as the hero leaves, both ways', async ({
 
   await scrollTo(page, 0)
   for (const mask of await state()) expect(mask).toEqual({ y: 0, opacity: 1 })
+})
+
+test('a small scroll gesture plays the hero change to Who we are, and back', async ({ page }) => {
+  await page.goto('/')
+  const lines = page.locator('.who-we-are [data-intro] .reveal-line')
+  await expect(lines.first()).toBeAttached()
+  const heroHeight = await page.locator('#top').evaluate((el) => el.getBoundingClientRect().height)
+  const settled = (y: number) =>
+    page.waitForFunction((target) => Math.abs(window.scrollY - target) < 1, y, { timeout: 5000 })
+
+  await page.mouse.move(200, 200)
+  await page.mouse.wheel(0, 40)
+  await settled(heroHeight)
+  // The accent ground has left the screen with the hero; the intro lines have landed.
+  const groundBottom = await page
+    .locator('[data-hero-ground]')
+    .evaluate((el) => el.getBoundingClientRect().bottom)
+  expect(groundBottom).toBeLessThanOrEqual(1)
+  await expect(lines.last()).toHaveCSS('opacity', '1')
+
+  // Once the change has settled, scrolling on from the end of the hero is plain scrolling.
+  await page.waitForTimeout(500)
+  await page.mouse.wheel(0, 200)
+  await page.waitForFunction((end) => window.scrollY > end + 100, heroHeight)
+  // Let the smooth scroll settle, or it carries on past the jump back.
+  await page.waitForTimeout(1500)
+
+  await scrollTo(page, heroHeight)
+  await page.mouse.wheel(0, -40)
+  await settled(0)
+  await expect(lines.first()).toHaveCSS('opacity', '0')
 })
 
 test('work media opens once it enters', async ({ page }) => {

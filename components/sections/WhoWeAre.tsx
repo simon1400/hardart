@@ -27,6 +27,7 @@ export function WhoWeAre() {
       <RevealLines
         className="mx-auto w-full text-copy md:w-[min(45vw,56rem)] md:min-w-xl"
         data-mark-scrub
+        data-intro
       >
         {highlight(paragraphs.join(' '), words)}
       </RevealLines>

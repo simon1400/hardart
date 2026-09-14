@@ -2,6 +2,7 @@
 
 import Lenis from 'lenis'
 import type { ReactNode } from 'react'
+import { heroSnap } from '@/components/motion/heroSnap'
 import { gsap, MOTION_QUERY, motionOff, ScrollTrigger, useGSAP } from '@/lib/motion'
 
 // Smooth scroll driven by the GSAP ticker, feeding ScrollTrigger (CLAUDE.md §7). Touch devices keep
@@ -16,7 +17,9 @@ export function LenisProvider({ children }: { children: ReactNode }) {
       lenis.on('scroll', ScrollTrigger.update)
       gsap.ticker.add(tick)
       gsap.ticker.lagSmoothing(0)
+      const offSnap = heroSnap(lenis)
       return () => {
+        offSnap()
         gsap.ticker.remove(tick)
         gsap.ticker.lagSmoothing(500, 33)
         lenis.destroy()

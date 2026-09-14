@@ -76,7 +76,8 @@ test('at most three videos play, even with every video on screen', async ({ page
     .locator('.work-row')
     .first()
     .evaluate((el) => el.getBoundingClientRect().top + window.scrollY)
-  await page.mouse.wheel(0, top - 100)
+  // Not a wheel: a gesture at the top plays the hero change instead of scrolling this far.
+  await page.evaluate((y) => window.scrollTo(0, y), top - 100)
   await expect
     .poll(async () => (await videoState(page)).filter((v) => v.playing).length, { timeout: 8000 })
     .toBe(3)

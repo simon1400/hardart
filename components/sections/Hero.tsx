@@ -8,9 +8,14 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative isolate flex min-h-svh flex-col justify-between gap-12 bg-accent px-gutter pb-gutter text-ink"
+      className="relative isolate flex min-h-svh flex-col justify-between gap-12 px-gutter pb-gutter text-ink"
     >
-      {features.heroGrain ? <Grain /> : null}
+      {/* The accent ground runs past the bottom of the hero and fades into paper over the top of Who
+          we are (Daniel's XD). With motion it slides up faster than the page as the hero leaves, so
+          the screen is paper by the time the next section fills it (scenes.ts). */}
+      <div className="hero-ground" aria-hidden data-hero-ground>
+        {features.heroGrain ? <Grain /> : null}
+      </div>
       {/* The tops of the letters sit on the top edge of the window (the SVG has no top padding).
           This static wordmark is the no motion state; with motion the fixed ScrollLogo covers it
           exactly and it turns transparent (still in the accessibility tree as the h1). An image, not

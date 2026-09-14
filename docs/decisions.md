@@ -330,6 +330,21 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 ---
 
+## 030. Hero to Who we are as one gestured scene
+
+**Context.** Dmytro (2026-09-14): a light scroll in the hero should switch to Who we are at once, as one move: the logo shrinks and turns accent, the claim flies up, the accent retreats upwards as a gradient and leaves paper, and the Who we are text rises in at the same time. Before, every part was scrubbed over a full screen of scroll, the gradient was the static background of Who we are, and its text had its own once reveal. He also asked for the hero grain to be more visible or removed.
+
+**Decision.**
+
+- `heroSnap` (`components/motion/heroSnap.ts`, set up with Lenis): a wheel or touch gesture (Lenis `virtual-scroll`) or a scroll key inside the hero scrolls to the end of the hero (down) or to the top (up) in 1.2 s, quart out, with Lenis locked, which also cancels touch moves while it runs. Programmatic scrolls (anchors, tests) and a dragged scrollbar stay plain scrubbing. All hero scenes remain scrubbed by scroll, so the change is exact both ways and a state left halfway is valid.
+- The accent moved from the hero and Who we are backgrounds into one `.hero-ground` layer inside the hero: accent for the hero height, then a `--hero-fade` (88svh) fade to paper over Who we are. Without motion it looks as before. With motion it slides up by the fade height as the hero leaves, so the screen is paper when Who we are fills it. The grain canvas lives in the ground and is masked with the fade.
+- The Who we are paragraph (`data-intro`) is scrubbed with the hero exit instead of revealing once: its masks trail the page by 0.35 screen heights while the lines rise one after another, the last landing at the end of the hero. Claim exit spread 0.36 to 0.5 screen heights.
+- Grain opacity 0.06 to 0.14 (flag still off by default).
+
+**Consequence.** From the top, one wheel notch lands on Who we are, and the page cannot rest halfway through the hero by wheel or touch. Measured at 6x CPU on the GPU, three changes down and up: p95 16.9 ms, no frame over 20 ms at 1440 and 390. Not yet checked on a real iPhone (lock during momentum). Logo move visual baselines changed; linux baselines need the Visual baselines workflow. At 0.14 the grain makes the accent look slightly darker on average (multiply).
+
+---
+
 ## To confirm with Dan
 
 - Label weight: Mont Book (500) at 12px with .12em tracking. Regular (600) is the alternative if labels read too light.
