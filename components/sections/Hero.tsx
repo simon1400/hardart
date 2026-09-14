@@ -23,8 +23,8 @@ export function Hero() {
           bottom, so its top never moves when Mont replaces the fallback and the lines rewrap (CLS). */}
       <p className="flex grow flex-col justify-end text-right text-claim" data-claim data-exit>
         {site.hero.claim.map((line) => (
-          <span key={line} className="block text-balance">
-            {line}
+          <span key={line} className="claim-mask">
+            <span className="claim-line block text-balance">{line}</span>
           </span>
         ))}
       </p>

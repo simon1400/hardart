@@ -19,8 +19,8 @@ import { curtainStart, setupParallax, setupScenes } from '@/components/motion/sc
 
 type Revealed = HTMLElement & { dataset: { reveal: string } }
 
-/** Longest stretch of reveal setup before the main thread gets a turn, ms (a long task is 50). */
-const SLICE_MS = 30
+/** Longest stretch of reveal setup before the main thread gets a turn, ms: under one frame. */
+const SLICE_MS = 12
 
 const yieldToMain = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
 

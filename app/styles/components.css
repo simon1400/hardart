@@ -106,23 +106,33 @@
 /* A. The hero claim rises without waiting for the JS bundle, so the largest text on the first screen
    paints early and never moves (Lighthouse LCP and CLS, decision 028). The animations wait, paused on
    their hidden first frame, until the head script marks Mont as loaded (or 1.5 s passed), so the
-   fallback font never shows and swaps. Each line rises through a clip that stays put: the inset
-   shrinks by exactly the distance the line travels. No opacity: Chrome does not count text that
-   first paints transparent as the largest contentful paint. */
+   fallback font never shows and swaps. Each line rises out of a static mask that bleeds like the
+   SplitText masks; transform only, so the compositor runs it while the main thread sets up the
+   other reveals. No opacity: Chrome does not count text that first paints transparent as LCP. */
+.claim-mask {
+  display: block;
+  padding-block: 0.15em;
+  margin-block: -0.15em;
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  .js:not(.motion-off) [data-claim] > * {
+  .js:not(.motion-off) .claim-mask {
+    overflow-y: clip;
+  }
+
+  .js:not(.motion-off) .claim-line {
     animation: claim-rise var(--dur-claim) var(--ease-out) backwards paused;
   }
 
-  .js.fonts-ready:not(.motion-off) [data-claim] > * {
+  .js.fonts-ready:not(.motion-off) .claim-line {
     animation-play-state: running;
   }
 
-  .js:not(.motion-off) [data-claim] > :nth-child(2) {
+  .js:not(.motion-off) .claim-mask:nth-child(2) > .claim-line {
     animation-delay: var(--stagger-claim);
   }
 
-  .js:not(.motion-off) [data-claim] > :nth-child(3) {
+  .js:not(.motion-off) .claim-mask:nth-child(3) > .claim-line {
     animation-delay: calc(2 * var(--stagger-claim));
   }
 }
@@ -130,11 +140,6 @@
 @keyframes claim-rise {
   from {
     transform: translateY(120%);
-    clip-path: inset(-0.15em -0.5em 120% -0.5em);
-  }
-  to {
-    transform: none;
-    clip-path: inset(-0.15em -0.5em -0.15em -0.5em);
   }
 }
 
