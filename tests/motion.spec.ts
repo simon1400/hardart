@@ -120,17 +120,34 @@ test('hero claim arrives without the JS bundle', async ({ page }) => {
   await expect(claimLines(page).last()).toHaveCSS('clip-path', 'none', { timeout: 3000 })
 })
 
-test('claim waits for the font, and still reveals when fonts are blocked', async ({ page }) => {
+// The page clock is paused, so the head script's 1.5 s fallback fires only when the test says so.
+test('claim waits for the display face', async ({ page }) => {
+  await page.clock.install()
+  await page.clock.pauseAt(Date.now() + 1000)
   let release: () => void = () => undefined
   const held = new Promise<void>((resolve) => (release = resolve))
   await page.route('**/*.woff2', async (route) => {
     await held
-    await route.abort()
+    await route.continue()
   })
-  await page.goto('/', { waitUntil: 'commit' })
-  await page.waitForTimeout(500)
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
   await expect(claimLines(page).first()).toHaveCSS('clip-path', /120%/)
+  await expect(page.locator('html')).not.toHaveClass(/fonts-ready/)
   release()
+  await expect(page.locator('html')).toHaveClass(/fonts-ready/)
+  await expect(claimLines(page).last()).toHaveCSS('clip-path', 'none', { timeout: 4000 })
+})
+
+test('claim still reveals when fonts are blocked', async ({ page }) => {
+  await page.clock.install()
+  await page.clock.pauseAt(Date.now() + 1000)
+  await page.route('**/*.woff2', async () => {
+    // Never answered: the font stays pending until the fallback.
+  })
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  await expect(claimLines(page).first()).toHaveCSS('clip-path', /120%/)
+  await page.clock.runFor(1600)
+  await expect(page.locator('html')).toHaveClass(/fonts-ready/)
   await expect(claimLines(page).last()).toHaveCSS('clip-path', 'none', { timeout: 4000 })
 })
 
