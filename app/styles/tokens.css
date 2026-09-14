@@ -43,7 +43,7 @@
   --fs-statement: 6.5vw; /* mobile, two lines: "ZERO ACCOUNT MANAGERS." is 13.87em */
   --fs-h: clamp(2rem, 4vw, 4.5rem);
   /* statement and footer, Daniel's footer design (2026-09-14, 1280 px screenshot) */
-  --fs-footer: clamp(1rem, 1.33vw, 1.625rem); /* names, taglines, disciplines: 17px at 1280 */
+  --fs-footer: min(1rem, 3.5vw); /* mobile: each discipline line fits on one line (Dmytro, 2026-09-14) */
   --fs-closing: 7vw; /* THE KIND OF ART THAT HAS A DEADLINE., mobile */
   --fs-legal: clamp(0.625rem, 0.7vw, 0.875rem);
   --finale-inset: var(--gutter); /* left edge of the statement and the people, lg below */
@@ -96,6 +96,7 @@
   :root {
     --fs-claim: clamp(2.1rem, 3.12vw, 4.2rem); /* XD 50px at 1920 plus 20 % (Dmytro, 2026-09-14) */
     --fs-statement: 4.3vw; /* two lines, left edge at --finale-inset */
+    --fs-footer: clamp(1rem, 1.33vw, 1.625rem); /* names, taglines, disciplines: 17px at 1280 */
     --fs-closing: 2.65vw; /* 34px at 1280 */
     --wordmark-w: 36vw; /* XD: 685px at 1920 */
     --logo-corner-h: 22px;

@@ -19,7 +19,7 @@ export function Footer() {
               <Reveal kind="fade" className="flex flex-wrap items-center gap-x-3">
                 <h2 className="footer-name">{entry.name}</h2>
                 {person ? (
-                  <ul className="flex items-center text-accent" aria-label={entry.name}>
+                  <ul className="flex items-center gap-1.5 text-accent" aria-label={entry.name}>
                     <li>
                       <ProtectedEmail
                         user={person.emailUser}
@@ -58,7 +58,7 @@ export function Footer() {
               <RevealLines className="mt-2">
                 <span className="block text-accent">{entry.tagline}</span>
                 {entry.disciplines.map((line) => (
-                  <span key={line} className="block">
+                  <span key={line} className="block max-md:whitespace-nowrap">
                     {line}
                   </span>
                 ))}
@@ -75,7 +75,15 @@ export function Footer() {
             <Wordmark className="block h-auto w-full text-accent" />
           </Reveal>
         </div>
-        <RevealLines className="text-right text-closing text-balance">{footer.closing}</RevealLines>
+        {/* Two lines on phones at the copy's own break; one balanced flow from md. */}
+        <RevealLines className="text-right text-closing text-balance">
+          {footer.closing.map((part, index) => (
+            <span key={part} className="block md:inline">
+              {index > 0 ? ' ' : null}
+              {part}
+            </span>
+          ))}
+        </RevealLines>
       </div>
       <p className="footer-legal text-legal">
         {footer.legal.map((line) => (

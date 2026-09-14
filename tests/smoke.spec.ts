@@ -24,7 +24,7 @@ test('copy matches content/site.ts verbatim', async ({ page }) => {
     site.work.label,
     site.clients.label,
     ...site.footer.people.flatMap((person) => [person.name, person.tagline, ...person.disciplines]),
-    site.footer.closing,
+    site.footer.closing.join(' '),
     ...site.footer.legal,
     ...projects.flatMap((project) => [project.title, project.text, ...project.tags]),
   ]

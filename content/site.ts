@@ -64,7 +64,7 @@ export const site = {
     emailLabel: (name: string) => `Email ${name}`,
     phoneLabel: (name: string) => `Call ${name}`,
     linkedinLabel: (name: string) => `${name} on LinkedIn`,
-    closing: 'The kind of art that has a deadline.',
+    closing: ['The kind of art', 'that has a deadline.'], // phones break between the parts
     legal: ['Dmytro Pechunka, IČO 17407613', 'Daniel Kokeš, IČO 11988215'],
   },
   notFound: {

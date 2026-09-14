@@ -18,6 +18,31 @@ export function ScrollLogoMotion() {
 
     const mm = gsap.matchMedia()
 
+    // Not fixed over the footer, which has its own wordmark (Dmytro, 2026-09-14): as the footer comes
+    // in, the corner logo scrolls off the top 1:1 with the page, and comes back on the way up.
+    // Scroll linked, not an animation, so it also runs without motion.
+    const footer = document.querySelector<HTMLElement>('[data-footer]')
+    if (footer) {
+      mm.add('all', () => {
+        gsap.fromTo(
+          logo,
+          { y: 0 },
+          {
+            y: () => -logo.offsetHeight,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: footer,
+              start: 'top bottom',
+              end: () => `+=${logo.offsetHeight}`,
+              scrub: true,
+              once: false,
+              invalidateOnRefresh: true,
+            },
+          },
+        )
+      })
+    }
+
     // Without motion the logo simply appears in the corner once the hero wordmark is gone.
     mm.add('(prefers-reduced-motion: reduce)', () => docked(logo, heroMark))
 
