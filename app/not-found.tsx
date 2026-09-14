@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { ScrollLogo } from '@/components/motion/ScrollLogo'
 import { Link } from '@/components/ui/Link'
 import { site } from '@/content/site'
+
+export const metadata: Metadata = { title: site.notFound.title }
 
 export default function NotFound() {
   return (

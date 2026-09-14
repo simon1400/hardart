@@ -273,6 +273,14 @@ html.lenis body {
   width: auto;
 }
 
+/* The logo symbols, defined once and referenced by both marquee copies (ClientLogo.tsx). */
+.client-logo-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 @keyframes marquee {
   to {
     transform: translate3d(-50%, 0, 0);

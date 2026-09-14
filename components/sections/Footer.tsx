@@ -17,7 +17,7 @@ export function Footer() {
           return (
             <div key={entry.name} className="text-footer">
               <Reveal kind="fade" className="flex flex-wrap items-center gap-x-3">
-                <h2 className="footer-name">{entry.name}</h2>
+                <h3 className="footer-name">{entry.name}</h3>
                 {person ? (
                   <ul className="flex items-center gap-1.5 text-accent" aria-label={entry.name}>
                     <li>

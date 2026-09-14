@@ -2,9 +2,13 @@
 // Strings marked "proposal" are not in the spec yet and wait for confirmation.
 export const site = {
   meta: {
-    title: 'hardart',
+    // Search snippet, not page copy: wording agreed with Dmytro (2026-09-14), not in the spec.
+    title: 'hardart, creative development studio: brand, design, code',
     description:
-      'An independent creative development studio. Two people, ten years, no departments.',
+      'Independent creative development studio from the Czech Republic, working across Europe. Brand, design, UX and full stack development. Two people, no departments.',
+    /** structured data only: no office, both work from home, so the country is all we state */
+    country: 'CZ',
+    areaServed: 'Europe',
     url: 'https://hardart.cz',
     foundingDate: '2016',
     email: 'hello@hardart.cz', // structured data only, not shown on the page
@@ -70,6 +74,7 @@ export const site = {
   },
   notFound: {
     // proposal, not in the spec
+    title: 'Nothing here, hardart',
     text: 'Nothing here.',
     link: 'Back to hardart',
   },

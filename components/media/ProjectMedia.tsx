@@ -111,7 +111,7 @@ export function ProjectMedia({ project }: { project: Project }) {
 // Portrait window onto a tall full page screenshot that scrolls by itself. The grid cell stays put
 // (it is the reveal trigger); the frame inside it floats with a scroll parallax on wide screens.
 export function SiteScroll({ project, label }: { project: Project; label: string }) {
-  const { slug, site } = project
+  const { slug, site, siteWidth, siteHeight } = project
   const hasSite = available(slug, site)
 
   return (
@@ -119,7 +119,12 @@ export function SiteScroll({ project, label }: { project: Project; label: string
       <div className="media-frame site-frame" data-parallax data-empty={hasSite ? undefined : ''}>
         {hasSite && site ? (
           <MediaReveal>
-            <SiteShot {...sources(slug, site, 'site')} alt={label} />
+            <SiteShot
+              {...sources(slug, site, 'site')}
+              alt={label}
+              width={siteWidth}
+              height={siteHeight}
+            />
           </MediaReveal>
         ) : null}
       </div>

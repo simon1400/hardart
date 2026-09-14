@@ -12,14 +12,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.meta.url),
   title: site.meta.title,
   description: site.meta.description,
-  alternates: { canonical: '/' },
+  alternates: { canonical: `${site.meta.url}/` },
   openGraph: {
     type: 'website',
-    url: '/',
+    url: `${site.meta.url}/`,
     siteName: site.brand.name,
     title: site.meta.title,
     description: site.meta.description,
-    locale: 'en',
+    locale: 'en_US',
   },
   twitter: { card: 'summary_large_image' },
 }
@@ -39,20 +39,63 @@ const displayFamily = mont.style.fontFamily.split(',')[0] ?? ''
 // stylesheet, so the @font-face rules exist and fonts.load fetches the preloaded file.
 const jsClassScript = `(function(d,c){c.replace('no-js','js');if(/[?&]motion=off(&|$)/.test(location.search))c.add('motion-off');var r=function(){c.add('fonts-ready')};if(!d.fonts)return r();Promise.race([d.fonts.load(${JSON.stringify(`800 1em ${displayFamily}`)}),new Promise(function(s){setTimeout(s,1500)})]).then(r,r)})(document,document.documentElement.classList)`
 
+// Organization, WebSite and WebPage as one graph. Founders carry their full names, LinkedIn and
+// disciplines from the footer; the company LinkedIn joins sameAs once it exists (content/people.ts).
+const siteUrl = `${site.meta.url}/`
+const organizationId = `${siteUrl}#organization`
+const websiteId = `${siteUrl}#website`
+const founders = site.footer.people.map((entry) => {
+  const person = people.find((p) => p.name === entry.person)
+  return {
+    '@type': 'Person',
+    name: entry.name,
+    description: entry.disciplines.join(' '),
+    worksFor: { '@id': organizationId },
+    ...(person && !person.linkedinPlaceholder ? { sameAs: [person.linkedin] } : {}),
+  }
+})
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: site.brand.name,
-  url: `${site.meta.url}/`,
-  email: site.meta.email,
-  foundingDate: site.meta.foundingDate,
-  founder: people.map((person) => ({ '@type': 'Person', name: person.name })),
-  sameAs: [
-    companyLinkedin,
-    ...people.map((person) => ({ url: person.linkedin, placeholder: person.linkedinPlaceholder })),
-  ]
-    .filter((link) => !link.placeholder)
-    .map((link) => link.url),
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': organizationId,
+      name: site.brand.name,
+      url: siteUrl,
+      logo: `${site.meta.url}/opengraph-image`,
+      description: site.meta.description,
+      email: site.meta.email,
+      foundingDate: site.meta.foundingDate,
+      address: { '@type': 'PostalAddress', addressCountry: site.meta.country },
+      areaServed: site.meta.areaServed,
+      founder: founders,
+      sameAs: [
+        companyLinkedin,
+        ...people.map((p) => ({ url: p.linkedin, placeholder: p.linkedinPlaceholder })),
+      ]
+        .filter((link) => !link.placeholder)
+        .map((link) => link.url),
+    },
+    {
+      '@type': 'WebSite',
+      '@id': websiteId,
+      url: siteUrl,
+      name: site.brand.name,
+      description: site.meta.description,
+      inLanguage: 'en',
+      publisher: { '@id': organizationId },
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${siteUrl}#webpage`,
+      url: siteUrl,
+      name: site.meta.title,
+      description: site.meta.description,
+      inLanguage: 'en',
+      isPartOf: { '@id': websiteId },
+      about: { '@id': organizationId },
+    },
+  ],
 }
 
 // Cookieless analytics, production builds with NEXT_PUBLIC_UMAMI_HOST and NEXT_PUBLIC_UMAMI_ID only.

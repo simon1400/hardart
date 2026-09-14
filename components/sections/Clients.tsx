@@ -1,4 +1,4 @@
-import { ClientLogo } from '@/components/media/ClientLogo'
+import { ClientLogo, ClientLogoDefs } from '@/components/media/ClientLogo'
 import { Reveal, RevealLines } from '@/components/motion/RevealLines'
 import { clients } from '@/content/clients'
 import { site } from '@/content/site'
@@ -11,6 +11,7 @@ export function Clients() {
       <RevealLines as="h2" id="clients-heading" className="px-gutter text-section" data-mark-scrub>
         <span className="section-mark">{site.clients.label}</span>
       </RevealLines>
+      <ClientLogoDefs />
       <Reveal kind="fade" className="marquee mt-8" data-pause-offscreen>
         <div className="marquee-track">
           <ul className="marquee-list">

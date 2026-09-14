@@ -3,7 +3,13 @@
 import { useEffect, useRef } from 'react'
 import { MOBILE_QUERY } from '@/lib/imagekit'
 
-type SiteShotProps = { src: string; mobileSrc: string; alt: string }
+type SiteShotProps = {
+  src: string
+  mobileSrc: string
+  alt: string
+  width: number | undefined
+  height: number | undefined
+}
 
 // Scroll speed of the screenshot, in frame widths per second, and the duration bounds.
 const SPEED = 0.08
@@ -20,7 +26,7 @@ function scrollSeconds(image: HTMLImageElement) {
 // Tall website screenshot that scrolls by itself inside its frame, like a browser window.
 // The CSS animation (transform only) runs only while the frame is near the viewport. Its duration
 // comes from the loaded image, so it needs no file at build time (production builds read ImageKit).
-export function SiteShot({ src, mobileSrc, alt }: SiteShotProps) {
+export function SiteShot({ src, mobileSrc, alt, width, height }: SiteShotProps) {
   const ref = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
@@ -47,7 +53,16 @@ export function SiteShot({ src, mobileSrc, alt }: SiteShotProps) {
   return (
     <picture>
       <source media={MOBILE_QUERY} srcSet={mobileSrc} />
-      <img ref={ref} className="site-shot" src={src} alt={alt} loading="lazy" decoding="async" />
+      <img
+        ref={ref}
+        className="site-shot"
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        loading="lazy"
+        decoding="async"
+      />
     </picture>
   )
 }
