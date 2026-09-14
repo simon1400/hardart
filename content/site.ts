@@ -28,7 +28,7 @@ export const site = {
   statement: {
     first: 'TWO PEOPLE.',
     before: 'ZERO ',
-    options: ['MEETINGS', 'HANDOVERS', 'ACCOUNT MANAGERS', 'EXCUSES'],
+    options: ['MIDDLEMEN', 'DEPARTMENTS', 'ESCALATIONS', 'EXCUSES', 'ORG CHART'],
     after: '.',
   },
   work: {

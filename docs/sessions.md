@@ -68,7 +68,7 @@ Not built from the proposals: What we do entrance beyond the line reveals.
 
 - D. Word swap in the Statement (`components/motion/WordSwap.tsx`, slot in
   `components/sections/Statement.tsx`): options stacked in one inline grid cell so the line width
-  never changes; loop only while visible; `MEETINGS` without motion; screen readers get the sentence
+  never changes; loop only while visible; `MIDDLEMEN` without motion; screen readers get the sentence
   once (already in markup).
 - E. Work rows: media reveal with impact (for example a clip or mask opening plus scale settling,
   light parallax on the website frame); must not fight the self scrolling screenshot (it runs a CSS
@@ -78,7 +78,7 @@ Not built from the proposals: What we do entrance beyond the line reveals.
   and Contact entrances. First send Dmytro a short list of proposed moves, then build the approved
   ones.
 - Done when: swap width constant across all words (Playwright bounding box assertion), swap pauses
-  off screen (assertion), reduced motion shows static `MEETINGS`, every new move has a motion test
+  off screen (assertion), reduced motion shows static `MIDDLEMEN`, every new move has a motion test
   and a reduced motion check, 60 fps at 6x CPU through the whole page, visual baselines updated.
 
 ### Phase 6, media pipeline. Status: done (2026-09-13)

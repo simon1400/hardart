@@ -94,7 +94,7 @@ A statement line where one word replaces another on a loop. It sits at the end o
 
 ```
 TWO PEOPLE.
-ZERO [ MEETINGS / HANDOVERS / ACCOUNT MANAGERS / EXCUSES ].
+ZERO [ MIDDLEMEN / DEPARTMENTS / ESCALATIONS / EXCUSES / ORG CHART ].
 ```
 
 - Only the bracketed word changes, the rest of the line never moves.
@@ -102,7 +102,7 @@ ZERO [ MEETINGS / HANDOVERS / ACCOUNT MANAGERS / EXCUSES ].
 - Roughly 2.5 seconds per word, looping.
 - The line must not reflow when the word changes. Reserve the width of the longest option, or let the line grow from a fixed left edge with the rest of the layout unaffected.
 - It only runs while it is in the viewport. Off screen it is paused.
-- With animation disabled it shows the first option, `MEETINGS`, and nothing else.
+- With animation disabled it shows the first option, `MIDDLEMEN`, and nothing else.
 
 **E. Work rows.**
 As a row enters, its media settles from a larger scale while it fades in. Tags appear with the text.
@@ -175,7 +175,7 @@ Full width closing statement below both columns, largest type on the page after 
 
 ```
 TWO PEOPLE.
-ZERO [ MEETINGS / HANDOVERS / ACCOUNT MANAGERS / EXCUSES ].
+ZERO [ MIDDLEMEN / DEPARTMENTS / ESCALATIONS / EXCUSES / ORG CHART ].
 ```
 
 Spare line, held back for now in case the swap is cut: `That is the entire company. On purpose.`

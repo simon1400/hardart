@@ -198,7 +198,7 @@ for (const width of [390, 1440]) {
             if (visible?.textContent) words.add(visible.textContent)
             const r = slot.getBoundingClientRect()
             boxes.add([r.left, r.top, r.width, r.height].map((n) => n.toFixed(1)).join())
-            if (words.size === 4) {
+            if (words.size === 5) {
               window.clearInterval(timer)
               resolve({
                 words: [...words],
@@ -209,7 +209,7 @@ for (const width of [390, 1440]) {
           }, 100)
         }),
     )
-    expect(samples.words).toEqual(['MEETINGS.', 'HANDOVERS.', 'ACCOUNT MANAGERS.', 'EXCUSES.'])
+    expect(samples.words).toEqual(['MIDDLEMEN.', 'DEPARTMENTS.', 'ESCALATIONS.', 'EXCUSES.', 'ORG CHART.'])
     expect(samples.boxes).toHaveLength(1)
     expect(samples.overflow).toBe(false)
   })
@@ -218,7 +218,7 @@ for (const width of [390, 1440]) {
 test('word swap pauses off screen', async ({ page }) => {
   await page.goto('/')
   await scrollTo(page, (await docTop(page, '[data-statement]')) - 300)
-  await expect.poll(() => visibleWords(page), { timeout: 3000 }).not.toEqual(['MEETINGS.'])
+  await expect.poll(() => visibleWords(page), { timeout: 3000 }).not.toEqual(['MIDDLEMEN.'])
 
   await scrollTo(page, 0)
   await page.waitForTimeout(700) // a change already under way finishes
@@ -381,7 +381,7 @@ async function expectStatic(page: Page) {
     await expect(el).toHaveCSS('opacity', '1')
   }
   // Phase 5 scenes: nothing moved, the swap shows its first word only, stripes are whole.
-  expect(await visibleWords(page)).toEqual(['MEETINGS.'])
+  expect(await visibleWords(page)).toEqual(['MIDDLEMEN.'])
   await expect(page.locator('.word-swap-word:not([data-first])').first()).toHaveCSS(
     'visibility',
     'hidden',

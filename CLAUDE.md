@@ -193,7 +193,7 @@ gsap.ticker.lagSmoothing(0)
 ScrollTrigger.defaults({ once: true, start: 'top 85%' })
 ```
 
-Reduced motion is handled with `gsap.matchMedia()`: every animation is registered inside `mm.add('(prefers-reduced-motion: no-preference)', ...)`. Outside that media query nothing animates, the logo is simply in the corner after the hero, the word swap shows `MEETINGS`. Lenis is not started when reduced motion is on. Also expose `?motion=off` query param for QA.
+Reduced motion is handled with `gsap.matchMedia()`: every animation is registered inside `mm.add('(prefers-reduced-motion: no-preference)', ...)`. Outside that media query nothing animates, the logo is simply in the corner after the hero, the word swap shows `MIDDLEMEN`. Lenis is not started when reduced motion is on. Also expose `?motion=off` query param for QA.
 
 Prefer `opacity` and `transform` (compositor only). Other properties (background size, clip-path, filters) are allowed on small elements when a 6× CPU throttle trace still holds 60 fps; never animate layout (`top/left/width/height`). The per-move limits below (one transformation, short distances, once only, a single loop, no marquee, "nothing else moves") are lifted: treat the moves as the minimum, not the maximum.
 
@@ -211,11 +211,11 @@ Text is fully in the markup and readable without JS. Hidden-before-reveal state 
 
 **C. Paragraph reveal.** `RevealLines` component wraps any block of text. `SplitText.create(el, { type: 'lines', mask: 'lines', autoSplit: true, onSplit: (self) => gsap.from(self.lines, { yPercent: 100, opacity: 0, duration: .5, ease, stagger: .06, scrollTrigger: { trigger: el } }) })`. `autoSplit` handles resize and font swap. Used for: Who we are, What we do lists, project texts, Clients line, Contact heading, footer paragraphs. Never word by word, never whole block.
 
-**D. The word swap.** `WordSwap` with `options = ['MEETINGS','HANDOVERS','ACCOUNT MANAGERS','EXCUSES']`.
+**D. The word swap.** `WordSwap` with `options = ['MIDDLEMEN','DEPARTMENTS','ESCALATIONS','EXCUSES','ORG CHART']`.
 - Markup: the static parts of the line are plain text. The variable slot is a `display: inline-grid` where all options are stacked in the same grid cell (`grid-area: 1/1`), so the slot's width is the widest option and the line never reflows. Only one is visible at a time. Static text: `TWO PEOPLE.` on line one, `ZERO ` + slot + `.` on line two.
 - Timeline: `repeat: -1`, per word: current `to { yPercent: -40, opacity: 0, duration: .45 }`, next `from { yPercent: 40, opacity: 0 }` to `{ 0, 1, duration: .45 }`, hold so that the cycle is ~2.5 s per word.
 - Runs only in viewport: ScrollTrigger `once: false`, `onToggle: ({isActive}) => isActive ? tl.play() : tl.pause()`.
-- Reduced motion or no JS: only `MEETINGS` is rendered visible. Screen readers: slot is `aria-hidden`, a `sr-only` span carries the full first sentence once.
+- Reduced motion or no JS: only `MIDDLEMEN` is rendered visible. Screen readers: slot is `aria-hidden`, a `sr-only` span carries the full first sentence once.
 - Other loops are allowed (the single loop rule is lifted); every loop pauses off screen.
 
 **E. Work rows.** Media: `from { scale: 1.04, opacity: 0 }` `to { 1, 1, duration: .6 }`, `overflow: hidden` wrapper so scale does not bleed. Text and tags reveal with `RevealLines` in the same trigger. Nothing else moves.
@@ -315,7 +315,7 @@ Budgets (Lighthouse CI, mobile, throttled): Performance ≥ 95, Accessibility 10
 Playwright (`tests/`):
 - smoke: page renders all seven sections, copy matches `content/site.ts` verbatim.
 - motion: after scrolling past the hero, the logo has the corner transform; over the footer it has the accent class; word swap changes text within 3 s while visible and does not change while scrolled away.
-- reduced motion (`emulateMedia({ reducedMotion: 'reduce' })`): no transforms applied, logo in corner, swap shows `MEETINGS`, page is fully readable.
+- reduced motion (`emulateMedia({ reducedMotion: 'reduce' })`): no transforms applied, logo in corner, swap shows `MIDDLEMEN`, page is fully readable.
 - email: `out/index.html` contains no personal address and no `mailto:` except `hello@hardart.cz`.
 - visual: removed (Dmytro, 2026-09-14, decision 032). Screenshot baselines failed CI on every deliberate design change and blocked the deploy; layouts are checked by eye at 390, 820, 1440.
 - a11y: axe-core run, zero violations.
@@ -363,7 +363,7 @@ Fixed wordmark, scroll-scrubbed scale/translate from hero to corner, footer colo
 Done when: 60 fps at 6× CPU throttle in Chrome DevTools performance trace, no jump on iOS URL bar collapse, position exact at every viewport in visual tests (add a mid-scroll screenshot), colour flips only over the footer.
 
 **Phase 5, Word swap (D), work rows (E), client logos (F).**
-Done when: the swap line width never changes (assert bounding box in Playwright across all four words), pauses off screen (assert), only `MEETINGS` under reduced motion; work media settles from 1.04; logos stagger once.
+Done when: the swap line width never changes (assert bounding box in Playwright across all five words), pauses off screen (assert), only `MIDDLEMEN` under reduced motion; work media settles from 1.04; logos stagger once.
 
 **Phase 6, Media pipeline.**
 ImageKit provider, `ProjectMedia` with lazy load/unload, posters, 3-concurrent-video cap, transformation presets, 30-item stress test page under `/dev/work-30` (dev only, excluded from export).
