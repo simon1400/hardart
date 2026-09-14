@@ -29,7 +29,7 @@ One phase per session. Do not start the next one, even if time is left; propose 
 - Every non-obvious technical decision gets an entry in `docs/decisions.md`.
 - Communicate with Dmytro in Russian; code, comments, commits and docs in English.
 
-## Current state (2026-09-13)
+## Current state (2026-09-14)
 
 Built: static page (phase 2) with Daniel's XD layout, clients marquee, project media pipeline
 (`pnpm media`), self scrolling website screenshots, Lenis + GSAP motion core with line reveals
@@ -43,6 +43,9 @@ Phase 6 (decision 025): `pnpm media` transcodes videos with ffmpeg-static (16:9,
 makes posters and phone sizes; one video controller (`components/media/videoController.ts`) attaches
 near the viewport, unloads far away and plays at most 3; posters are lazy images under the video;
 dev only stress page `/dev/work-30` (`page.dev.tsx`, run `pnpm dev`).
+Phase 7 (decision 027): feature flags `heroGrain`, `mediaHover`, `cursor` in `components/flags/`, all
+off; one boolean each in `lib/features.ts` (`featureDefaults`), `HARDART_FLAGS=all` (or names) turns
+them on for a build; disabled flag modules are aliased to `Off.tsx` and ship zero bytes.
 
 Parked questions (do not ask again unless a phase is blocked by one; they live in
 `docs/decisions.md` under "To confirm with Dan" and "Open items"): featured order, tag unification,
@@ -79,22 +82,13 @@ Not built from the proposals: What we do entrance beyond the line reveals.
 - Measured (decision 025): 0 frames over 20 ms at 6x CPU through the whole page with videos playing,
   full mobile scroll 9.2 MB, CLS 0, no media requests on the first screen, JS 226 KB gzip.
 
-### Phase 7, feature flags. Status: todo
+### Phase 7, feature flags. Status: done (2026-09-14)
 
-- `heroGrain`, `mediaHover`, `cursor` per CLAUDE.md §10, each isolated in `components/flags/`, off by
-  default, zero bytes when off (check the bundle).
-- Done when: each flag works alone, all three together do not conflict, performance with all on is
-  still 60 fps, reduced motion disables all three.
-- `mediaHover` must move a different element than the Phase 5 layers: the website frame already has
-  a scroll parallax (`data-parallax`, yPercent) and the reveal layers are cleared after the reveal.
-- The chrome-devtools MCP was locked by a Chrome left over from an earlier session; Phase 5 used the
-  Playwright MCP with a CDP session (`Emulation.setCPUThrottlingRate`) for the 6x measurement.
-- `mediaHover` must not transform `.project-video` or the poster `img` either: the video fades by
-  opacity over the poster; move a new wrapper or the `.media-frame` contents as a whole.
-- The Playwright MCP only reads script files under the repo (`.playwright-mcp/`); that folder is not
-  gitignored, delete it before committing.
-- `next dev` appends a "nextjs-agent-rules" block to CLAUDE.md (Next 16 `generate-agent-files`).
-  Do not commit it unless Dmytro decides to; `git checkout -- CLAUDE.md` after dev runs.
+- Built: the three flags per CLAUDE.md §10, build constants plus module aliases (zero bytes verified by
+  grepping `out/`), `tests/flags.spec.ts`, a second CI build with `HARDART_FLAGS=all`.
+- Measured (decision 027): all flags on at 6x CPU equal to the default build (16 and 19 frames over
+  20 ms of about 845, p95 16.8 ms); JS 227.4 KB gzip with all on, 225.0 KB off.
+- Waiting on Daniel: which flags go live (open item).
 
 ### Phase 8, hardening. Status: todo
 
@@ -104,6 +98,12 @@ Not built from the proposals: What we do entrance beyond the line reveals.
 - README: setup, `pnpm media`, `pnpm logos`, how Daniel's deliveries get in.
 - CSP: ImageKit serves video and poster (`media-src`, `img-src`); `/dev/` never ships (Phase 6).
 - Done when: CI enforces everything in CLAUDE.md §14 and is green.
+- Performance measurements: run Chromium headless on the GPU (`chromium.launch({ channel: 'chromium',
+args: ['--enable-gpu', '--use-angle=d3d11', '--ignore-gpu-blocklist'] })`). The default headless
+  shell renders in SwiftShader and a visible window disturbs Dmytro and gives noisy numbers. Compare
+  against a default build measured the same way, warm cache, several runs. Lighthouse runs should not
+  open windows either.
+- CSP: the grain flag needs nothing extra (WebGL, inline canvas); flags do not add third party hosts.
 
 ### Phase 9, deploy. Status: todo
 
@@ -118,6 +118,7 @@ Not built from the proposals: What we do entrance beyond the line reveals.
 
 ### Phase 10, content and launch. Status: todo
 
+- Flags go live by setting `featureDefaults.<name> = true` in `lib/features.ts`.
 - Resolve the parked questions with Dmytro and Daniel, apply `hardart-copy.md` if delivered, final
   tags and projects, real device checks, feature flag decisions, remove basic auth.
 - Done when: `check-content` passes with `HARDART_ENV=production` and Daniel signs off.

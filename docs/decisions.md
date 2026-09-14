@@ -279,6 +279,23 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 
 **Consequence.** New media needs `pnpm media` and then `pnpm media:upload` before a deploy shows it. The private key was shared in a chat session; Dmytro rotates it later and updates `.env.local`.
 
+## 027. Feature flags (Phase 7)
+
+**Context.** CLAUDE.md §10: three extras beyond the spec (`heroGrain`, `mediaHover`, `cursor`), off by default, one boolean each, zero bytes when off, 60 fps with all on. Turbopack bundles every client component a server component imports, rendered or not: a `false ? <Grain /> : null` still shipped the grain code in the shared page chunk.
+
+**Decision.**
+
+- `featureDefaults` in `lib/features.ts` is the one boolean per flag. `next.config.ts` resolves it plus `HARDART_FLAGS` (comma separated names or `all`, for local checks and CI) into `HARDART_FLAG_<name>` env constants, and aliases each disabled flag's module (`@/components/flags/<Name>`) to `components/flags/Off.tsx`, a server stub. Verified by grepping `out/`: nothing of a disabled flag ships. JS on `/`: 225.0 KB gzip off, 227.4 KB with all three.
+- `heroGrain`: WebGL1 canvas, per pixel hash noise, a new seed at 12 fps, one canvas pixel per CSS pixel (`image-rendering: pixelated`), `mix-blend-mode: multiply` at `--grain-opacity` behind the hero content (the hero is `isolate`, the canvas `z-index: -1`). Starts on `requestIdleCallback` (Safari: 500 ms timeout); stops off screen and in hidden tabs.
+- `mediaHover`: a third layer (`[data-media-hover]`) inside the reveal layers, so the parallax frame, the reveal layers, the video and the poster are untouched. Travel is capped by the overscan of the 1.02 scale (under 4 px on the website frames), so the frame edge never shows. The layer keeps `will-change` and 3D transforms while off rest, so following the pointer never repaints the video.
+- `cursor`: ink dot, turquoise ring within 24 px of a link. The dot turns paper over the footer and the ring ink over the hero, decided by geometry (below the bottom of `main` is footer, above the hero bottom is hero), not by hit testing. Links lean toward the pointer (at most 10 px across, 4 px up and down, because text links sit in clipping line masks); a single line inline link becomes `inline-block` only if its text does not move, multi line links and the corner logo do not lean. The native cursor is hidden only while the custom one is shown.
+- Performance: link boxes are measured in page coordinates (offset chain, immune to running reveal transforms) on every ScrollTrigger refresh; footer links, which ride the curtain, are read live only while the pointer is over the footer. Events only record; one GSAP ticker callback, prioritised before GSAP renders, does all reads, then all writes. Reading after a `quickTo` call forced a style and layout pass every frame.
+- Gates: `(prefers-reduced-motion: no-preference)` and not `?motion=off` for all three; `(hover: hover) and (pointer: fine)` for `mediaHover` and `cursor`, plus `pointerType` checks.
+- Tests: `tests/flags.spec.ts` checks zero bytes for disabled flags, and behaviour, reduced motion, `?motion=off` and touch for enabled ones. CI runs it on a second build with `HARDART_FLAGS=all`; media hover tests skip there (no media).
+- Measured, 1440x900, 6x CPU, wheel scroll through the whole page with the pointer moving on every step, headless Chromium on the GPU (`--enable-gpu --use-angle=d3d11`), warm cache: all flags 16 and 19 frames over 20 ms of about 845, default build 23 and 16; p95 16.8 ms in both. The first cold run is about 60 to 80 in both (media loading). Headless without the GPU (SwiftShader) and a visible window on a busy desktop gave misleading numbers.
+
+**Consequence.** Turning a flag on for the live site is `featureDefaults.<name> = true` and a deploy. A new flag needs its module name in `flagModules` and an export in `Off.tsx`.
+
 ---
 
 ## To confirm with Dan
@@ -294,6 +311,7 @@ ADR style log. One entry per non-obvious technical decision: context, decision, 
 - Tags are not unified yet (RESEARCH / MARKET RESEARCH / USER RESEARCH, UX / UX/UI / UX/UI/CX, WEB / WEB DESIGN); Daniel offered to unify them.
 - Order of the featured projects on the page (kept from before, Daniel's list is alphabetical).
 - Video posters are picked automatically (decision 025); Daniel may want specific stills.
+- Feature flags (decision 027), all off: grain 6 % multiply at 12 fps; media lean 6 px and scale 1.02; cursor dot 12 px, ring 40 px, paper dot on the footer, ink ring on the hero, links lean up to 10 px.
 - Phase 5 moves (decision 024): on phones the claim fades out within the first half of the hero and briefly crosses the shrinking logo; the email in Contact now carries the accent stripe.
 
 ## Open items
