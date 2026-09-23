@@ -21,6 +21,8 @@ type Revealed = HTMLElement & { dataset: { reveal: string } }
 
 /** Longest stretch of reveal setup before the main thread gets a turn, ms: under one frame. */
 const SLICE_MS = 12
+/** Quiet time after the last re-split before the triggers are measured again, ms. */
+const RESPLIT_REFRESH_MS = 150
 
 const yieldToMain = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
 
@@ -36,6 +38,18 @@ export function RevealController() {
       root.classList.add('motion-ready')
       let active = true
       let cleanupScenes: (() => void) | undefined
+      // SplitText re-splits on its own after a width change or a late font, after ScrollTrigger has
+      // already refreshed for the resize. Until then the old lines wrap and the page is taller (about
+      // 300 px at 1100 px wide), so the refresh measures that layout. Once the new lines make the page
+      // shorter, the footer reveals, whose starts are clamped to the end of the page, sit beyond it and
+      // never play. One more refresh after the re-splits settle measures the final layout.
+      let refreshTimer = 0
+      const onResplit = () => {
+        window.clearTimeout(refreshTimer)
+        refreshTimer = window.setTimeout(() => {
+          if (active) ScrollTrigger.refresh()
+        }, RESPLIT_REFRESH_MS)
+      }
 
       // Line breaks depend on the font, so nothing is split before fonts are ready (or 1.5 s).
       fontsReady().then(async () => {
@@ -52,7 +66,7 @@ export function RevealController() {
           context.add(() => {
             while (pending.length > 0 && performance.now() - start < SLICE_MS) {
               const el = pending.shift()
-              if (el) setup(el)
+              if (el) setup(el, onResplit)
             }
           })
           await yieldToMain()
@@ -64,6 +78,7 @@ export function RevealController() {
 
       return () => {
         active = false
+        window.clearTimeout(refreshTimer)
         cleanupScenes?.()
         root.classList.remove('motion-ready')
       }
@@ -79,7 +94,7 @@ export function RevealController() {
   return null
 }
 
-function setup(el: Revealed) {
+function setup(el: Revealed, onResplit: () => void) {
   // A trigger must not be the element that moves, or its start is measured with the offset applied.
   const movesItself = el.dataset.reveal === 'fade' || el.dataset.reveal === 'rise'
   const trigger = movesItself ? (el.parentElement ?? el) : el
@@ -87,6 +102,8 @@ function setup(el: Revealed) {
 
   switch (el.dataset.reveal) {
     case 'lines': {
+      // The first split is measured by the refresh at the end of the setup; later ones are not.
+      let splitBefore = false
       SplitText.create(el, {
         type: 'lines',
         mask: 'lines',
@@ -95,6 +112,8 @@ function setup(el: Revealed) {
         autoSplit: true,
         // SplitText re-splits on resize and font swap, and carries the returned tween's progress over.
         onSplit: (self) => {
+          if (splitBefore) onResplit()
+          splitBefore = true
           removeEmptyClones(self.lines)
           if (el.hasAttribute('data-intro')) return intro(self.lines)
           return gsap.fromTo(

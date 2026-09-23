@@ -413,6 +413,20 @@ async function expectStatic(page: Page) {
   expectSameBox(await box(page, MARK), await box(page, SLOT))
 }
 
+// The wordmark and closing line start at the very end of the page. After a width change the lines
+// re-split and the page gets shorter; their starts must follow, or they never play.
+test('footer closing reveals at the end of the page after a width change', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 820 })
+  await page.goto('/')
+  await expect(page.locator('html')).toHaveClass(/motion-ready/)
+  await page.setViewportSize({ width: 1100, height: 820 })
+  await page.waitForTimeout(1200)
+  await scrollTo(page, 'end')
+  const closing = page.locator('.footer-closing [data-reveal="lines"] .reveal-line').first()
+  await expect(closing).toHaveCSS('opacity', '1')
+  await expect(page.locator('.footer-closing [data-reveal="rise"]')).toHaveCSS('transform', 'none')
+})
+
 test('reduced motion: nothing moves, everything is present', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
